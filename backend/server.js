@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -5,21 +6,25 @@ const bcrypt = require('bcrypt');
 const User = require('./users/user');
 const cors = require('cors');
 
-const PORT = 3000;
 const app = express();
+
+const PORT = process.env.PORT || 5000;
+const db = process.env.MONGO_URI;
+const secret = process.env.SESSION_SECRET;
+
 app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(session({
-    secret: 'keyboard cat',
+    secret: secret,
     resave: true,
     saveUninitialized: true,
     cookie: { secure: false }
 }));
 
-mongoose.connect('mongodb+srv://adnanabdulle43:Adnan321@cluster0.wyoix.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect(db)
     .then(() => console.log('Connected to MongoDB Atlas successfully'))
     .catch((err) => console.error('MongoDB connection error:', err));
 
