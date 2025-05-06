@@ -6,6 +6,12 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>To be done in sprint 2, your tasks will be displayed here</h1>
+    <p>this is always here</p>
+    <% if (role == "parent" ) { %> 
+        <p>this is testing parent rendering</p>
+    <%- } %>
+    <% if (role == "child" ) { %>
+        <p>this is testing child rendering</p>
+    <%- } %>
 </body>
 </html>
