@@ -84,7 +84,7 @@ loginForm.addEventListener('submit', async (e) => {
 
     const data = await res.json();
     if (data.message === 'Login successful!') {
-        window.location.href = 'task.html';
+        data.render('task.ejs', { username: data.username, role: data.role });
     } else {
         alert(data.message);
     }

@@ -44,7 +44,6 @@ app.post('/register', async (req, res) => {
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-   
         const newUser = new User({ email, passwordHash, role });
         await newUser.save();
 
