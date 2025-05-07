@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <br><br><br><br><br>
+    <p>you are a <%= role %></p>
+    <% if (role == "parent" ) { %>
+        <p>this is testing parent rendering</p>
+    <% } %>
+    <% if (role == "kid" ) { %>
+        <p>this is testing kid rendering</p>
+    <% } %>
+    <% if (role == undefined ) { %>
+        <p>roles are undefined</p>
+    <% } %>
+    <script>
+        
+    </script>
+</body>
+
+</html>

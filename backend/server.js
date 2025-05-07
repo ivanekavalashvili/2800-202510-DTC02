@@ -83,7 +83,8 @@ app.get('/about', (req, res) => {
 
 app.get('/tasks', requireAuth, (req, res) => {
     res.render('pages/tasks', {
-        title: 'Tasks'
+        title: 'Tasks',
+        role: res.locals.user.role
     });
 });
 
