@@ -25,8 +25,14 @@ app.use(session({
 }));
 
 mongoose.connect(db)
-    .then(() => console.log('Connected to MongoDB Atlas successfully'))
-    .catch((err) => console.error('MongoDB connection error:', err));
+.then(() => console.log('Connected to MongoDB Atlas successfully'))
+.catch((err) => console.error('MongoDB connection error:', err));
+
+
+
+app.get('/tasks', async (req, res) => {
+    res.render('task.ejs', { username: res.user.username, role: res.user.role });
+})
 
 
 app.post('/register', async (req, res) => {
@@ -77,6 +83,7 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Something went wrong' });
     }
 });
+
 
 
 
