@@ -1,9 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+    <script>
+        let latitude;
+        let longitude;
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(success, error);
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function success(position) {
+            latitude = position.coords.latitude
+            longitude = position.coords.longitude
+            console.log(longitude, latitude)
+        }
+
+        function error() {
+            alert("Sorry, no position available.");
+        }
+
+        window.onload = getLocation;
+    </script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    
 </head>
 <body>
     <h1>To be done in sprint 2, your tasks will be displayed here</h1>
