@@ -6,6 +6,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-top: 72px;
 }
 
 .login-container {
@@ -158,4 +159,119 @@ h1 {
 
 .toggle-form a:hover {
     color: #1c5c26;
+}
+
+/* Header Styles */
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #f4ffe4;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #2e8b3d;
+    font-family: 'Quicksand', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.nav-logo:hover {
+    transform: translateY(-1px);
+}
+
+.nav-logo-icon {
+    width: 36px;
+    height: 36px;
+    margin-right: 10px;
+}
+
+.nav-trophy-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+}
+
+.nav-middle {
+    display: flex;
+    gap: 32px;
+}
+
+.nav-link {
+    color: #2e8b3d;
+    text-decoration: none;
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: #1c5c26;
+}
+
+.nav-right {
+    display: flex;
+    gap: 16px;
+}
+
+.nav-btn {
+    padding: 8px 20px;
+    border-radius: 18px;
+    font-family: 'Quicksand', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.nav-btn.login {
+    color: #2e8b3d;
+    background: #d2f5c7;
+}
+
+.nav-btn.login:hover {
+    background: #b2e6b2;
+    transform: translateY(-1px);
+}
+
+.nav-btn.signup {
+    color: #fff;
+    background: #2e8b3d;
+}
+
+.nav-btn.signup:hover {
+    background: #256c2e;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(46, 139, 61, 0.2);
+}
+
+.nav-btn.profile {
+    color: #fff;
+    background: #2e8b3d;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-btn.profile:hover {
+    background: #256c2e;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(46, 139, 61, 0.2);
 }
