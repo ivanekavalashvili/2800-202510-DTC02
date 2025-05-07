@@ -29,10 +29,6 @@ mongoose.connect(db)
 .then(() => console.log('Connected to MongoDB Atlas successfully'))
 .catch((err) => console.error('MongoDB connection error:', err));
 
-app.get('/login', (req, res) => {
-    oneStepBack = path.join(__dirname, '../')
-    res.sendFile(oneStepBack + 'login.html')
-});
 
 app.get('/tasks', async (req, res) => {
     res.render('task.ejs', { username: res.user.username, role: res.user.role });
