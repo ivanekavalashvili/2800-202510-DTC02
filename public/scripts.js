@@ -1,26 +1,35 @@
-// Toggle active role button
+// Get form elements
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const showSignupLink = document.getElementById('showSignup');
+const showLoginLink = document.getElementById('showLogin');
 const parentBtn = document.getElementById('parentBtn');
 const kidBtn = document.getElementById('kidBtn');
-let selectedRole = 'parent'
+let selectedRole = 'parent';
 
+// Check URL parameters when page loads
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('signup') === 'true') {
+        loginForm.classList.remove('active');
+        signupForm.classList.add('active');
+    }
+});
+
+// Toggle active role button
 parentBtn.addEventListener('click', () => {
-
     parentBtn.classList.add('active');
     kidBtn.classList.remove('active');
+    selectedRole = 'parent';
 });
 
 kidBtn.addEventListener('click', () => {
-    selectedRole = 'kid'
+    selectedRole = 'kid';
     kidBtn.classList.add('active');
     parentBtn.classList.remove('active');
 });
 
 // Form switching functionality
-const loginForm = document.getElementById('loginForm');
-const signupForm = document.getElementById('signupForm');
-const showSignupLink = document.getElementById('showSignup');
-const showLoginLink = document.getElementById('showLogin');
-
 showSignupLink.addEventListener('click', (e) => {
     e.preventDefault();
     loginForm.classList.remove('active');
@@ -31,7 +40,7 @@ showLoginLink.addEventListener('click', (e) => {
     e.preventDefault();
     signupForm.classList.remove('active');
     loginForm.classList.add('active');
-}); 
+});
 
 //Handles signing up
 signupForm.addEventListener('submit', async (e) => {
@@ -47,7 +56,7 @@ signupForm.addEventListener('submit', async (e) => {
 
     console.log('Registering:', { email, password, role: selectedRole });
 
-    const res = await fetch('http://localhost:3000/register', {
+    const res = await fetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, role: selectedRole })
@@ -55,18 +64,16 @@ signupForm.addEventListener('submit', async (e) => {
 
     const data = await res.json();
     if (data.message === 'User registered successfully!') {
-        window.location.href = 'login.html'; 
+        window.location.href = '/login';
     } else {
         alert(data.message);
     }
-
 });
-
 
 //Handles logging in
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     if (!selectedRole) {
         alert('Please select a role (Parent or Kid).');
         return;
@@ -76,15 +83,15 @@ loginForm.addEventListener('submit', async (e) => {
     const password = e.target[1].value;
     console.log('Sending:', { email, password, role: selectedRole });
 
-    const res = await fetch('http://localhost:3000/login', {
+    const res = await fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role: selectedRole }) 
+        body: JSON.stringify({ email, password, role: selectedRole })
     });
 
     const data = await res.json();
     if (data.message === 'Login successful!') {
-        window.location.href = 'task.html';
+        window.location.href = '/tasks';
     } else {
         alert(data.message);
     }

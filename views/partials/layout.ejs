@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %> - Gamify Life
+    </title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/styles.css">
+
+    <% if (typeof styles !=='undefined' && styles.length> 0) { %>
+        <% styles.forEach(function(style) { %>
+            <link rel="stylesheet" href="<%= style %>">
+            <% }); %>
+                <% } %>
+
+                    <% if (typeof style !=='undefined' ) { %>
+                        <%- style %>
+                            <% } %>
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <% if (title==='Home' ) { %>
+        <nav class="flex bg-[#f4ffe4] p-4 px-8 justify-between items-center shadow-sm">
+            <div class="flex items-center">
+                <a href="/tasks" class="flex items-center">
+                    <svg class="w-8 h-8" viewBox="0 0 64 64" fill="none">
+                        <rect width="64" height="64" rx="16" fill="#b2e6b2" />
+                        <path d="M20 24a12 12 0 0 0 24 0V16H20v8Z" fill="#2e8b3d" />
+                        <rect x="24" y="36" width="16" height="8" rx="4" fill="#2e8b3d" />
+                        <rect x="28" y="44" width="8" height="8" rx="4" fill="#2e8b3d" />
+                        <circle cx="32" cy="24" r="6" fill="#b2e6b2" />
+                        <ellipse cx="32" cy="26" rx="2" ry="1" fill="#2e8b3d" />
+                        <circle cx="29" cy="23" r="1" fill="#2e8b3d" />
+                        <circle cx="35" cy="23" r="1" fill="#2e8b3d" />
+                    </svg>
+                    <span class="text-2xl font-bold text-[#2E8B3D] ml-2">Gamify Life</span>
+                </a>
+            </div>
+            <div class="nav-right">
+                <a href="/login" class="nav-btn">Log in</a>
+                <a href="/login?signup=true" class="nav-btn">Sign up</a>
+            </div>
+        </nav>
+        <% } else if (title !=='Login' ) { %>
+            <%- include('header') %>
+                <% } %>
+
+                    <main class="content flex-grow">
+                        <%- body %>
+                    </main>
+
+                    <% if (typeof scripts !=='undefined' && scripts.length> 0) { %>
+                        <% scripts.forEach(function(script) { %>
+                            <script src="<%= script %>"></script>
+                            <% }); %>
+                                <% } %>
+
+                                    <% if (typeof script !=='undefined' ) { %>
+                                        <%- script %>
+                                            <% } %>
+</body>
+
+</html>
