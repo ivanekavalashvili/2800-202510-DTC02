@@ -21,12 +21,12 @@
     <% if (typeof styles !=='undefined' && styles.length> 0) { %>
         <% styles.forEach(function(style) { %>
             <link rel="stylesheet" href="<%= style %>">
-            <% }); %>
-                <% } %>
+        <% }); %>
+    <% } %>
 
-                    <% if (typeof style !=='undefined' ) { %>
-                        <%- style %>
-                            <% } %>
+    <% if (typeof style !=='undefined' ) { %>
+        <%- style %>
+    <% } %>
 </head>
 
 <body class="min-h-screen flex flex-col">
@@ -54,21 +54,21 @@
         </nav>
         <% } else if (title !=='Login' ) { %>
             <%- include('header') %>
-                <% } %>
+        <% } %>
 
-                    <main class="content flex-grow">
-                        <%- body %>
-                    </main>
+        <main class="content flex-grow">
+            <%- body %>
+        </main>
 
-                    <% if (typeof scripts !=='undefined' && scripts.length> 0) { %>
-                        <% scripts.forEach(function(script) { %>
-                            <script src="<%= script %>"></script>
-                            <% }); %>
-                                <% } %>
+        <% if (typeof scripts !=='undefined' && scripts.length> 0) { %>
+            <% scripts.forEach(function(script) { %>
+                <script src="<%= script %>"></script>
+            <% }); %>
+        <% } %>
 
-                                    <% if (typeof script !=='undefined' ) { %>
-                                        <%- script %>
-                                            <% } %>
+        <% if (typeof script !=='undefined' ) { %>
+            <%- script %>
+        <% } %>
 </body>
 
 </html>
