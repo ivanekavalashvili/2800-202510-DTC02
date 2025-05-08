@@ -97,7 +97,8 @@ app.get('/rewards', requireAuth, (req, res) => {
 app.get('/profile', requireAuth, (req, res) => {
     res.render('pages/profile', {
         title: 'Profile',
-        scripts: ['/scripts.js']
+        scripts: ['/scripts.js'],
+        role: res.locals.user.role
     });
 });
 
