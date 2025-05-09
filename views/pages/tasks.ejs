@@ -19,6 +19,15 @@
     <% if (role == undefined ) { %>
         <p>roles are undefined</p>
     <% } %>
+
+    <div id="weather-widget"
+        style="position: fixed; top: 20px; right: 20px; background: #f4ffe4; padding: 12px 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Open Sans', sans-serif; z-index: 1000;">
+        <h4 style="margin: 0 0 8px 0; font-weight: 600; font-size: 1rem;">Current Weather</h4>
+        <img id="weather-icon" src="" alt="Weather Icon" style="display: none; width: 50px;">
+        <p id="weather-temp" style="margin: 4px 0; font-size: 0.9rem;"></p>
+        <p id="weather-desc" style="margin: 0; font-size: 0.85rem; color: #444;"></p>
+    </div>
+
     <script>
         
     </script>
