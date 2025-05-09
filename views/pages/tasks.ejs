@@ -27,14 +27,16 @@
                 <h1>Create a Category</h1>
                 <form class="form active" action="/createCategory" method="POST">
                     <label for="name">Name:</label>
-                    <input name="name" type="text" id="categoryName" class="input" placeholder="Category name..." required>
+                    <input name="name" type="text" id="categoryName" class="input" placeholder="Category name..."
+                        required>
                     <label for="color">Background Color:</label>
                     <input name="color" type="color" id="categoryColor" class="border-2" value="#b2e6b2" required>
                     <div class="flex justify-between">
-                        <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
                         <button id="submitButton" class="role-btn" type="submit">Submit</button>
                     </div>
                 </form>
+                <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
+                <button id="deleteButton" class="role-btn hidden">Delete</button>
             </div>
         </template>
 
@@ -43,42 +45,44 @@
                 <p class="text-xl">Create a Task</p>
                 <form class="form active" action="/createTask" method="POST">
                     <label for="name">Name of Task: </label>
-                    <input name="name" type="text" id="taskName" class="input" placeholder="Input task name (EX. wash the dishes)" required>
+                    <input name="name" type="text" id="taskName" class="input"
+                        placeholder="Input task name (EX. wash the dishes)" required>
                     <label for="taskdetails">Task Details: </label>
-                    <input name="taskdetails" type="text" id="taskDetails" class="input" placeholder="Describe the task and the intructions">
+                    <input name="taskdetails" type="text" id="taskDetails" class="input"
+                        placeholder="Describe the task and the intructions">
                     <label for="points">Points awarded: </label>
                     <input name="points" type="number" id="pointsAwarded" class="input" required>
                     <div class="flex justify-between">
-                        <button id="cancelButton" onclick="closeDialog()" class="role-btn w-24">Cancel</button>
-                        <button id="submitButton" class="role-btn w-24" type="submit">Submit</button>
+                        <button id="cancelButton" onclick="closeDialog()" class="role-btn" type="cancel">Cancel</button>
+                        <button id="submitButton" class="role-btn" type="submit">Submit</button>
                     </div>
                 </form>
             </div>
         </template>
-    <% } %>
-        
-    <% if (role == "kid" ) { %>
-        <p>this is testing kid rendering</p>
-    <% } %>
-        
-    <% if (role == undefined ) { %>
-        <p>Please log in</p>
-    <% } %>
+        <% } %>
 
-    <script>
-        const dialog = document.querySelector("dialog")
-        const dialogResult = document.getElementById("dialogResult")
+            <% if (role=="kid" ) { %>
+                <p>this is testing kid rendering</p>
+                <% } %>
 
-        
-        function dialogMaker(makes) {
-            dialog.showModal()
-            makes()
-        }
+                    <% if (role==undefined ) { %>
+                        <p>Please log in</p>
+                        <% } %>
 
-        function displayTaskForm() {
-            dialogResult.innerHTML = ""
-            tasktemplate = document.getElementById("taskCreationPopup")
-            dialogResult.appendChild(tasktemplate.content.cloneNode(true)) 
+                            <script>
+                                const dialog = document.querySelector("dialog")
+                                const dialogResult = document.getElementById("dialogResult")
+
+
+                                function dialogMaker(makes) {
+                                    dialog.showModal()
+                                    makes()
+                                }
+
+                                function displayTaskForm() {
+                                    dialogResult.innerHTML = ""
+                                    tasktemplate = document.getElementById("taskCreationPopup")
+                                    dialogResult.appendChild(tasktemplate.content.cloneNode(true))
 
             setTimeout(() => {
                 const submitButton = document.getElementById("submitButton");
@@ -94,58 +98,59 @@
             categoryTemplate = document.getElementById("categoryCreationTemplate")
             dialogResult.appendChild(categoryTemplate.content.cloneNode(true)) 
 
-            setTimeout(() => {
-                const submitButton = document.getElementById("submitButton");
-                if (submitButton) submitButton.addEventListener("click", newCategory)
-            }, 0)
-        }
+                                    setTimeout(() => {
+                                        const submitButton = document.getElementById("submitButton");
+                                        if (submitButton) submitButton.addEventListener("click", newCategory)
+                                    }, 0)
+                                }
 
-        function editCategoryPopup(name, color) {
-            dialog.showModal()
-            dialogResult.innerHTML = ""
+                                function editCategoryPopup(category) {
+                                    dialog.showModal()
+                                    dialogResult.innerHTML = ""
 
-            categoryTemplate = document.getElementById("categoryCreationTemplate")
+                                    categoryTemplate = document.getElementById("categoryCreationTemplate")
 
-            
-            dialogResult.appendChild(categoryTemplate.content.cloneNode(true))
-            
-            setTimeout(() => {
-                categoryName = document.getElementById("categoryName")
-                categoryName.setAttribute("value", name)
-    
-                categoryColor = document.getElementById("categoryColor")
-                categoryColor.setAttribute("value", color)
-                
-                const submitButton = document.getElementById("submitButton");
-                if (submitButton) submitButton.addEventListener("click", newCategory)
-            }, 0)
-        }
+                                    dialogResult.appendChild(categoryTemplate.content.cloneNode(true))
 
-        function fetchCategories() {
-            fetch("/categories", { method: "GET" })
-                .then((response) => response.json())
-                .then((data) => {
-                    const result = document.getElementById("result")
-                    result.innerHTML = ""
-                    counter = 0
-                    data.forEach((category) => {
-                        counter ++
-                        const div = document.createElement("div")
-                        div.setAttribute('class', "grid grid-rows-2 bg-[" + category.color + "] rounded-md my-2 p-2")
-                        result.appendChild(div)
-                        
-                        const titleAndEdit = document.createElement("div")
-                        titleAndEdit.setAttribute("class", "flex justify-between")
-                        div.appendChild(titleAndEdit)
-                        
-                        const title = document.createElement("span")
-                        title.innerText = category.name
-                        titleAndEdit.appendChild(title)
+                                    setTimeout(() => {
+                                        const categoryName = document.getElementById("categoryName")
+                                        categoryName.setAttribute("value", category.name)
 
-                        const editBtn = document.createElement("button")
-                        editBtn.innerHTML = "Edit category"
-                        editBtn.addEventListener("click", () => editCategoryPopup(category.name, category.color))
-                        titleAndEdit.appendChild(editBtn)
+                                        const categoryColor = document.getElementById("categoryColor")
+                                        categoryColor.setAttribute("value", category.color)
+
+                                        const submitButton = document.getElementById("submitButton");
+                                        if (submitButton) submitButton.addEventListener("click", (e) => editCategory(category, e))
+
+                                        const deleteButton = document.getElementById("deleteButton");
+                                        deleteButton.setAttribute("class", "role-btn")
+                                        if (deleteButton) deleteButton.addEventListener('click', (e) => deleteCategory(category, e))
+                                    }, 0)
+                                }
+
+                                function fetchCategories() {
+                                    fetch("/categories", { method: "GET" })
+                                        .then((response) => response.json())
+                                        .then((data) => {
+                                            const result = document.getElementById("result")
+                                            result.innerHTML = ""
+                                            data.forEach((category) => {
+                                                const div = document.createElement("div")
+                                                div.setAttribute('class', "grid grid-rows-2 bg-[" + category.color + "] rounded-md my-2 p-2")
+                                                result.appendChild(div)
+
+                                                const titleAndEdit = document.createElement("div")
+                                                titleAndEdit.setAttribute("class", "flex justify-between")
+                                                div.appendChild(titleAndEdit)
+
+                                                const title = document.createElement("span")
+                                                title.innerText = category.name
+                                                titleAndEdit.appendChild(title)
+
+                                                const editBtn = document.createElement("button")
+                                                editBtn.innerHTML = "Edit category"
+                                                editBtn.addEventListener("click", () => editCategoryPopup(category))
+                                                titleAndEdit.appendChild(editBtn)
 
                         const taskResult = document.createElement("div")
                         taskResult.setAttribute("id", category.name + counter)
@@ -194,27 +199,62 @@
             const name = document.getElementById('categoryName').value
             const color = document.getElementById('categoryColor').value
 
-            fetch("/createCategory", { 
-                method: "POST", 
-                headers: {"Content-Type": "application/json"}, 
-                body: JSON.stringify({ name, color })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data.message);
-                fetchCategories();
-                closeDialog();
-            })
-        .catch(err => {
-            console.error("Error creating category:", err)
-        })
-        }
+                                    fetch("/createCategory", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ name, color })
+                                    })
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            console.log(data.message);
+                                            fetchCategories();
+                                            closeDialog();
+                                        })
+                                        .catch(err => {
+                                            console.error("Error creating category:", err)
+                                        })
+                                }
 
-        function closeDialog() {
-            dialog.close();
-        }
-        fetchCategories()
-    </script>
+                                function editCategory(category, e) {
+                                    e.preventDefault();
+                                    const newName = document.getElementById('categoryName').value
+                                    const newColor = document.getElementById('categoryColor').value
+                                    const id = category._id
+
+                                    fetch("/editCategory", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ _id: id, name: newName, color: newColor })
+                                    })
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            console.log(data.message);
+                                            fetchCategories();
+                                            closeDialog();
+                                        })
+                                }
+
+                                function deleteCategory(category, e) {
+                                    e.preventDefault();
+                                    fetch("/deleteCategory", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ _id: category._id })
+                                    })
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            console.log(data.message);
+                                            fetchCategories();
+                                            closeDialog();
+                                        })
+                                }
+
+                                function closeDialog() {
+                                    dialog.close();
+                                }
+
+                                fetchCategories()
+                            </script>
 </body>
 
 </html>
