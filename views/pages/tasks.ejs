@@ -15,82 +15,79 @@
         <div id="dialogResult"></div>
     </dialog>
 
+
     <p id="roleType">you are a <%= role %></p>
 
     <% if (role == "parent" ) { %>
         <p>this is testing parent rendering</p>
         <div id="result"></div>
-        <button onclick="dialogMaker(createCategory)" class="bg-red-500">Create Category Button</button>
-    <% } %>
+        <button onclick="dialogMaker(createCategoryPopup)" class="bg-red-500">Create Category Button</button>
 
+        <template id="categoryCreationTemplate">
+            <div class="m-5">
+                <p class="text-lg font-bold">Create a Category</p>
+                <form action="/createCategory" method="POST">
+                    <label for="name">Name:</label>
+                    <input type="text" id="categoryName" class="border-2">
+                    <label for="color">Background Color:</label>
+                    <input type="color" id="categoryColor" class="border-2">
+                    <div class="flex justify-between">
+                        <button id="cancelButton" onclick="closeDialog()" class="bg-red-500">Cancel</button>
+                        <button id="submitButton" onclick="newCategory()" class="bg-red-500" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </template>
+    <% } %>
+        
     <% if (role == "kid" ) { %>
         <p>this is testing kid rendering</p>
     <% } %>
-
+        
     <% if (role == undefined ) { %>
         <p>Please log in</p>
     <% } %>
 
-    <template>
-
-    </template>
     <script>
         const dialog = document.querySelector("dialog")
         const dialogResult = document.getElementById("dialogResult")
-
+        
         function dialogMaker(makes) {
             dialog.showModal()
             makes()
         }
-
-        function createCategory() {
-            dialogResult.innerHTML = ""
-            
-            const div = document.createElement("div")
-            div.innerHTML = "Creating a Category"
-            dialogResult.appendChild(div)
-            
-            const categoryName = document.createElement("div")
-            categoryName.innerHTML = "Name:"
-            dialogResult.appendChild(categoryName)
-            
-            const nameInput = document.createElement("input")
-            nameInput.type = "text"
-            nameInput.setAttribute("id", "categoryName") 
-            nameInput.setAttribute("class", "border-2") 
-            dialogResult.appendChild(nameInput)
-            
-            const categoryColor = document.createElement("div")
-            categoryColor.innerHTML = "Color:"
-            dialogResult.appendChild(categoryColor)
-
-            const colorInput = document.createElement("input")
-            colorInput.type = "color"
-            colorInput.setAttribute("id", "categoryColor")
-            colorInput.setAttribute("class", "border-2")
-            dialogResult.appendChild(colorInput)
-
-            br = document.createElement("br")
-            dialogResult.appendChild(br)
-
-            const cancelButton = document.createElement("button")
-            cancelButton.innerHTML = "Cancel"
-            cancelButton.setAttribute("id", "cancelButton")
-            cancelButton.setAttribute("onclick", "closeDialog()")
-            cancelButton.setAttribute("class", "bg-red-500")
-            dialogResult.appendChild(cancelButton)
         
-            const submitButton = document.createElement("button")
-            submitButton.innerHTML = "Submit"
-            submitButton.setAttribute("id", "submitButton")
-            submitButton.setAttribute("onclick", "closeDialog()")
-            submitButton.setAttribute("class", "bg-red-500")
-            dialogResult.appendChild(submitButton)
+        // creates a category based on 
+        function createCategoryPopup() {
+            categoryTemplate = document.getElementById("categoryCreationTemplate")
+            dialogResult.appendChild(categoryTemplate.content.cloneNode(true)) 
+        }
+
+        function fetchCategories() {
+            fetch("/categories", { method: "GET" }
+                .then((response) => response.json())
+                .then((data) => {
+                    const result = document.getElementById("result")
+                    result.innerHTML = ""
+                    data.forEach((category) => {
+                        const div = document.createElement("div")
+                        div.setAttribute("id", category.name)
+                        div.innerText = category.name
+                        result.appendChild("div")
+                    })
+                })
+            )
+        }
+
+        function newCategory() {
+            
+            closeDialog()
         }
 
         function closeDialog() {
             dialog.close();
         }
+        fetchCategories()
     </script>
 </body>
 

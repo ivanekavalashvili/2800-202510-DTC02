@@ -35,6 +35,24 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+const categorySchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    color: {
+        type: String,
+        required: true
+    },
+    parent: {
+        type: String,
+        required: true
+    },
+    children: {
+        type: Array,
+    }
+})
+
 // Make user data available to all templates
 app.use(async (req, res, next) => {
     if (req.session.user) {
@@ -101,11 +119,25 @@ app.get('/profile', requireAuth, (req, res) => {
     });
 });
 
+app.post('/createCategory', async (req, res) => {
+    try {
+        const { name, color, parent, children } = req.body;
+        if (!name || !color ) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        const newCategory = await Category.findById({ categories: req.session.category });
+        await newCategory.save();
+    }
+    catch (error) {
+        console.log('db category error', error)
+    }
+})
+
 // API Routes
 app.post('/register', async (req, res) => {
     try {
         const { email, password, role } = req.body;
-
         if (!email || !password || !role) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
