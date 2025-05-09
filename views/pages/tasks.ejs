@@ -15,8 +15,6 @@
         <div id="dialogResult"></div>
     </dialog>
 
-    <p id="roleType">you are a <%= role %></p>
-
     <% if (role == "parent" ) { %>
         <p>this is testing parent rendering</p>
         <div id="result"></div>
@@ -88,12 +86,10 @@
                 const submitButton = document.getElementById("submitButton");
                 if (submitButton) submitButton.addEventListener("click", newTask)
             }, 0)
-            alert('after setimeout')
         }
 
         // creates a category based on 
         function createCategoryPopup() {
-            alert('this gets here cate')
             dialogResult.innerHTML = ""
             categoryTemplate = document.getElementById("categoryCreationTemplate")
             dialogResult.appendChild(categoryTemplate.content.cloneNode(true)) 
@@ -153,7 +149,7 @@
                                                 titleAndEdit.appendChild(editBtn)
 
                         const taskResult = document.createElement("div")
-                        taskResult.setAttribute("id", category.name + counter)
+                        taskResult.setAttribute("id", category._id)
                         taskResult.innerHTML = "tasks go here"
                         div.appendChild(taskResult)
                         
