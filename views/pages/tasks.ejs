@@ -20,17 +20,65 @@
         <p>roles are undefined</p>
     <% } %>
 
-    <div id="weather-widget"
-        style="position: fixed; top: 20px; right: 20px; background: #f4ffe4; padding: 12px 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Open Sans', sans-serif; z-index: 1000;">
-        <h4 style="margin: 0 0 8px 0; font-weight: 600; font-size: 1rem;">Current Weather</h4>
-        <img id="weather-icon" src="" alt="Weather Icon" style="display: none; width: 50px;">
-        <p id="weather-temp" style="margin: 4px 0; font-size: 0.9rem;"></p>
-        <p id="weather-desc" style="margin: 0; font-size: 0.85rem; color: #444;"></p>
-    </div>
+<div id="weatherDiv"
+    style="position: fixed; top: 80px; right: 20px; background: #f4ffe4; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: Open Sans, sans-serif; z-index: 1000; width: 200px;">
+    <h4 style="margin-bottom: 8px; font: 600 1rem 'Open Sans', sans-serif; color: #2e8b3d;">Current Weather</h4>
+    <p id="weather-temp" style="margin: 6px 0 2px 0; font-size: 1rem;"></p>
+    <p id="weather-desc" style="margin: 0 0 8px 0; font-size: 0.9rem; color: #444;"></p>
+    <img id="weather-icon" src="" alt="Weather Icon" style="width: 50px; display: none;">
+</div>
 
-    <script>
-        
-    </script>
+
+   <script>
+    let latitude;
+    let longitude;
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(success, error);
+        } else {
+            console.log("Geolocation is not supported by this browser.");
+        }
+    }
+
+    function success(position) {
+        latitude = position.coords.latitude
+        longitude = position.coords.longitude
+        console.log(longitude, latitude)
+        getWeather(latitude, longitude);
+    }
+
+    function error() {
+        alert("Sorry, no position available.");
+    }
+
+    function getWeather(latitude, longitude) {
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=55aacf4680def095e9090e51cee74084`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const temp = data.main.temp;
+                const description = data.weather[0].description;
+                const image = data.weather[0].icon;
+                weatherDiv.innerHTML =
+                    ` <p>${temp}°C</p>
+                    <p>${description}</p>
+                    <img src="http://openweathermap.org/img/w/${image}.png" alt="Weather Icon" />
+                    `;
+
+                console.log(` Temperature: ${temp}°C`);
+                console.log(` Description: ${description}`);
+                console.log(`Icon URL: http://openweathermap.org/img/wn/${image}@2x.png`);
+            })
+            .catch(error => {
+                console.error("Error fetching weather:", error);
+            });
+    }
+
+
+    window.onload = getLocation;
+</script>
 </body>
 
 </html>
