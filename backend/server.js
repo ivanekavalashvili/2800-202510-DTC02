@@ -132,6 +132,27 @@ app.get('/categories', requireAuth, async (req, res) => {
     }
 })
 
+// For displaying tasks inside the created category div
+app,get('/displayTasks', requireAuth, async (req, res) => {
+    try {
+
+    }
+    catch (error) {
+        console.log("db error", error)
+        res.status(500).json({ message: 'Server error while fetching tasks'})
+    }
+})
+
+// For creating tasks to be added to the db
+app.post('/createTask', async (req, res) => {
+    try {
+
+    }
+    catch (error) {
+        console.log('db task error', error)
+    }
+})
+
 app.post('/createCategory', async (req, res) => {
     try {
         const { name, color } = req.body;

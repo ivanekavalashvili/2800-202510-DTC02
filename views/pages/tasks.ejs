@@ -78,9 +78,24 @@
                     data.forEach((category) => {
                         const div = document.createElement("div")
                         div.setAttribute("id", category.name)
-                        div.setAttribute('class', "bg-[" + category.color + "]")
+                        div.setAttribute('class', "grid grid-rows-2 bg-[" + category.color + "] rounded-md my-2 p-2")
                         div.innerText = category.name
                         result.appendChild(div)
+                        const new_div = document.getElementById(category.name)
+                        const btn = document.createElement('button')
+                        btn.innerText = "Add Task"
+                        // Fuctionality for task creation inside the category
+                        btn.addEventListener("click", function () {
+                            const taskName = 
+                            fetch(`/createTask`, {
+                                credentials: 'include'
+                                })
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    
+                                })
+                            })
+                        new_div.appendChild(btn)
                     })
                 })
         }
