@@ -168,6 +168,21 @@ app.post('/createCategory', async (req, res) => {
     }
 })
 
+app.post('/editCategory', async (req, res) => {
+    try {
+        const { _id, name, color } = req.body;
+        if (!_id) {
+            return res.status(400).json({ message: 'Database error' });
+        }
+
+        await Category.updateOne({ _id}, { name, color });
+        res.status(201).json({ message: 'Category updated successfully!' })
+    }
+    catch (error) {
+        console.log('db category error', error)
+    }
+})
+
 // API Routes
 app.post('/register', async (req, res) => {
     try {
