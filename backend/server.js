@@ -153,7 +153,7 @@ app.get('/categories', requireAuth, async (req, res) => {
 // For displaying tasks inside the created category div
 app.get('/displayTasks', requireAuth, async (req, res) => {
     try {
-
+        console.log('wip')
     }
     catch (error) {
         console.log("db error", error)
