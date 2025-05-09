@@ -24,16 +24,16 @@
         <button onclick="dialogMaker(createCategoryPopup)" class="bg-red-500">Create Category Button</button>
 
         <template id="categoryCreationTemplate">
-            <div class="m-5">
-                <p class="text-lg font-bold">Create a Category</p>
-                <form action="/createCategory" method="POST">
+            <div class="forms-container">
+                <h1>Create a Category</h1>
+                <form class="form active" action="/createCategory" method="POST">
                     <label for="name">Name:</label>
-                    <input type="text" id="categoryName" class="border-2">
+                    <input name="name" type="text" id="categoryName" class="input" placeholder="Category name..." required>
                     <label for="color">Background Color:</label>
-                    <input type="color" id="categoryColor" class="border-2">
+                    <input name="color" type="color" id="categoryColor" class="border-2" required>
                     <div class="flex justify-between">
-                        <button id="cancelButton" onclick="closeDialog()" class="bg-red-500">Cancel</button>
-                        <button id="submitButton" onclick="newCategory()" class="bg-red-500" type="submit">Submit</button>
+                        <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
+                        <button id="submitButton" class="role-btn" type="submit">Submit</button>
                     </div>
                 </form>
             </div>
@@ -59,12 +59,18 @@
         
         // creates a category based on 
         function createCategoryPopup() {
+            dialogResult.innerHTML = ""
             categoryTemplate = document.getElementById("categoryCreationTemplate")
             dialogResult.appendChild(categoryTemplate.content.cloneNode(true)) 
+
+            setTimeout(() => {
+                const submitButton = document.getElementById("submitButton");
+                if (submitButton) submitButton.addEventListener("click", newCategory)
+            }, 0)
         }
 
         function fetchCategories() {
-            fetch("/categories", { method: "GET" }
+            fetch("/categories", { method: "GET" })
                 .then((response) => response.json())
                 .then((data) => {
                     const result = document.getElementById("result")
@@ -72,16 +78,32 @@
                     data.forEach((category) => {
                         const div = document.createElement("div")
                         div.setAttribute("id", category.name)
+                        div.setAttribute('class', "bg-[" + category.color + "]")
                         div.innerText = category.name
-                        result.appendChild("div")
+                        result.appendChild(div)
                     })
                 })
-            )
         }
 
-        function newCategory() {
-            
-            closeDialog()
+        function newCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('categoryName').value
+            const color = document.getElementById('categoryColor').value
+
+            fetch("/createCategory", { 
+                method: "POST", 
+                headers: {"Content-Type": "application/json"}, 
+                body: JSON.stringify({ name, color })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data.message);
+                fetchCategories();
+                closeDialog();
+            })
+        .catch(err => {
+            console.error("Error creating category:", err)
+        })
         }
 
         function closeDialog() {

@@ -53,6 +53,8 @@ const categorySchema = new mongoose.Schema({
     }
 })
 
+const Category = mongoose.model("Category", categorySchema);
+
 // Make user data available to all templates
 app.use(async (req, res, next) => {
     if (req.session.user) {
@@ -119,15 +121,26 @@ app.get('/profile', requireAuth, (req, res) => {
     });
 });
 
+app.get('/categories', requireAuth, async (req, res) => {
+    try {
+        const categoriesFound = await Category.find({ parent: req.session.user })
+        res.json(categoriesFound)
+    }
+    catch (err) {
+        console.log("db error", err)
+        res.status(500).json({ message: 'Server error while fetching categories'})
+    }
+})
+
 app.post('/createCategory', async (req, res) => {
     try {
-        const { name, color, parent, children } = req.body;
+        const { name, color } = req.body;
         if (!name || !color ) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        const newCategory = await Category.findById({ categories: req.session.category });
-        await newCategory.save();
+        const newCategory = await Category.create({ name, color, parent: req.session.user, children: [] });
+        res.status(201).json({ message: 'Category created successfully!'})
     }
     catch (error) {
         console.log('db category error', error)
@@ -188,3 +201,5 @@ app.get('/logout', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
