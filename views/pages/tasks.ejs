@@ -75,13 +75,15 @@
                 .then((data) => {
                     const result = document.getElementById("result")
                     result.innerHTML = ""
+                    counter = 0
                     data.forEach((category) => {
+                        counter ++
                         const div = document.createElement("div")
-                        div.setAttribute("id", category.name)
+                        div.setAttribute("id", category.name + counter)
                         div.setAttribute('class', "grid grid-rows-2 bg-[" + category.color + "] rounded-md my-2 p-2")
                         div.innerText = category.name
                         result.appendChild(div)
-                        const new_div = document.getElementById(category.name)
+                        const new_div = document.getElementById(category.name + counter)
                         const btn = document.createElement('button')
                         btn.innerText = "Add Task"
                         // Fuctionality for task creation inside the category
