@@ -69,6 +69,27 @@
             }, 0)
         }
 
+        function editCategoryPopup(name, color) {
+            dialog.showModal()
+            dialogResult.innerHTML = ""
+
+            categoryTemplate = document.getElementById("categoryCreationTemplate")
+
+            
+            dialogResult.appendChild(categoryTemplate.content.cloneNode(true))
+            
+            setTimeout(() => {
+                categoryName = document.getElementById("categoryName")
+                categoryName.setAttribute("value", name)
+    
+                categoryColor = document.getElementById("categoryColor")
+                categoryColor.setAttribute("value", color)
+                
+                const submitButton = document.getElementById("submitButton");
+                if (submitButton) submitButton.addEventListener("click", newCategory)
+            }, 0)
+        }
+
         function fetchCategories() {
             fetch("/categories", { method: "GET" })
                 .then((response) => response.json())
@@ -79,11 +100,27 @@
                     data.forEach((category) => {
                         counter ++
                         const div = document.createElement("div")
-                        div.setAttribute("id", category.name + counter)
                         div.setAttribute('class', "grid grid-rows-2 bg-[" + category.color + "] rounded-md my-2 p-2")
-                        div.innerText = category.name
                         result.appendChild(div)
-                        const new_div = document.getElementById(category.name + counter)
+                        
+                        const titleAndEdit = document.createElement("div")
+                        titleAndEdit.setAttribute("class", "flex justify-between")
+                        div.appendChild(titleAndEdit)
+                        
+                        const title = document.createElement("span")
+                        title.innerText = category.name
+                        titleAndEdit.appendChild(title)
+
+                        const editBtn = document.createElement("button")
+                        editBtn.innerHTML = "Edit category"
+                        editBtn.addEventListener("click", () => editCategoryPopup(category.name, category.color))
+                        titleAndEdit.appendChild(editBtn)
+
+                        const taskResult = document.createElement("div")
+                        taskResult.setAttribute("id", category.name + counter)
+                        taskResult.innerHTML = "tasks go here"
+                        div.appendChild(taskResult)
+                        
                         const btn = document.createElement('button')
                         btn.innerText = "Add Task"
                         // Fuctionality for task creation inside the category
@@ -97,7 +134,7 @@
                                     
                                 })
                             })
-                        new_div.appendChild(btn)
+                        div.appendChild(btn)
                     })
                 })
         }
