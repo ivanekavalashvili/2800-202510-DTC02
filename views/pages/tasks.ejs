@@ -31,10 +31,11 @@
                     <label for="color">Background Color:</label>
                     <input name="color" type="color" id="categoryColor" class="border-2" value="#b2e6b2" required>
                     <div class="flex justify-between">
-                        <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
                         <button id="submitButton" class="role-btn" type="submit">Submit</button>
                     </div>
                 </form>
+                <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
+                <button id="deleteButton" class="role-btn hidden">Delete</button>
             </div>
         </template>
 
@@ -49,7 +50,7 @@
                     <label for="points">Points awarded: </label>
                     <input name="points" type="number" id="pointsAwarded" class="input" required>
                     <div class="flex justify-between">
-                        <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
+                        <button id="cancelButton" onclick="closeDialog()" class="role-btn" type="cancel">Cancel</button>
                         <button id="submitButton" class="role-btn" type="submit">Submit</button>
                     </div>
                 </form>
@@ -117,6 +118,10 @@
                 
                 const submitButton = document.getElementById("submitButton");
                 if (submitButton) submitButton.addEventListener("click", (e) => editCategory(category, e))
+
+                const deleteButton = document.getElementById("deleteButton");
+                deleteButton.setAttribute("class", "role-btn")
+                if (deleteButton) deleteButton.addEventListener('click', (e) => deleteCategory(category, e))
             }, 0)
         }
 
@@ -146,7 +151,6 @@
 
                         const taskResult = document.createElement("div")
                         taskResult.setAttribute("id", category._id)
-                        console.log(category._id)
                         taskResult.innerHTML = "tasks go here"
                         div.appendChild(taskResult)
                         
@@ -211,9 +215,25 @@
             })
         }
 
+        function deleteCategory(category, e) {
+                e.preventDefault();
+                fetch("/deleteCategory", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ _id: category._id})
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data.message);
+                        fetchCategories();
+                        closeDialog();
+                    })
+            }
+
         function closeDialog() {
             dialog.close();
         }
+
         fetchCategories()
     </script>
 </body>

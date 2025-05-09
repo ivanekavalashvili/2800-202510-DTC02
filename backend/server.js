@@ -172,11 +172,26 @@ app.post('/editCategory', async (req, res) => {
     try {
         const { _id, name, color } = req.body;
         if (!_id) {
-            return res.status(400).json({ message: 'Database error' });
+            return res.status(400).json({ message: 'Category Id not found' });
         }
 
         await Category.updateOne({ _id}, { name, color });
         res.status(201).json({ message: 'Category updated successfully!' })
+    }
+    catch (error) {
+        console.log('db category error', error)
+    }
+})
+
+app.post('/deleteCategory', async (req, res) => {
+    try {
+        const { _id } = req.body;
+        if (!_id) {
+            return res.status(400).json({ message: 'Category Id not found' });
+        }
+
+        await Category.deleteOne({ _id });
+        res.status(201).json({ message: 'Category deleted successfully!' })
     }
     catch (error) {
         console.log('db category error', error)
