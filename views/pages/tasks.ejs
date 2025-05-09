@@ -15,7 +15,6 @@
         <div id="dialogResult"></div>
     </dialog>
 
-
     <p id="roleType">you are a <%= role %></p>
 
     <% if (role == "parent" ) { %>
@@ -38,6 +37,24 @@
                 </form>
             </div>
         </template>
+
+        <template id="taskCreationPopup">
+            <div class="forms-container">
+                <p class="text-xl">Create a Task</p>
+                <form class="form active" action="/createTask" method="POST">
+                    <label for="name">Name of Task: </label>
+                    <input name="name" type="text" id="taskName" class="input" placeholder="Input task name (EX. wash the dishes)" required>
+                    <label for="taskdetails">Task Details: </label>
+                    <input name="taskdetails" type="text" id="taskDetails" class="input" placeholder="Describe the task and the intructions">
+                    <label for="points">Points awarded: </label>
+                    <input name="points" type="number" id="pointsAwarded" class="input" required>
+                    <div class="flex justify-between">
+                        <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
+                        <button id="submitButton" class="role-btn" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </template>
     <% } %>
         
     <% if (role == "kid" ) { %>
@@ -51,14 +68,28 @@
     <script>
         const dialog = document.querySelector("dialog")
         const dialogResult = document.getElementById("dialogResult")
+
         
         function dialogMaker(makes) {
             dialog.showModal()
             makes()
         }
-        
+
+        function displayTaskForm() {
+            dialogResult.innerHTML = ""
+            tasktemplate = document.getElementById("taskCreationPopup")
+            dialogResult.appendChild(tasktemplate.content.cloneNode(true)) 
+
+            setTimeout(() => {
+                const submitButton = document.getElementById("submitButton");
+                if (submitButton) submitButton.addEventListener("click", newTask)
+            }, 0)
+            alert('after setimeout')
+        }
+
         // creates a category based on 
         function createCategoryPopup() {
+            alert('this gets here cate')
             dialogResult.innerHTML = ""
             categoryTemplate = document.getElementById("categoryCreationTemplate")
             dialogResult.appendChild(categoryTemplate.content.cloneNode(true)) 
@@ -85,23 +116,15 @@
                         result.appendChild(div)
                         const new_div = document.getElementById(category.name + counter)
                         const btn = document.createElement('button')
+                        btn.addEventListener("click", () => dialogMaker(displayTaskForm))
                         btn.innerText = "Add Task"
-                        // Fuctionality for task creation inside the category
-                        btn.addEventListener("click", function () {
-                            const taskName = 
-                            fetch(`/createTask`, {
-                                credentials: 'include'
-                                })
-                                .then((response) => response.json())
-                                .then((data) => {
-                                    
-                                })
-                            })
                         new_div.appendChild(btn)
                     })
                 })
         }
-
+        function newTask() {
+            alert('hello')
+        }
         function newCategory(e) {
             e.preventDefault();
             const name = document.getElementById('categoryName').value
