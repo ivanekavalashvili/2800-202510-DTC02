@@ -53,7 +53,25 @@ const categorySchema = new mongoose.Schema({
     }
 })
 
+const taskSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    points: {
+        type: String,
+        required: true
+    },
+    CreatedBy: {
+        type: String,
+    },
+    children: {
+        type: Array,
+    }
+})
+
 const Category = mongoose.model("Category", categorySchema);
+const Task = mongoose.model("Task", taskSchema)
 
 // Make user data available to all templates
 app.use(async (req, res, next) => {
@@ -146,10 +164,15 @@ app.get('/displayTasks', requireAuth, async (req, res) => {
 // For creating tasks to be added to the db
 app.post('/createTask', async (req, res) => {
     try {
+        const { name, taskdetails, points } = req.body;
+        if (!name || !taskdetails || !points ) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
 
+        const newTask = await Task.create({ name, taskdetails, points, CreatedBy: req.session.user, children: [] })
     }
     catch (error) {
-        console.log('db task error', error)
+        console.log('db task error', error) 
     }
 })
 
@@ -162,36 +185,6 @@ app.post('/createCategory', async (req, res) => {
 
         const newCategory = await Category.create({ name, color, parent: req.session.user, children: [] });
         res.status(201).json({ message: 'Category created successfully!'})
-    }
-    catch (error) {
-        console.log('db category error', error)
-    }
-})
-
-app.post('/editCategory', async (req, res) => {
-    try {
-        const { _id, name, color } = req.body;
-        if (!_id) {
-            return res.status(400).json({ message: 'Category Id not found' });
-        }
-
-        await Category.updateOne({ _id}, { name, color });
-        res.status(201).json({ message: 'Category updated successfully!' })
-    }
-    catch (error) {
-        console.log('db category error', error)
-    }
-})
-
-app.post('/deleteCategory', async (req, res) => {
-    try {
-        const { _id } = req.body;
-        if (!_id) {
-            return res.status(400).json({ message: 'Category Id not found' });
-        }
-
-        await Category.deleteOne({ _id });
-        res.status(201).json({ message: 'Category deleted successfully!' })
     }
     catch (error) {
         console.log('db category error', error)
