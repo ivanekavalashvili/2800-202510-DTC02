@@ -79,15 +79,16 @@ loginForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    const email = e.target[0].value;
+    const identifier = e.target[0].value;
     const password = e.target[1].value;
-    console.log('Sending:', { email, password, role: selectedRole });
+    console.log('Sending:', { identifier, password, role: selectedRole });
 
     const res = await fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role: selectedRole })
+        body: JSON.stringify({ identifier, password, role: selectedRole })
     });
+
 
     const data = await res.json();
     if (data.message === 'Login successful!') {

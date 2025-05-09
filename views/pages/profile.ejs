@@ -2,26 +2,94 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <link rel="stylesheet" href="/styles.css" />
 </head>
 
 <body>
-    <br><br><br><br><br>
-    </p>
-    <% if (role=="parent" ) { %>
-    <a href="" class="nav-btn">Add Kid</a>
+    <div class="profile-content">
+        <% if (role==="parent" ) { %>
+            <a href="#" id="openAddKidModal" class="nav-btn">Add Kid</a>
+        <% if (kids && kids.length> 0) { %>
+            <div class="kid-list-container">
+                <h3>Linked Kid Accounts</h3>
+                <ul class="kid-list">
+                <% kids.forEach(kid=> { %>
+                <li><%= kid.username %></li><% }) %></ul>
+                </div>
+        <% } else { %>
+            <p>No kid accounts linked yet.</p><% } %>
         <% } %>
-            <% if (role=="kid" ) { %>
-                <p>this is testing kid rendering</p>
-                <% } %>
-                    <% if (role==undefined ) { %>
-                        <p>roles are undefined</p>
-                        <% } %>
-                            <script>
+        <% if (role==="kid" ) { %>
+            <p>This is testing kid rendering</p><% } %>
+        <% if (!role) { %>
+            <p>Role is undefined</p> <% } %>
+    </div>
 
-                            </script>
+   
+    <div id="addKidModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" id="closeAddKidModal">&times;</span>
+            <h2>Add a Kid Account</h2>
+            <form id="addKidForm">
+                <input class="input" type="text" name="username" placeholder="Kid's Username" required />
+                <input class="input" type="password" name="password" placeholder="Password" required />
+                <button type="submit" class="login-btn">Create Kid Account</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("addKidModal");
+        const openBtn = document.getElementById("openAddKidModal");
+        const closeBtn = document.getElementById("closeAddKidModal");
+        const form = document.getElementById("addKidForm");
+
+        if (modal && openBtn && closeBtn) {
+            openBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                modal.style.display = "flex";
+            });
+
+            closeBtn.addEventListener("click", () => {
+                modal.style.display = "none";
+            });
+
+            window.addEventListener("click", (event) => {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            });
+        }
+
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const username = form.username.value;
+                const password = form.password.value;
+
+                const res = await fetch("/add-kid", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert("Kid account created!");
+                    form.reset();
+                    modal.style.display = "none";
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+    });
+</script>
 </body>
 
 </html>

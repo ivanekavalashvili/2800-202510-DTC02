@@ -94,20 +94,28 @@ app.get('/rewards', requireAuth, (req, res) => {
     });
 });
 
-app.get('/profile', requireAuth, (req, res) => {
+app.get('/profile', requireAuth, async (req, res) => {
+    const user = res.locals.user;
+
+    let kids = [];
+    if (user.role === 'parent') {
+        kids = await User.find({ parent_email: user.email, role: 'kid' });
+    }
+
     res.render('pages/profile', {
         title: 'Profile',
-        scripts: ['/scripts.js'],
-        role: res.locals.user.role
+        role: user.role,
+        kids // pass the array to EJS
     });
 });
+
 
 // API Routes
 app.post('/register', async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        const { email, password } = req.body;
 
-        if (!email || !password || !role) {
+        if (!email || !password ) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
@@ -117,7 +125,7 @@ app.post('/register', async (req, res) => {
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new User({ email, passwordHash, role });
+        const newUser = new User({ email, passwordHash, role: "parent" });
         await newUser.save();
 
         res.status(201).json({ message: 'User registered successfully!' });
@@ -127,11 +135,21 @@ app.post('/register', async (req, res) => {
     }
 });
 
+
 app.post('/login', async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        const { identifier, password, role } = req.body;
 
-        const user = await User.findOne({ email, role });
+        if (!identifier || !password || !role) {
+            return res.status(400).json({ message: 'Missing username or password' });
+        }
+
+        // Use email for parent, username for kid
+        const query = role === 'kid'
+            ? { username: identifier, role }
+            : { email: identifier, role };
+
+        const user = await User.findOne(query);
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
         }
@@ -148,6 +166,51 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Something went wrong' });
     }
 });
+
+
+
+app.post('/add-kid', async (req, res) => {
+    try {
+        console.log("Received /add-kid request:", req.body);
+
+        const parentId = req.session.user;
+        const parent = await User.findById(parentId);
+
+        if (!parent || parent.role !== 'parent') {
+            return res.status(403).json({ message: 'Only parents can add kid accounts' });
+        }
+
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Missing fields' });
+        }
+
+        const existing = await User.findOne({ username });
+        if (existing) {
+            return res.status(409).json({ message: 'Username already taken' });
+        }
+
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        const newKid = new User({
+            email: `kid-${username}@placeholder.com`,
+            username,
+            passwordHash,
+            parent_email: parent.email,
+            role: 'kid'
+        });
+
+        await newKid.save();
+
+        res.status(201).json({ message: 'Kid account created!' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error creating kid account' });
+    }
+});
+
+
 
 app.get('/logout', (req, res) => {
     req.session.destroy();
