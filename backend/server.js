@@ -35,6 +35,26 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+const categorySchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    color: {
+        type: String,
+        required: true
+    },
+    parent: {
+        type: String,
+        required: true
+    },
+    children: {
+        type: Array,
+    }
+})
+
+const Category = mongoose.model("Category", categorySchema);
+
 // Make user data available to all templates
 app.use(async (req, res, next) => {
     if (req.session.user) {
@@ -109,13 +129,88 @@ app.get('/profile', requireAuth, async (req, res) => {
     });
 });
 
+app.get('/categories', requireAuth, async (req, res) => {
+    try {
+        const categoriesFound = await Category.find({ parent: req.session.user })
+        res.json(categoriesFound)
+    }
+    catch (err) {
+        console.log("db error", err)
+        res.status(500).json({ message: 'Server error while fetching categories' })
+    }
+})
+
+// For displaying tasks inside the created category div
+app.get('/displayTasks', requireAuth, async (req, res) => {
+    try {
+        console.log('wip')
+    }
+    catch (error) {
+        console.log("db error", error)
+        res.status(500).json({ message: 'Server error while fetching tasks' })
+    }
+})
+
+// For creating tasks to be added to the db
+app.post('/createTask', async (req, res) => {
+    try {
+
+    }
+    catch (error) {
+        console.log('db task error', error)
+    }
+})
+
+app.post('/createCategory', async (req, res) => {
+    try {
+        const { name, color } = req.body;
+        if (!name || !color) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        const newCategory = await Category.create({ name, color, parent: req.session.user, children: [] });
+        res.status(201).json({ message: 'Category created successfully!' })
+    }
+    catch (error) {
+        console.log('db category error', error)
+    }
+})
+
+app.post('/editCategory', async (req, res) => {
+    try {
+        const { _id, name, color } = req.body;
+        if (!_id) {
+            return res.status(400).json({ message: 'Category Id not found' });
+        }
+
+        await Category.updateOne({ _id }, { name, color });
+        res.status(201).json({ message: 'Category updated successfully!' })
+    }
+    catch (error) {
+        console.log('db category error', error)
+    }
+})
+
+app.post('/deleteCategory', async (req, res) => {
+    try {
+        const { _id } = req.body;
+        if (!_id) {
+            return res.status(400).json({ message: 'Category Id not found' });
+        }
+
+        await Category.deleteOne({ _id });
+        res.status(201).json({ message: 'Category deleted successfully!' })
+    }
+    catch (error) {
+        console.log('db category error', error)
+    }
+})
 
 // API Routes
 app.post('/register', async (req, res) => {
     try {
-        const { email, password } = req.body;
-
-        if (!email || !password ) {
+        const { email, password, role } = req.body;
+        if (!email || !password || !role) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
@@ -220,3 +315,4 @@ app.get('/logout', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
