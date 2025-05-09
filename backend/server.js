@@ -133,7 +133,7 @@ app.get('/categories', requireAuth, async (req, res) => {
 })
 
 // For displaying tasks inside the created category div
-app,get('/displayTasks', requireAuth, async (req, res) => {
+app.get('/displayTasks', requireAuth, async (req, res) => {
     try {
 
     }
