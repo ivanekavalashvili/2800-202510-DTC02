@@ -110,7 +110,8 @@ app.get('/tasks', requireAuth, (req, res) => {
 
 app.get('/rewards', requireAuth, (req, res) => {
     res.render('pages/rewards', {
-        title: 'Rewards'
+        title: 'Rewards',
+        role: res.locals.user.role
     });
 });
 
@@ -125,7 +126,7 @@ app.get('/profile', requireAuth, async (req, res) => {
     res.render('pages/profile', {
         title: 'Profile',
         role: user.role,
-        kids // pass the array to EJS
+        kids 
     });
 });
 
