@@ -161,7 +161,7 @@ app.get('/categories', requireAuth, async (req, res) => {
 // For displaying tasks inside the created category div
 app.get('/displayTasks', requireAuth, async (req, res) => {
     try {
-        console.log('wip')
+        const tasksFound = await Task.find({ parent: req.session.user })
     }
     catch (error) {
         console.log("db error", error)
@@ -170,12 +170,15 @@ app.get('/displayTasks', requireAuth, async (req, res) => {
 })
 
 // For creating tasks to be added to the db
-app.post('/createTask', async (req, res) => {
+app.post('/createTask', requireAuth, async (req, res) => {
     try {
+        // Getting informaiton from the form from task.ejs
         const { name, taskdetails, points } = req.body;
+        // Making sure that each field is actually filled in
         if (!name || !taskdetails || !points ) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
+        // Creating a new document in the mongo database :D
         const newTask = await Task.create({ name, taskdetails, points, CreatedBy: req.session.user, children: [] })
     }
     catch (error) {
