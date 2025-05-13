@@ -24,9 +24,10 @@
     </div>
 
     <% if (role == "parent" ) { %>
-        <div id="result"></div>
-        <button onclick="dialogMaker(createCategoryPopup)" class="bg-red-500">Create Category Button</button>
-
+        <div class="content-center">
+            <div id="result"></div>
+            <button onclick="dialogMaker(createCategoryPopup)" class="role-btn">Create Category</button>
+        </div>
         <template id="categoryCreationTemplate">
             <div class="forms-container">
                 <h1>Create a Category</h1>
@@ -143,15 +144,18 @@
                         result.appendChild(div)
 
                         const titleAndEdit = document.createElement("div")
-                        titleAndEdit.setAttribute("class", "flex justify-between")
+                        titleAndEdit.setAttribute("class", "flex justify-between items-center")
                         div.appendChild(titleAndEdit)
 
                         const title = document.createElement("span")
                         title.innerText = category.name
+                        title.setAttribute("class", "text-2xl font-bold bg-white p-3 mb-2 rounded")
+
                         titleAndEdit.appendChild(title)
 
                         const editBtn = document.createElement("button")
                         editBtn.innerHTML = "Edit category"
+                        editBtn.setAttribute("class", "role-btn ml-10")
                         editBtn.addEventListener("click", () => editCategoryPopup(category))
                         titleAndEdit.appendChild(editBtn)
 
@@ -192,6 +196,7 @@
                         
                         const btn = document.createElement('button')
                         btn.addEventListener("click", () => dialogMaker(displayTaskForm, category.name))
+                        btn.setAttribute("class", "role-btn")
                         btn.innerText = "Add Task"
                         div.appendChild(btn)
                     })
