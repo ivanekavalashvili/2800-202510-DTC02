@@ -53,7 +53,25 @@ const categorySchema = new mongoose.Schema({
     }
 })
 
+const taskSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    points: {
+        type: String,
+        required: true
+    },
+    CreatedBy: {
+        type: String,
+    },
+    children: {
+        type: Array,
+    }
+})
+
 const Category = mongoose.model("Category", categorySchema);
+const Task = mongoose.model("Task", taskSchema)
 
 // Make user data available to all templates
 app.use(async (req, res, next) => {
@@ -146,7 +164,11 @@ app.get('/displayTasks', requireAuth, async (req, res) => {
 // For creating tasks to be added to the db
 app.post('/createTask', async (req, res) => {
     try {
-
+        const { name, taskdetails, points } = req.body;
+        if (!name || !taskdetails || !points ) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+        const newTask = await Task.create({ name, taskdetails, points, CreatedBy: req.session.user, children: [] })
     }
     catch (error) {
         console.log('db task error', error)
