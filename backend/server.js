@@ -215,12 +215,15 @@ app.post('/createCategory', async (req, res) => {
 
 app.post('/editCategory', async (req, res) => {
     try {
-        const { _id, name, color } = req.body;
+        const { _id, name, color, oldName } = req.body;
+        console.log(_id + ' ' + name + ' ' + color + ' ' + oldName)
         if (!_id) {
             return res.status(400).json({ message: 'Category Id not found' });
         }
 
         await Category.updateOne({ _id }, { name, color });
+        // Updating the tasks that are asscoiated with the category
+        await Task.updateMany({catergoryName: oldName}, { catergoryName: name })
         res.status(201).json({ message: 'Category updated successfully!' })
     }
     catch (error) {

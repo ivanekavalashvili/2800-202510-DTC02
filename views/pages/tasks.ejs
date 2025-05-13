@@ -248,12 +248,13 @@
             e.preventDefault();
             const newName = document.getElementById('categoryName').value
             const newColor = document.getElementById('categoryColor').value
+            const oldName = category.name
             const id = category._id
 
             fetch("/editCategory", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ _id: id, name: newName, color: newColor })
+                body: JSON.stringify({ _id: id, name: newName, color: newColor, oldName: oldName })
             })
                 .then(res => res.json())
                 .then(data => {
