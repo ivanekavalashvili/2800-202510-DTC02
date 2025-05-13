@@ -92,8 +92,8 @@
                 tasktemplate = document.getElementById("taskCreationPopup")
                 dialogResult.appendChild(tasktemplate.content.cloneNode(true))
                 document.getElementById('categoryNameTask').value = parentName
-
-            setTimeout(() => {
+                
+                setTimeout(() => {
                 const submitButton = document.getElementById("submitButton");
                 if (submitButton) submitButton.addEventListener("click", newTask)
             }, 0)
@@ -206,15 +206,16 @@
             const name = document.getElementById('taskName').value
             const details = document.getElementById('taskDetails').value
             const points = document.getElementById('pointsAwarded').value
-            const categoryName = document.getElementById()
+            const categoryName = document.getElementById('categoryNameTask')
 
             fetch("/createTask", {
                 method: "POST" ,
                 headers: {"Content-Type": "application/json"}, 
-                body: JSON.stringify({ name, details, points,  })
+                body: JSON.stringify({ name, details, points, categoryName })
             })
             .then(res => res.json())
             .then(data => {
+                fetchCategories();
                 closeDialog()
             })
             .catch(err => {
