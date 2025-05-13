@@ -159,10 +159,6 @@
                         editBtn.addEventListener("click", () => editCategoryPopup(category))
                         titleAndEdit.appendChild(editBtn)
 
-                        const taskResult = document.createElement("div")
-                        taskResult.setAttribute("id", category._id)
-                        taskResult.innerHTML = "tasks go here"
-                        div.appendChild(taskResult)
                         // Fuctionality for filling out the tasks inside the category
                             // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
                             const categoryNameDB = encodeURIComponent(category.name)
@@ -172,7 +168,30 @@
                                 })
                                 .then((response) => response.json())
                                 .then((data) => {
-                                    
+                                    data.forEach((task) => {
+                                        const taskResult = document.createElement("div")
+                                        taskResult.setAttribute('class', "grid grid-rows-1 bg-white rounded-md my-2 p-2")
+                                        div.appendChild(taskResult)
+                                        
+                                        const topDiv = document.createElement("div")
+                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-md my-2 p-2")
+                                        taskResult.appendChild(topDiv)
+
+                                        const taskTitle = document.createElement('span')
+                                        taskTitle.setAttribute('class', "grid rounded-md my-2 p-2")
+                                        taskTitle.innerHTML = 'Task name: ' + task.name 
+                                        topDiv.appendChild(taskTitle)
+
+                                        const taskPoints = document.createElement('span')
+                                        taskPoints.setAttribute('class', "grid rounded-md my-2 p-2")
+                                        taskPoints.innerHTML = 'Points gained for completion: ' + task.points
+                                        topDiv.appendChild(taskPoints)
+
+                                        const taskDesc = document.createElement('span')
+                                        taskDesc.setAttribute('class', "grid rounded-md my-2 p-2")
+                                        taskDesc.innerHTML = task.taskdetails
+                                        topDiv.appendChild(taskDesc)
+                                    })
                                 })
                         
                         const btn = document.createElement('button')
