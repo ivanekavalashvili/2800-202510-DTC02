@@ -187,7 +187,7 @@ app.post('/createTask', requireAuth, async (req, res) => {
         // Getting informaiton from the form from task.ejs
         const { catergoryName, name, taskdetails, points } = req.body;
         // Making sure that each field is actually filled in
-        if (!name || !taskdetails || !points ) {
+        if (!name || !taskdetails || !points) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
         // Creating a new document in the mongo database :D
@@ -223,7 +223,7 @@ app.post('/editCategory', async (req, res) => {
 
         await Category.updateOne({ _id }, { name, color });
         // Updating the tasks that are asscoiated with the category
-        await Task.updateMany({catergoryName: oldName}, { catergoryName: name })
+        await Task.updateMany({ catergoryName: oldName }, { catergoryName: name })
         res.status(201).json({ message: 'Category updated successfully!' })
     }
     catch (error) {
@@ -245,6 +245,20 @@ app.post('/deleteCategory', async (req, res) => {
         console.log('db category error', error)
     }
 })
+
+app.post('/deleteTask', requireAuth, async (req, res) => {
+    try {
+        const { taskId, categoryName } = req.body;
+
+        // Delete the task
+        await Task.findByIdAndDelete(taskId);
+
+        res.json({ message: 'Task deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting task:', err);
+        res.status(500).json({ message: 'Error deleting task' });
+    }
+});
 
 // API Routes
 app.post('/register', async (req, res) => {
