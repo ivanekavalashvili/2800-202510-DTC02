@@ -166,13 +166,56 @@ app.get('/categories', requireAuth, async (req, res) => {
     }
 })
 
+app.get('/kids', requireAuth, async (req, res) => {
+    const user = await User.findById(req.session.user);
+
+    try {
+        console.log(req.session.user.email)
+        const kidsFound = await User.find({ parent_email: user.email })
+        res.json(kidsFound)
+    }
+    catch (err) {
+        console.log("db error", err)
+        res.status(500).json({ message: 'Server error while fetching categories' })
+    }
+})
+
+app.get('/kidCategories', requireAuth, async (req, res) => {
+    const user = await User.findById(req.session.user);
+    const parentId = (await User.findOne({ email: user.parent_email }))._id
+
+    try {
+        const categoriesFound = await Category.find({ parent: parentId })
+        res.json(categoriesFound)
+    }
+    catch (err) {
+        console.log("db error", err)
+        res.status(500).json({ message: 'Server error while fetching categories' })
+    }
+})
+
+app.get('/kidDisplayTasks', requireAuth, async (req, res) => {
+    try {
+        const category = req.query.category;
+        console.log(category)
+        const user = await User.findById(req.session.user);
+
+        const tasksFound = await Task.find({ catergoryName: category, children: user._id.toString() }) 
+        console.log(tasksFound)
+        res.json(tasksFound)
+    }
+    catch (err) {
+        console.log("db error", err)
+        res.status(500).json({ message: 'Server error while fetching categories' })
+    }
+})
+
 // For displaying tasks inside the created category div
 app.get('/displayTasks', requireAuth, async (req, res) => {
     try {
         // Grabbing the name of the catergory
         const category = req.query.category;
         const tasksFound = await Task.find({ CreatedBy: req.session.user, catergoryName: category })
-        console.log('the tasks', tasksFound)
         res.json(tasksFound)
     }
     catch (error) {
@@ -185,13 +228,13 @@ app.get('/displayTasks', requireAuth, async (req, res) => {
 app.post('/createTask', requireAuth, async (req, res) => {
     try {
         // Getting informaiton from the form from task.ejs
-        const { catergoryName, name, taskdetails, points } = req.body;
+        const { catergoryName, name, taskdetails, points, kids } = req.body;
         // Making sure that each field is actually filled in
         if (!name || !taskdetails || !points) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
         // Creating a new document in the mongo database :D
-        const newTask = await Task.create({ catergoryName, name, taskdetails, points, CreatedBy: req.session.user, children: [] })
+        const newTask = await Task.create({ catergoryName, name, taskdetails, points, CreatedBy: req.session.user, children: kids })
         res.status(201).json({ message: 'Task created successfully!' })
     }
     catch (error) {

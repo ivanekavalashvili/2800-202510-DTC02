@@ -57,6 +57,8 @@
                     placeholder="Describe the task and the intructions">
                 <label for="points">Points awarded: </label>
                 <input name="points" type="number" id="pointsAwarded" class="input" required>
+                <label for="kids">Assigned to: </label>
+                <div id="taskKids"></div>
                 <div class="flex justify-between">
                     <button id="cancelButton" onclick="closeDialog()" class="role-btn" type="cancel">Cancel</button>
                     <button id="submitButton" class="role-btn" type="submit">Submit</button>
@@ -74,7 +76,6 @@
             }
 
             function displayTaskForm(parentName) {
-                console.log(parentName)
                 dialogResult.innerHTML = ""
                 tasktemplate = document.getElementById("taskCreationPopup")
                 dialogResult.appendChild(tasktemplate.content.cloneNode(true))
@@ -82,7 +83,22 @@
                 
                 setTimeout(() => {
                 const submitButton = document.getElementById("submitButton");
-                if (submitButton) submitButton.addEventListener("click", newTask)
+                if (submitButton) {submitButton.addEventListener("click", newTask)}
+                const kidCheck = document.getElementById("taskKids")
+                fetch("/kids", { method: "GET" })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        data.forEach((kid) => {
+                            const name = document.createElement("label")
+                            name.innerText = kid.username
+                            kidCheck.appendChild(name)
+
+                            const checkBtn = document.createElement("input")
+                            checkBtn.setAttribute("type", "checkbox")
+                            checkBtn.setAttribute("name", kid._id)
+                            kidCheck.appendChild(checkBtn)
+                        })
+                    })
             }, 0)
         }
 
@@ -198,11 +214,18 @@
             const taskdetails = document.getElementById('taskDetails').value
             const points = document.getElementById('pointsAwarded').value
             const catergoryName = document.getElementById('categoryNameTask').value
+            kids = []
+            const kidCheckboxes = document.querySelectorAll('#taskKids input[type="checkbox"]')
+            kidCheckboxes.forEach((checkbox) => {
+                if (checkbox.checked) {
+                    kids.push(checkbox.name)
+                }
+            })
 
             fetch("/createTask", {
                 method: "POST" ,
                 headers: {"Content-Type": "application/json"}, 
-                body: JSON.stringify({ catergoryName, name, taskdetails, points })
+                body: JSON.stringify({ catergoryName, name, taskdetails, points, kids })
             })
             .then(res => res.json())
             .then(data => {
@@ -212,7 +235,6 @@
             .catch(err => {
                 console.error("Error creating task:", err)
             })
-
         }
 
         function newCategory(e) {
@@ -282,7 +304,7 @@
     <% if (role=="kid" ) { %>
         <script>
             function fetchCategories() {
-                fetch("/categories", { method: "GET" })
+                fetch("/kidCategories", { method: "GET" })
                     .then((response) => response.json())
                     .then((data) => {
                         const result = document.getElementById("result")
@@ -298,20 +320,14 @@
 
                             const title = document.createElement("span")
                             title.innerText = category.name
-                            title.setAttribute("class", "text-2xl font-bold bg-white p-3 mb-2 rounded")
+                            title.setAttribute("class", "text-2xl font-bold bg-white p-3 mb-2 rounded-md")
 
                             titleAndEdit.appendChild(title)
-
-                            const editBtn = document.createElement("button")
-                            editBtn.innerHTML = "Edit category"
-                            editBtn.setAttribute("class", "role-btn ml-10")
-                            editBtn.addEventListener("click", () => editCategoryPopup(category))
-                            titleAndEdit.appendChild(editBtn)
 
                             // Fuctionality for filling out the tasks inside the category
                             // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
                             const categoryNameDB = encodeURIComponent(category.name)
-                            fetch(`/displayTasks?category=${categoryNameDB}`, {
+                            fetch(`/kidDisplayTasks?category=${categoryNameDB}`, {
                                 credentials: 'include',
                                 method: "GET",
                             })
@@ -342,15 +358,10 @@
                                         topDiv.appendChild(taskDesc)
                                     })
                                 })
-
-                            const btn = document.createElement('button')
-                            btn.addEventListener("click", () => dialogMaker(displayTaskForm, category.name))
-                            btn.setAttribute("class", "role-btn")
-                            btn.innerText = "Add Task"
-                            div.appendChild(btn)
                         })
                     })
                 }
+                fetchCategories()
         </script>
     <% } %>
 
