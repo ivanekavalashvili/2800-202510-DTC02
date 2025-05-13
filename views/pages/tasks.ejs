@@ -48,7 +48,7 @@
             <div class="forms-container">
                 <p class="text-xl">Create a Task</p>
                 <label for="categoryName">Catergory Name: </label>
-                <input name="catergoryName" type="text" id="categoryNameTask" class="input" readonly>
+                <input name="categoryName" type="text" id="categoryNameTask" class="input" readonly>
                 <label for="name">Name of Task: </label>
                 <input name="name" type="text" id="taskName" class="input"
                     placeholder="Input task name (EX. wash the dishes)" required>
@@ -138,6 +138,37 @@
             }, 0)
         }
 
+        // Creating the option to edit your tasks through the original pop for the task creation
+        function editTaskPopup(category) {
+            dialog.showModal()
+            dialogResult.innerHTML = ""
+
+            taskTemplate = document.getElementById("taskCreationPopup")
+
+            dialogResult.appendChild(taskTemplate.content.cloneNode(true))
+
+            setTimeout(() => {
+                const categoryNameTask = document.getElementById("categoryNameTask")
+                categoryNameTask.setAttribute("value", task.catergoryName)
+
+                const taskName = document.getElementById("taskName")
+                taskName.setAttribute("value", task.name)
+
+                const taskDetails = document.getElementById("taskDetails")
+                taskDetails.setAttribute("value", task.taskdetails)
+
+                const taskPoints = document.getElementById("pointsAwarded")
+                taskPoints.setAttribute("value", task.points)
+
+                const submitButton = document.getElementById("submitButton");
+                if (submitButton) submitButton.addEventListener("click", (e) => editCategory(category, e))
+
+                const deleteButton = document.getElementById("deleteButton");
+                deleteButton.setAttribute("class", "role-btn")
+                if (deleteButton) deleteButton.addEventListener('click', (e) => deleteCategory(category, e))
+            }, 0)
+        }
+
         function fetchCategories() {
             fetch("/categories", { method: "GET" })
                 .then((response) => response.json())
@@ -197,6 +228,12 @@
                                         taskDesc.setAttribute('class', "grid rounded-md my-2 p-2")
                                         taskDesc.innerHTML = task.taskdetails
                                         topDiv.appendChild(taskDesc)
+
+                                        const editTaskBtn = document.createElement("button")
+                                        editTaskBtn.innerHTML = "Edit category"
+                                        editTaskBtn.setAttribute("class", "role-btn ml-10")
+                                        editTaskBtn.addEventListener("click", () => editTaskPopup(task))
+                                        topDiv.appendChild(editTaskBtn)
                                     })
                                 })
                         
