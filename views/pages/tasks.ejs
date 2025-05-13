@@ -159,25 +159,24 @@
                         taskResult.setAttribute("id", category._id)
                         taskResult.innerHTML = "tasks go here"
                         div.appendChild(taskResult)
-                        
-                        const btn = document.createElement('button')
-                        btn.addEventListener("click", () => dialogMaker(displayTaskForm))
-                        btn.innerText = "Add Task"
-                        // Fuctionality for task creation inside the category
-                        btn.addEventListener("click", function () {
-                            const taskName = 
-                            fetch(`/createTask`, {
-                                credentials: 'include'
+                        // Fuctionality for filling out the tasks inside the category
+                            fetch(`/displayTasks`, {
+                                credentials: 'include',
+                                method: "GET",
                                 })
                                 .then((response) => response.json())
                                 .then((data) => {
                                     
                                 })
-                            })
+                        
+                        const btn = document.createElement('button')
+                        btn.addEventListener("click", () => dialogMaker(displayTaskForm))
+                        btn.innerText = "Add Task"
                         div.appendChild(btn)
                     })
                 })
         }
+
         function newTask() {
             const name = document.getElementById('taskName').value
             const details = document.getElementById('taskDetails').value
@@ -197,6 +196,7 @@
             })
 
         }
+
         function newCategory(e) {
             e.preventDefault();
             const name = document.getElementById('categoryName').value
