@@ -192,6 +192,7 @@ app.post('/createTask', requireAuth, async (req, res) => {
         }
         // Creating a new document in the mongo database :D
         const newTask = await Task.create({ catergoryName, name, taskdetails, points, CreatedBy: req.session.user, children: [] })
+        res.status(201).json({ message: 'Task created successfully!' })
     }
     catch (error) {
         console.log('db task error', error)
