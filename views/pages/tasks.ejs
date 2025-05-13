@@ -61,6 +61,7 @@
                 <div id="taskKids"></div>
                 <div class="flex justify-between">
                     <button id="cancelButton" onclick="closeDialog()" class="role-btn" type="cancel">Cancel</button>
+                    <button id="deleteButtonTask" class="role-btn hidden">Delete</button>
                     <button id="submitButton" class="role-btn" type="submit">Submit</button>
                 </div>
             </div>
@@ -163,7 +164,7 @@
                 const submitButton = document.getElementById("submitButton");
                 if (submitButton) submitButton.addEventListener("click", (e) => editCategory(category, e))
 
-                const deleteButton = document.getElementById("deleteButton");
+                const deleteButton = document.getElementById("deleteButtonTask");
                 deleteButton.setAttribute("class", "role-btn")
                 if (deleteButton) deleteButton.addEventListener('click', (e) => deleteCategory(category, e))
             }, 0)
