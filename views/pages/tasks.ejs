@@ -323,17 +323,16 @@
                         result.innerHTML = ""
                         data.forEach((category) => {
                             const div = document.createElement("div")
-                            div.setAttribute('class', "grid grid-rows-2 bg-[" + category.color + "] rounded-md my-2 p-2")
+                            div.setAttribute('class', "grid bg-[" + category.color + "] rounded-md my-5 p-2 mx-5 max-w-4xl")
                             result.appendChild(div)
 
                             const titleAndEdit = document.createElement("div")
-                            titleAndEdit.setAttribute("class", "flex justify-between items-center")
+                            titleAndEdit.setAttribute("class", "flex justify-between items-center mb-3")
                             div.appendChild(titleAndEdit)
 
                             const title = document.createElement("span")
                             title.innerText = category.name
-                            title.setAttribute("class", "text-2xl font-bold bg-white p-3 mb-2 rounded-md")
-
+                            title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded")
                             titleAndEdit.appendChild(title)
 
                             const totalResult = document.createElement("div")
@@ -351,25 +350,25 @@
                                 .then((data) => {
                                     data.forEach((task) => {
                                         const taskResult = document.createElement("div")
-                                        taskResult.setAttribute('class', "bg-white rounded-md p-2")
+                                        taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-md p-2")
                                         totalResult.appendChild(taskResult)
 
                                         const topDiv = document.createElement("div")
-                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-md my-2")
+                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-md mb-2")
                                         taskResult.appendChild(topDiv)
 
                                         const taskTitle = document.createElement('span')
-                                        taskTitle.setAttribute('class', "rounded-md my-2")
+                                        taskTitle.setAttribute('class', "rounded-md font-bold font-lg")
                                         taskTitle.innerHTML = task.name
                                         topDiv.appendChild(taskTitle)
 
                                         const taskPoints = document.createElement('span')
-                                        taskPoints.setAttribute('class', "rounded-md my-2")
-                                        taskPoints.innerHTML = 'Points: ' + task.points
+                                        taskPoints.setAttribute('class', "rounded-md text-right")
+                                        taskPoints.innerHTML = '$' + task.points
                                         topDiv.appendChild(taskPoints)
 
                                         const taskDesc = document.createElement('p')
-                                        taskDesc.setAttribute('class', "rounded-md my-2")
+                                        taskDesc.setAttribute('class', "rounded-md")
                                         taskDesc.innerHTML = task.taskdetails
                                         taskResult.appendChild(taskDesc)
                                     })
