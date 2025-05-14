@@ -435,6 +435,14 @@ body:has(.login-container) {
     box-shadow: 0 4px 12px rgba(46, 139, 61, 0.15);
 }
 
+p {
+    font-family: 'Quicksand', sans-serif;
+}
+
+label {
+    font-family: 'Quicksand', sans-serif;
+}
+
 .task-card h2 {
     font-family: 'Quicksand', sans-serif;
     font-size: 1.25rem;
