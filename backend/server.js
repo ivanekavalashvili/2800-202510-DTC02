@@ -391,7 +391,8 @@ app.post('/add-kid', async (req, res) => {
             username,
             passwordHash,
             parent_email: parent.email,
-            role: 'kid'
+            role: 'kid',
+            points: 0
         });
 
         await newKid.save();
