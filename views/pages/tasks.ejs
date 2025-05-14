@@ -166,7 +166,7 @@
 
                 const deleteButton = document.getElementById("deleteButtonTask");
                 deleteButton.setAttribute("class", "role-btn")
-                if (deleteButton) deleteButton.addEventListener('click', (e) => deleteCategory(category, e))
+                if (deleteButton) deleteButton.addEventListener('click', (e) => deleteTask(task, e))
             }, 0)
         }
 
@@ -329,6 +329,21 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ _id: id, name: newName, color: newColor, oldName: oldName })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data.message);
+                    fetchCategories();
+                    closeDialog();
+                })
+        }
+
+        function deleteTask(task, e) {
+            e.preventDefault();
+            fetch("/deleteTask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ _id: task._id })
             })
                 .then(res => res.json())
                 .then(data => {

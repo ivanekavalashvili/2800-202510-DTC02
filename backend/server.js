@@ -273,6 +273,22 @@ app.post('/createCategory', async (req, res) => {
     }
 })
 
+app.post('/deleteTask', async (req, res) => {
+    try {
+        const { _id } = req.body;
+        console.log(_id)
+        if (!_id) {
+            return res.status(400).json({ message: 'Task id not found' });
+        }
+
+        await Task.deleteOne({ _id });
+        res.status(201).json({ message: 'Task deleted successfully!' })
+    }
+    catch (error) {
+        console.log('db category error', error)
+    }
+})
+
 app.post('/editCategory', async (req, res) => {
     try {
         const { _id, name, color, oldName } = req.body;
