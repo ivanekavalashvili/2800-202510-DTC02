@@ -81,6 +81,29 @@ const taskSchema = new mongoose.Schema({
 const Category = mongoose.model("Category", categorySchema);
 const Task = mongoose.model("Task", taskSchema)
 
+
+const rewardSchema = new mongoose.Schema({
+    rewardTitle: { 
+        type: String, 
+        required: true 
+    },
+    description: { 
+        type: String, 
+        required: true 
+    },
+    pointsNeeded: { 
+        type: Number, 
+        required: true 
+    },
+    parentEmail: { 
+        type: String, 
+        required: true 
+    }
+});
+
+const Reward = mongoose.model('Reward', rewardSchema);
+
+
 // Make user data available to all templates
 app.use(async (req, res, next) => {
     if (req.session.user) {
@@ -134,11 +157,24 @@ app.get('/tasks', requireAuth, (req, res) => {
     });
 });
 
-app.get('/rewards', requireAuth, (req, res) => {
+app.get('/rewards', requireAuth, async (req, res) => {
+    const user = res.locals.user;
+
+    let rewards = [];
+
+    if (user.role === 'parent') {
+        rewards = await Reward.find({ parentEmail: user.email });
+    } else if (user.role === 'kid') {
+        rewards = await Reward.find({ parentEmail: user.parent_email });
+    }
+
     res.render('pages/rewards', {
-        title: 'Rewards'
+        title: 'Rewards',
+        role: user.role,
+        rewards
     });
 });
+
 
 app.get('/profile', requireAuth, async (req, res) => {
     const user = res.locals.user;
@@ -151,7 +187,7 @@ app.get('/profile', requireAuth, async (req, res) => {
     res.render('pages/profile', {
         title: 'Profile',
         role: user.role,
-        kids // pass the array to EJS
+        kids 
     });
 });
 
@@ -436,6 +472,82 @@ app.post('/add-kid', async (req, res) => {
     }
 });
 
+// Create reward
+app.post('/rewards', requireAuth, async (req, res) => {
+    try {
+        const { title, description, cost } = req.body;
+
+        if (!title || !description || !cost) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        const user = res.locals.user;
+
+        const newReward = new Reward({
+            rewardTitle: title,
+            description,
+            pointsNeeded: parseInt(cost),
+            parentEmail: user.email
+        });
+
+        await newReward.save();
+        res.status(201).json({ message: 'Reward saved successfully!' });
+
+    } catch (err) {
+        console.error('Error saving reward:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+//edit a reward
+app.put('/rewards/:id', requireAuth, async (req, res) => {
+    try {
+        const rewardId = req.params.id;
+        const { title, description, cost } = req.body;
+
+        if (!title || !description || !cost) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        const updated = await Reward.findByIdAndUpdate(
+            rewardId,
+            {
+                rewardTitle: title,
+                description,
+                pointsNeeded: parseInt(cost)
+            },
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: "Reward not found" });
+        }
+
+        res.status(200).json({ message: "Reward updated successfully" });
+    } catch (err) {
+        console.error("Edit reward error:", err);
+        res.status(500).json({ message: "Server error while updating reward" });
+    }
+});
+
+//delete a reward
+app.delete('/rewards/:id', requireAuth, async (req, res) => {
+    try {
+        const rewardId = req.params.id;
+        const user = res.locals.user;
+
+        const reward = await Reward.findById(rewardId);
+        if (!reward) {
+            return res.status(404).json({ message: "Reward not found" });
+        }
+
+        await Reward.deleteOne({ _id: rewardId });
+        res.status(200).json({ message: "Reward deleted successfully" });
+    } catch (err) {
+        console.error("Delete error:", err);
+        res.status(500).json({ message: "Server error while deleting reward" });
+    }
+});
 
 
 app.get('/logout', (req, res) => {
