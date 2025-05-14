@@ -11,6 +11,88 @@
             <% if (role==="parent" ) { %>
                 <a href="#" id="openAddRewardModal" class="nav-btn">Add Reward</a> <% } %>
         </div>
-    
+        <div id="AddRewardModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-btn" id="closeAddRewardModal">&times;</span>
+                <h2>Add a Reward</h2>
+                <form id="addRewardForm">
+                    <input class="input" type="text" name="rewardTitle" placeholder="Title" required />
+                    <input class="input" type="text" name="description" placeholder="description" required />
+                    <input class="input" type="text" name="pointsNeeded" placeholder="cost" required />
+                    <button type="submit" class="login-btn">Create Reward</button>
+                </form>
+            </div>
+        </div>
+        <% if (role==='parent' ) { %>
+            <h3>Your Rewards</h3>
+            <% if (rewards.length===0) { %>
+                <p>No rewards created yet.</p>
+                <% } else { %>
+                    <ul>
+                        <% rewards.forEach(reward=> { %>
+                            <li>
+                                <strong>
+                                    <%= reward.rewardTitle %>
+                                </strong> —
+                                <%= reward.description %>
+                                    (<%= reward.pointsNeeded %> points)
+                            </li>
+                            <% }) %>
+                    </ul>
+                    <% } %>
+                        <% } %>
+
 </body>
+
+<script>
+      document.addEventListener("DOMContentLoaded", () => {
+            const modal = document.getElementById("AddRewardModal");
+            const openBtn = document.getElementById("openAddRewardModal");
+            const closeBtn = document.getElementById("closeAddRewardModal");
+            const form = document.getElementById("addRewardForm");
+
+            if (modal && openBtn && closeBtn) {
+                openBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    modal.style.display = "flex";
+                });
+
+                closeBtn.addEventListener("click", () => {
+                    modal.style.display = "none";
+                });
+
+                window.addEventListener("click", (event) => {
+                    if (event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                });
+            }
+
+            if(form){
+                form.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    const title = form.rewardTitle.value
+                    const description = form.description.value;
+                    const cost = form.pointsNeeded.value
+
+                    const res = await fetch("/rewards", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ title, description, cost}),
+                    });
+
+                    const data = await res.json();
+                    if (res.ok) {
+                        alert("Reward Created");
+                        form.reset();
+                        modal.style.display = "none";
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            }
+
+        });
+</script>
 </html>
