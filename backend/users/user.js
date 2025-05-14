@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     points: {
-        type: String
+        type: Number
     }
 });
 
