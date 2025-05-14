@@ -55,6 +55,29 @@ const categorySchema = new mongoose.Schema({
 
 const Category = mongoose.model("Category", categorySchema);
 
+
+const rewardSchema = new mongoose.Schema({
+    rewardTitle: { 
+        type: String, 
+        required: true 
+    },
+    description: { 
+        type: String, 
+        required: true 
+    },
+    pointsNeeded: { 
+        type: Number, 
+        required: true 
+    },
+    parentEmail: { 
+        type: String, 
+        required: true 
+    }
+});
+
+const Reward = mongoose.model('Reward', rewardSchema);
+
+
 // Make user data available to all templates
 app.use(async (req, res, next) => {
     if (req.session.user) {
@@ -108,12 +131,22 @@ app.get('/tasks', requireAuth, (req, res) => {
     });
 });
 
-app.get('/rewards', requireAuth, (req, res) => {
+app.get('/rewards', requireAuth, async (req, res) => {
+    const user = res.locals.user;
+
+    let rewards = [];
+
+    if (user.role === 'parent') {
+        rewards = await Reward.find({ parentEmail: user.email });
+    }
+
     res.render('pages/rewards', {
         title: 'Rewards',
-        role: res.locals.user.role
+        role: user.role,
+        rewards
     });
 });
+
 
 app.get('/profile', requireAuth, async (req, res) => {
     const user = res.locals.user;
@@ -305,6 +338,37 @@ app.post('/add-kid', async (req, res) => {
         res.status(500).json({ message: 'Error creating kid account' });
     }
 });
+// Create reward
+app.post('/rewards', requireAuth, async (req, res) => {
+    try {
+        const { title, description, cost } = req.body;
+
+        if (!title || !description || !cost) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        const user = res.locals.user;
+
+        if (user.role !== 'parent') {
+            return res.status(403).json({ message: 'Only parents can create rewards' });
+        }
+
+        const newReward = new Reward({
+            rewardTitle: title,
+            description,
+            pointsNeeded: parseInt(cost),
+            parentEmail: user.email
+        });
+
+        await newReward.save();
+        res.status(201).json({ message: 'Reward saved successfully!' });
+
+    } catch (err) {
+        console.error('Error saving reward:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 
 
