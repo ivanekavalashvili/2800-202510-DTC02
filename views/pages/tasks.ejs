@@ -18,7 +18,7 @@
     <div id="result"></div>
 
     <% if (role == "parent" ) { %>
-        <button onclick="dialogMaker(createCategoryPopup)" class="role-btn block mx-12 size-full">Create Category</button>
+        <button onclick="dialogMaker(createCategoryPopup)" class="role-btn block mx-auto px-10">Create Category</button>
 
         <template id="categoryCreationTemplate">
             <div class="forms-container">
@@ -138,22 +138,22 @@
                     result.innerHTML = ""
                     data.forEach((category) => {
                         const div = document.createElement("div")
-                        div.setAttribute('class', "grid bg-[" + category.color + "] rounded-md my-2 p-2 mx-10")
+                        div.setAttribute('class', "grid bg-[" + category.color + "] rounded-md my-5 p-2 mx-5")
                         result.appendChild(div)
 
                         const titleAndEdit = document.createElement("div")
-                        titleAndEdit.setAttribute("class", "flex justify-between items-center")
+                        titleAndEdit.setAttribute("class", "flex justify-between items-center mb-3")
                         div.appendChild(titleAndEdit)
 
                         const title = document.createElement("span")
                         title.innerText = category.name
-                        title.setAttribute("class", "text-2xl font-bold bg-white p-3 mb-2 rounded")
+                        title.setAttribute("class", "text-2xl font-bold bg-white bg-opacity-70 p-3 mb-2 rounded")
 
                         titleAndEdit.appendChild(title)
 
                         const editBtn = document.createElement("button")
                         editBtn.innerHTML = "Edit category"
-                        editBtn.setAttribute("class", "role-btn ml-10 px-3")
+                        editBtn.setAttribute("class", "role-btn ml-10 px-3 bg-opacity-70")
                         editBtn.addEventListener("click", () => editCategoryPopup(category))
                         titleAndEdit.appendChild(editBtn)
 
@@ -173,7 +173,7 @@
                                     data.forEach((task) => {
 
                                         const taskResult = document.createElement("div")
-                                        taskResult.setAttribute('class', "bg-white rounded-md p-2")
+                                        taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-md p-2")
                                         totalResult.appendChild(taskResult)
                                         
                                         const topDiv = document.createElement("div")
@@ -370,6 +370,14 @@
         <p>Please log in</p>
     <% } %>
 
+    <div id="weatherDiv"
+        style="background: #f4ffe4; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: Open Sans, sans-serif; z-index: 1000; width: 200px;"
+        class="fixed max-md:relative md:top-40 md:right-10 max-md:mx-auto my-10">
+        <h4 style="margin-bottom: 8px; font: 600 1rem 'Open Sans', sans-serif; color: #2e8b3d;">Current Weather</h4>
+        <p id="weather-temp" style="margin: 6px 0 2px 0; font-size: 1rem;"></p>
+        <p id="weather-desc" style="margin: 0 0 8px 0; font-size: 0.9rem; color: #444;"></p>
+        <img id="weather-icon" src="" alt="Weather Icon" style="width: 50px; display: none;">
+    </div>
 
     <script>
     let latitude;
@@ -422,14 +430,7 @@
     window.onload = getLocation;
 </script>
 
-<div id="weatherDiv"
-    style="background: #f4ffe4; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: Open Sans, sans-serif; z-index: 1000; width: 200px;"
-    class="fixed max-md:relative md:top-40 md:right-10 max-md:mx-auto my-10">
-    <h4 style="margin-bottom: 8px; font: 600 1rem 'Open Sans', sans-serif; color: #2e8b3d;">Current Weather</h4>
-    <p id="weather-temp" style="margin: 6px 0 2px 0; font-size: 1rem;"></p>
-    <p id="weather-desc" style="margin: 0 0 8px 0; font-size: 0.9rem; color: #444;"></p>
-    <img id="weather-icon" src="" alt="Weather Icon" style="width: 50px; display: none;">
-</div>
+
 </body>
 
 </html>
