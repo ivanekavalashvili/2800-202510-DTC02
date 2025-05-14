@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
+
     <body>
-        <div class="profile-content">
+        <div class="reward-btn">
             <% if (role==="parent" ) { %>
-                <a href="#" id="openAddRewardModal" class="nav-btn">Add Reward</a> <% } %>
+                <a href="#" id="openAddRewardModal" class="nav-btn">Add Reward</a>
+                <% } %>
         </div>
         <div id="AddRewardModal" class="modal" style="display: none;">
             <div class="modal-content">
@@ -23,33 +27,68 @@
                 </form>
             </div>
         </div>
-        <% if (role==='parent' ) { %>
-            <h3>Your Rewards</h3>
+        <div id="editRewardModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-btn" id="closeEditRewardModal">&times;</span>
+                <h2>Edit Reward</h2>
+                <form id="editRewardForm">
+                    <input type="hidden" name="rewardId" />
+                    <input class="input" type="text" name="rewardTitle" placeholder="Title" required />
+                    <input class="input" type="text" name="description" placeholder="description" required />
+                    <input class="input" type="text" name="pointsNeeded" placeholder="cost" required />
+                    <div style="display: flex; justify-content: space-between; gap: 10px;">
+                        <button type="submit" class="nav-btn">Save Changes</button>
+                        <button type="button" id="deleteRewardBtn" class="nav-btn">
+                            Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+       
+            <div class="reward-header">
+                <h3>Your Rewards</h3>
+            </div>
             <% if (rewards.length===0) { %>
                 <p>No rewards created yet.</p>
                 <% } else { %>
-                    <ul>
-                        <% rewards.forEach(reward=> { %>
-                            <li>
-                                <strong>
-                                    <%= reward.rewardTitle %>
-                                </strong> —
+                <div class="reward-list">
+                    <% rewards.forEach(reward=> { %>
+                        <div class="reward-card" data-id="<%= reward._id %>">
+                            <div class="title">
+                                <%= reward.rewardTitle %>
+                            </div>
+                            <div class="description">
                                 <%= reward.description %>
-                                    (<%= reward.pointsNeeded %> points)
-                            </li>
-                            <% }) %>
-                    </ul>
+                            </div>
+                            <div class="points">
+                                <%= reward.pointsNeeded %> pts
+                            </div>
+                            <% if (role==='parent' ) { %>
+                                <button class="edit-reward-btn" data-id="<%= reward._id %>" data-title="<%= reward.rewardTitle %>"
+                                    data-description="<%= reward.description %>" data-points="<%= reward.pointsNeeded %>">
+                                    Edit
+                                </button>
+                                <% } %>
+                        </div>
+                        <% }) %>
+                </div>
                     <% } %>
-                        <% } %>
+                       
 
-</body>
+    </body>
 
-<script>
-      document.addEventListener("DOMContentLoaded", () => {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
             const modal = document.getElementById("AddRewardModal");
             const openBtn = document.getElementById("openAddRewardModal");
             const closeBtn = document.getElementById("closeAddRewardModal");
             const form = document.getElementById("addRewardForm");
+            const editModal = document.getElementById("editRewardModal");
+            const closeEditBtn = document.getElementById("closeEditRewardModal");
+            const editForm = document.getElementById("editRewardForm");
+            const deleteBtn = document.getElementById("deleteRewardBtn");
+
 
             if (modal && openBtn && closeBtn) {
                 openBtn.addEventListener("click", (e) => {
@@ -67,8 +106,47 @@
                     }
                 });
             }
+            
+            document.querySelectorAll(".edit-reward-btn").forEach(button => {
+                button.addEventListener("click", () => {
+            
+                    editForm.rewardId.value = button.dataset.id;
+                    editForm.rewardTitle.value = button.dataset.title;
+                    editForm.description.value = button.dataset.description;
+                    editForm.pointsNeeded.value = button.dataset.points;
 
-            if(form){
+
+                    editModal.style.display = "flex";
+                });
+            });
+
+
+            closeEditBtn.addEventListener("click", () => {
+                editModal.style.display = "none";
+            });
+           
+            deleteBtn.addEventListener("click", async () => {
+                const rewardId = editForm.rewardId.value;
+
+                if (!rewardId) return alert("No reward selected.");
+                if (!confirm("Are you sure you want to delete this reward?")) return;
+
+                const res = await fetch(`/rewards/${rewardId}`, {
+                    method: "DELETE"
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert("Reward deleted.");
+                    editModal.style.display = "none";
+                    location.reload();
+                } else {
+                    alert(data.message || "Error deleting reward.");
+                }
+            });
+
+
+            if (form) {
                 form.addEventListener("submit", async (e) => {
                     e.preventDefault();
                     const title = form.rewardTitle.value
@@ -78,7 +156,7 @@
                     const res = await fetch("/rewards", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ title, description, cost}),
+                        body: JSON.stringify({ title, description, cost }),
                     });
 
                     const data = await res.json();
@@ -92,7 +170,35 @@
                     }
                 });
             }
+            if (editForm) {
+                editForm.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+
+                    const rewardId = editForm.rewardId.value;
+                    const title = editForm.rewardTitle.value;
+                    const description = editForm.description.value;
+                    const cost = editForm.pointsNeeded.value;
+
+                    const res = await fetch(`/rewards/${rewardId}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ title, description, cost }),
+                    });
+
+                    const data = await res.json();
+                    if (res.ok) {
+                        alert("Reward updated!");
+                        editForm.reset();
+                        editModal.style.display = "none";
+                        location.reload();
+                    } else {
+                        alert(data.message || "Failed to update reward.");
+                    }
+                });
+            }
+
 
         });
-</script>
+    </script>
+
 </html>
