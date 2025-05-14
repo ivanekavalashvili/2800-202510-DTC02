@@ -138,6 +138,8 @@ app.get('/rewards', requireAuth, async (req, res) => {
 
     if (user.role === 'parent') {
         rewards = await Reward.find({ parentEmail: user.email });
+    } else if (user.role === 'kid') {
+        rewards = await Reward.find({ parentEmail: user.parent_email });
     }
 
     res.render('pages/rewards', {
@@ -338,6 +340,7 @@ app.post('/add-kid', async (req, res) => {
         res.status(500).json({ message: 'Error creating kid account' });
     }
 });
+
 // Create reward
 app.post('/rewards', requireAuth, async (req, res) => {
     try {
@@ -348,10 +351,6 @@ app.post('/rewards', requireAuth, async (req, res) => {
         }
 
         const user = res.locals.user;
-
-        if (user.role !== 'parent') {
-            return res.status(403).json({ message: 'Only parents can create rewards' });
-        }
 
         const newReward = new Reward({
             rewardTitle: title,
@@ -369,7 +368,55 @@ app.post('/rewards', requireAuth, async (req, res) => {
     }
 });
 
+//edit a reward
+app.put('/rewards/:id', requireAuth, async (req, res) => {
+    try {
+        const rewardId = req.params.id;
+        const { title, description, cost } = req.body;
 
+        if (!title || !description || !cost) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        const updated = await Reward.findByIdAndUpdate(
+            rewardId,
+            {
+                rewardTitle: title,
+                description,
+                pointsNeeded: parseInt(cost)
+            },
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: "Reward not found" });
+        }
+
+        res.status(200).json({ message: "Reward updated successfully" });
+    } catch (err) {
+        console.error("Edit reward error:", err);
+        res.status(500).json({ message: "Server error while updating reward" });
+    }
+});
+
+//delete a reward
+app.delete('/rewards/:id', requireAuth, async (req, res) => {
+    try {
+        const rewardId = req.params.id;
+        const user = res.locals.user;
+
+        const reward = await Reward.findById(rewardId);
+        if (!reward) {
+            return res.status(404).json({ message: "Reward not found" });
+        }
+
+        await Reward.deleteOne({ _id: rewardId });
+        res.status(200).json({ message: "Reward deleted successfully" });
+    } catch (err) {
+        console.error("Delete error:", err);
+        res.status(500).json({ message: "Server error while deleting reward" });
+    }
+});
 
 
 app.get('/logout', (req, res) => {
