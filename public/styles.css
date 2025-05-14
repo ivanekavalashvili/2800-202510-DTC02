@@ -443,6 +443,10 @@ label {
     font-family: 'Quicksand', sans-serif;
 }
 
+span {
+    font-family: 'Quicksand', sans-serif;
+}
+
 .task-card h2 {
     font-family: 'Quicksand', sans-serif;
     font-size: 1.25rem;
