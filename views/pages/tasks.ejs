@@ -154,7 +154,7 @@
                     result.innerHTML = ""
                     data.forEach((category) => {
                         const div = document.createElement("div")
-                        div.setAttribute('class', "grid bg-[" + category.color + "] rounded-md my-5 p-2 mx-5")
+                        div.setAttribute('class', "grid bg-[" + category.color + "] rounded-md my-5 p-2 mx-5 max-w-4xl")
                         result.appendChild(div)
 
                         const titleAndEdit = document.createElement("div")
@@ -164,7 +164,6 @@
                         const title = document.createElement("span")
                         title.innerText = category.name
                         title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded")
-
                         titleAndEdit.appendChild(title)
 
                         const editBtn = document.createElement("button")
@@ -388,7 +387,7 @@
 
     <div id="weatherDiv"
         style="background: #f4ffe4; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: Open Sans, sans-serif; z-index: 1000; width: 200px;"
-        class="fixed max-md:relative md:top-40 md:right-10 max-md:mx-auto my-10">
+        class="fixed max-md:relative md:bottom-10 md:right-10 max-md:mx-auto my-10">
         <h4 style="margin-bottom: 8px; font: 600 1rem 'Open Sans', sans-serif; color: #2e8b3d;">Current Weather</h4>
         <p id="weather-temp" style="margin: 6px 0 2px 0; font-size: 1rem;"></p>
         <p id="weather-desc" style="margin: 0 0 8px 0; font-size: 0.9rem; color: #444;"></p>
