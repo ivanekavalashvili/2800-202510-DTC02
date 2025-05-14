@@ -17,26 +17,21 @@
     
     <div id="result"></div>
 
-    <div id="weatherDiv"
-        style="position: fixed; top: 80px; right: 20px; background: #f4ffe4; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: Open Sans, sans-serif; z-index: 1000; width: 200px;">
-        <h4 style="margin-bottom: 8px; font: 600 1rem 'Open Sans', sans-serif; color: #2e8b3d;">Current Weather</h4>
-        <p id="weather-temp" style="margin: 6px 0 2px 0; font-size: 1rem;"></p>
-        <p id="weather-desc" style="margin: 0 0 8px 0; font-size: 0.9rem; color: #444;"></p>
-        <img id="weather-icon" src="" alt="Weather Icon" style="width: 50px; display: none;">
-    </div>
-
     <% if (role == "parent" ) { %>
-        <button onclick="dialogMaker(createCategoryPopup)" class="role-btn mx-auto">Create Category</button>
+        <button onclick="dialogMaker(createCategoryPopup)" class="role-btn block mx-auto px-10">Create Category</button>
 
         <template id="categoryCreationTemplate">
-            <div class="forms-container">
-                <h1>Create a Category</h1>
+            <div class="forms-container p-5">
+                <p class="text-xl" id="Create a Category">Create a Category</p>
+                <br>
                 <label for="name">Name:</label>
                 <input name="name" type="text" id="categoryName" class="input" placeholder="Category name..."
                     required>
+                <br>
                 <label for="color">Background Color:</label>
-                <input name="color" type="color" id="categoryColor" class="border-2" value="#b2e6b2" required>
-                <div class="flex justify-between">
+                <input name="color" type="color" id="categoryColor" class="block border-2" value="#b2e6b2" required>
+                <br>
+                <div class="flex justify-between gap-2">
                     <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
                     <button id="deleteButton" class="role-btn hidden">Delete</button>
                     <button id="submitButton" class="role-btn" type="submit">Submit</button>
@@ -45,8 +40,9 @@
         </template>
 
         <template id="taskCreationPopup">
-            <div class="forms-container">
+            <div class="forms-container p-5">
                 <p class="text-xl">Create a Task</p>
+                <br>
                 <label for="categoryName">Catergory Name: </label>
                 <input name="categoryName" type="text" id="categoryNameTask" class="input" readonly>
                 <label for="name">Name of Task: </label>
@@ -56,10 +52,10 @@
                 <input name="taskdetails" type="text" id="taskDetails" class="input"
                     placeholder="Describe the task and the intructions">
                 <label for="points">Points awarded: </label>
-                <input name="points" type="number" id="pointsAwarded" class="input" required>
+                <input name="points" type="number" id="pointsAwarded" class="input" placeholder="Input the number of points to be awarded" required>
                 <label for="kids">Assigned to: </label>
                 <div id="taskKids"></div>
-                <div class="flex justify-between">
+                <div class="flex justify-between gap-2">
                     <button id="cancelButton" onclick="closeDialog()" class="role-btn" type="cancel">Cancel</button>
                     <button id="deleteButtonTask" class="role-btn hidden">Delete</button>
                     <button id="submitButton" class="role-btn" type="submit">Submit</button>
@@ -90,14 +86,20 @@
                     .then((response) => response.json())
                     .then((data) => {
                         data.forEach((kid) => {
+                            
+                            const checkBtn = document.createElement("input")
+                            checkBtn.setAttribute("type", "checkbox")
+                            checkBtn.setAttribute("class", "m-3")
+                            checkBtn.setAttribute("name", kid._id)
+                            checkBtn.checked = true
+                            kidCheck.appendChild(checkBtn)
+                            
                             const name = document.createElement("label")
                             name.innerText = kid.username
                             kidCheck.appendChild(name)
-
-                            const checkBtn = document.createElement("input")
-                            checkBtn.setAttribute("type", "checkbox")
-                            checkBtn.setAttribute("name", kid._id)
-                            kidCheck.appendChild(checkBtn)
+                            
+                            br = document.createElement("br")
+                            kidCheck.appendChild(br)
                         })
                     })
             }, 0)
@@ -110,6 +112,9 @@
             dialogResult.appendChild(categoryTemplate.content.cloneNode(true)) 
 
             setTimeout(() => {
+                formType = document.getElementById("Create a Category")
+                formType.innerText = "Create a Category"
+
                 const submitButton = document.getElementById("submitButton");
                 if (submitButton) submitButton.addEventListener("click", newCategory)
             }, 0)
@@ -120,10 +125,12 @@
             dialogResult.innerHTML = ""
 
             categoryTemplate = document.getElementById("categoryCreationTemplate")
-
             dialogResult.appendChild(categoryTemplate.content.cloneNode(true))
 
             setTimeout(() => {
+                formType = document.getElementById("Create a Category")
+                formType.innerText = "Edit Category"
+
                 const categoryName = document.getElementById("categoryName")
                 categoryName.setAttribute("value", category.name)
 
@@ -178,24 +185,27 @@
                     result.innerHTML = ""
                     data.forEach((category) => {
                         const div = document.createElement("div")
-                        div.setAttribute('class', "grid grid-rows-2 bg-[" + category.color + "] rounded-md my-2 p-2")
+                        div.setAttribute('class', "grid bg-[" + category.color + "] rounded-md my-5 p-2 mx-5 max-w-4xl")
                         result.appendChild(div)
 
                         const titleAndEdit = document.createElement("div")
-                        titleAndEdit.setAttribute("class", "flex justify-between items-center")
+                        titleAndEdit.setAttribute("class", "flex justify-between items-center mb-3")
                         div.appendChild(titleAndEdit)
 
                         const title = document.createElement("span")
                         title.innerText = category.name
-                        title.setAttribute("class", "text-2xl font-bold bg-white p-3 mb-2 rounded")
-
+                        title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded")
                         titleAndEdit.appendChild(title)
 
                         const editBtn = document.createElement("button")
                         editBtn.innerHTML = "Edit category"
-                        editBtn.setAttribute("class", "role-btn ml-10")
+                        editBtn.setAttribute("class", "role-btn ml-5 mr-3 px-3 bg-opacity-70")
                         editBtn.addEventListener("click", () => editCategoryPopup(category))
                         titleAndEdit.appendChild(editBtn)
+
+                        const totalResult = document.createElement("div")
+                        totalResult.setAttribute('class', "grid grid-cols-2 gap-3 mb-3")
+                        div.appendChild(totalResult)
 
                         // Fuctionality for filling out the tasks inside the category
                             // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
@@ -207,28 +217,29 @@
                                 .then((response) => response.json())
                                 .then((data) => {
                                     data.forEach((task) => {
+
                                         const taskResult = document.createElement("div")
-                                        taskResult.setAttribute('class', "grid grid-rows-1 bg-white rounded-md my-2 p-2")
-                                        div.appendChild(taskResult)
+                                        taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-md p-2")
+                                        totalResult.appendChild(taskResult)
                                         
                                         const topDiv = document.createElement("div")
-                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-md my-2 p-2")
+                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-md mb-2")
                                         taskResult.appendChild(topDiv)
 
                                         const taskTitle = document.createElement('span')
-                                        taskTitle.setAttribute('class', "grid rounded-md my-2 p-2")
-                                        taskTitle.innerHTML = 'Task name: ' + task.name 
+                                        taskTitle.setAttribute('class', "rounded-md font-bold font-lg")
+                                        taskTitle.innerHTML = task.name
                                         topDiv.appendChild(taskTitle)
 
                                         const taskPoints = document.createElement('span')
-                                        taskPoints.setAttribute('class', "grid rounded-md my-2 p-2")
-                                        taskPoints.innerHTML = 'Points gained for completion: ' + task.points
+                                        taskPoints.setAttribute('class', "rounded-md text-right")
+                                        taskPoints.innerHTML = '$' + task.points
                                         topDiv.appendChild(taskPoints)
 
-                                        const taskDesc = document.createElement('span')
-                                        taskDesc.setAttribute('class', "grid rounded-md my-2 p-2")
+                                        const taskDesc = document.createElement('p')
+                                        taskDesc.setAttribute('class', "rounded-md")
                                         taskDesc.innerHTML = task.taskdetails
-                                        topDiv.appendChild(taskDesc)
+                                        taskResult.appendChild(taskDesc)
 
                                         const editTaskBtn = document.createElement("button")
                                         editTaskBtn.innerHTML = "Edit Task"
@@ -386,18 +397,21 @@
                         result.innerHTML = ""
                         data.forEach((category) => {
                             const div = document.createElement("div")
-                            div.setAttribute('class', "grid grid-rows-2 bg-[" + category.color + "] rounded-md my-2 p-2")
+                            div.setAttribute('class', "grid bg-[" + category.color + "] rounded-md my-5 p-2 mx-5 max-w-4xl")
                             result.appendChild(div)
 
                             const titleAndEdit = document.createElement("div")
-                            titleAndEdit.setAttribute("class", "flex justify-between items-center")
+                            titleAndEdit.setAttribute("class", "flex justify-between items-center mb-3")
                             div.appendChild(titleAndEdit)
 
                             const title = document.createElement("span")
                             title.innerText = category.name
-                            title.setAttribute("class", "text-2xl font-bold bg-white p-3 mb-2 rounded-md")
-
+                            title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded")
                             titleAndEdit.appendChild(title)
+
+                            const totalResult = document.createElement("div")
+                            totalResult.setAttribute('class', "grid grid-cols-2 gap-3 mb-3")
+                            div.appendChild(totalResult)
 
                             // Fuctionality for filling out the tasks inside the category
                             // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
@@ -410,27 +424,27 @@
                                 .then((data) => {
                                     data.forEach((task) => {
                                         const taskResult = document.createElement("div")
-                                        taskResult.setAttribute('class', "grid grid-rows-1 bg-white rounded-md my-2 p-2")
-                                        div.appendChild(taskResult)
+                                        taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-md p-2")
+                                        totalResult.appendChild(taskResult)
 
                                         const topDiv = document.createElement("div")
-                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-md my-2 p-2")
+                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-md mb-2")
                                         taskResult.appendChild(topDiv)
 
                                         const taskTitle = document.createElement('span')
-                                        taskTitle.setAttribute('class', "grid rounded-md my-2 p-2")
-                                        taskTitle.innerHTML = 'Task name: ' + task.name
+                                        taskTitle.setAttribute('class', "rounded-md font-bold font-lg")
+                                        taskTitle.innerHTML = task.name
                                         topDiv.appendChild(taskTitle)
 
                                         const taskPoints = document.createElement('span')
-                                        taskPoints.setAttribute('class', "grid rounded-md my-2 p-2")
-                                        taskPoints.innerHTML = 'Points gained for completion: ' + task.points
+                                        taskPoints.setAttribute('class', "rounded-md text-right")
+                                        taskPoints.innerHTML = '$' + task.points
                                         topDiv.appendChild(taskPoints)
 
-                                        const taskDesc = document.createElement('span')
-                                        taskDesc.setAttribute('class', "grid rounded-md my-2 p-2")
+                                        const taskDesc = document.createElement('p')
+                                        taskDesc.setAttribute('class', "rounded-md")
                                         taskDesc.innerHTML = task.taskdetails
-                                        topDiv.appendChild(taskDesc)
+                                        taskResult.appendChild(taskDesc)
                                     })
                                 })
                         })
@@ -444,6 +458,14 @@
         <p>Please log in</p>
     <% } %>
 
+    <div id="weatherDiv"
+        style="background: #f4ffe4; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: Open Sans, sans-serif; z-index: 1000; width: 200px;"
+        class="fixed max-md:relative md:bottom-10 md:right-10 max-md:mx-auto my-10">
+        <h4 style="margin-bottom: 8px; font: 600 1rem 'Open Sans', sans-serif; color: #2e8b3d;">Current Weather</h4>
+        <p id="weather-temp" style="margin: 6px 0 2px 0; font-size: 1rem;"></p>
+        <p id="weather-desc" style="margin: 0 0 8px 0; font-size: 0.9rem; color: #444;"></p>
+        <img id="weather-icon" src="" alt="Weather Icon" style="width: 50px; display: none;">
+    </div>
 
     <script>
     let latitude;
@@ -495,6 +517,8 @@
 
     window.onload = getLocation;
 </script>
+
+
 </body>
 
 </html>
