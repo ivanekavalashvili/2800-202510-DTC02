@@ -242,6 +242,22 @@ app.post('/createTask', requireAuth, async (req, res) => {
     }
 })
 
+app.post('/editTask', async (req, res) => {
+    try {
+        const { _id, name, taskDetails, points } = req.body;
+        console.log(_id + ' ' + name + ' ' + taskDetails + ' ' + points)
+        if (!_id) {
+            return res.status(400).json({ message: 'Task Id not found' });
+        }
+        // Update the task once submit is pressed
+        await Task.updateOne({_id}, { name: name, taskdetails: taskDetails, points: points})
+        res.status(201).json({ message: 'Task updated successfully!' })
+    }
+    catch (error) {
+        console.log('db category error', error)
+    }
+})
+
 app.post('/createCategory', async (req, res) => {
     try {
         const { name, color } = req.body;

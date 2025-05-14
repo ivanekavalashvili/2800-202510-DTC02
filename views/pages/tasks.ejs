@@ -140,7 +140,7 @@
         }
 
         // Creating the option to edit your tasks through the original pop for the task creation
-        function editTaskPopup(category) {
+        function editTaskPopup(task) {
             dialog.showModal()
             dialogResult.innerHTML = ""
 
@@ -162,7 +162,7 @@
                 taskPoints.setAttribute("value", task.points)
 
                 const submitButton = document.getElementById("submitButton");
-                if (submitButton) submitButton.addEventListener("click", (e) => editCategory(category, e))
+                if (submitButton) submitButton.addEventListener("click", (e) => editTask(task, e))
 
                 const deleteButton = document.getElementById("deleteButtonTask");
                 deleteButton.setAttribute("class", "role-btn")
@@ -296,6 +296,28 @@
                 })
         }
 
+        // Functions for task editing and deletion
+        function editTask(task, e) {
+            e.preventDefault();
+            const name = document.getElementById('taskName').value
+            const taskdetails = document.getElementById('taskDetails').value
+            const points = document.getElementById('pointsAwarded').value
+            const id = task._id
+
+            fetch("/editTask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ _id: id, name: name, taskDetails: taskdetails, points: points})
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data.message);
+                    fetchCategories();
+                    closeDialog();
+                })
+        }
+
+        // Functions for category editing and deletion
         function editCategory(category, e) {
             e.preventDefault();
             const newName = document.getElementById('categoryName').value
