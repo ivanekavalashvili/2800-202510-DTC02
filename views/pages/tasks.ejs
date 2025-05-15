@@ -404,11 +404,10 @@
             </div>
         </template>
         <script>
-            const dialog = document.querySelector("dialog")
-            const dialogResult = document.getElementById("dialogResult")
+            const dialogKid = document.querySelector("dialog")
 
             function finishTaskPopup(task) {
-                dialog.showModal()
+                dialogKid.showModal()
                 dialogResult.innerHTML = ""
 
                 taskTemplate = document.getElementById("taskFinishPopup")
@@ -455,7 +454,7 @@
                     .then((data) => {
                         console.log(data.message)
                         closeDialog();
-                        fetchCategories();
+                        window.location.reload()
                     })
             }
 
@@ -529,10 +528,10 @@
                                             finishTaskBtn.setAttribute("class", "role-btn block mx-auto mt-3 px-10")
                                             finishTaskBtn.addEventListener("click", () => finishTaskPopup(task))
                                             taskResult.appendChild(finishTaskBtn)
-                                        } else{
+                                        } else {
                                             const comeTomorrow = document.createElement("h2")
                                             comeTomorrow.innerHTML = "Task refreshes at ___ time"
-                                            comeTomorrow.setAttribute("class", "bg-[#b2e6b2] block mx-auto mt-3 px-10 rounded-2xl")
+                                            comeTomorrow.setAttribute("class", "bg-[#b2e6b2] block mx-auto mt-3 px-10 py-3 rounded-2xl")
                                             taskResult.appendChild(comeTomorrow)
                                         }
 
@@ -544,7 +543,7 @@
                 }
 
                 function closeDialog() {
-                    dialog.close();
+                    dialogKid.close();
                 }
 
                 
