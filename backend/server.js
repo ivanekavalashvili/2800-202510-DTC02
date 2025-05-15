@@ -120,6 +120,39 @@ const rewardSchema = new mongoose.Schema({
 
 const Reward = mongoose.model('Reward', rewardSchema);
 
+// notifications for both rewards and tasks
+const notificationSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    points: {
+        type: Number,
+        required: true
+    },
+    childId: {
+        type: String,
+        required: true
+    },
+    parentEmail: {
+        type: String,
+        required: true
+    },
+    when: {
+        type: Date,
+        required: true
+    },
+    taskOrReward: {
+        type: String,
+        required: true
+    },
+});
+
+const Notification = mongoose.model('Reward', notificationSchema);
 
 // Make user data available to all templates
 app.use(async (req, res, next) => {
@@ -291,13 +324,30 @@ app.post('/kidFinishTask', requireAuth, async (req, res) => {
     try {
         const { task } = req.body
         const user = await User.findById({ _id: req.session.user })
+
+        // updates the kid's points with the amount from the task
         user.points = (user.points || 0) + task.points
         await user.save()
-        const result = await Task.updateOne(
+
+        // updates the task completedBy array to show the kid has completed the task
+        const completed = await Task.updateOne(
             { _id: task._id },
             { $addToSet: { completedBy: user._id } }
         )
-        console.log(result)
+        console.log(completed)
+
+        // creates a notification to notify the parent that the kid has completed a task and audit it.
+        const notify = await Notification.create({
+            name: task.name,
+            description: task.description,
+            points: task.points,
+            childId: user._id,
+            parentEmail: user.parent_email,
+            when: new Date(),
+            taskOrReward: "task"
+        })
+        console.log(notify)
+        
         res.status(201).json({ message: 'Points added and task complete!' })
     }
     catch (error) {
