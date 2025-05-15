@@ -152,7 +152,7 @@ const notificationSchema = new mongoose.Schema({
     },
 });
 
-const Notification = mongoose.model('Reward', notificationSchema);
+const Notification = mongoose.model('Notification', notificationSchema);
 
 // Make user data available to all templates
 app.use(async (req, res, next) => {
