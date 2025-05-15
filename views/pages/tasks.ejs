@@ -244,7 +244,7 @@
 
                                         const editTaskBtn = document.createElement("button")
                                         editTaskBtn.innerHTML = "Edit Task"
-                                        editTaskBtn.setAttribute("class", "role-btn px-10")
+                                        editTaskBtn.setAttribute("class", "role-btn block mx-auto mt-3 px-10")
                                         editTaskBtn.addEventListener("click", () => editTaskPopup(task))
                                         taskResult.appendChild(editTaskBtn)
                                     })
@@ -388,69 +388,164 @@
     </script>
     <% } %>
 
+
+
     <% if (role=="kid" ) { %>
+        <template id="taskFinishPopup">
+            <div class="modal flex">
+                <div class="modal-content p-5 max-h-screen">
+                    <h2>Have you completed this task?</h2>
+                    <div id="result"></div>
+                    <div class="flex justify-between gap-2">
+                        <button id="cancelButton" onclick="closeDialog()" class="role-btn" type="cancel">No</button>
+                        <button id="submitButton" class="role-btn" type="submit">Yes!</button>
+                    </div>
+                </div>
+            </div>
+        </template>
         <script>
-            function fetchCategories() {
-                fetch("/kidCategories", { method: "GET" })
+            const dialogKid = document.querySelector("dialog")
+
+            function finishTaskPopup(task) {
+                dialogKid.showModal()
+                dialogResult.innerHTML = ""
+
+                taskTemplate = document.getElementById("taskFinishPopup")
+                dialogResult.appendChild(taskTemplate.content.cloneNode(true))
+                
+                setTimeout(() => {
+                    result = document.getElementById("result")
+
+                    const taskResult = document.createElement("div")
+                    taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-2xl p-2")
+                    result.appendChild(taskResult)
+
+                    const topDiv = document.createElement("div")
+                    topDiv.setAttribute('class', "grid grid-cols-2 rounded-2xl mb-2")
+                    taskResult.appendChild(topDiv)
+
+                    const taskTitle = document.createElement('span')
+                    taskTitle.setAttribute('class', "rounded-2xl font-bold font-lg")
+                    taskTitle.innerHTML = task.name
+                    topDiv.appendChild(taskTitle)
+
+                    const taskPoints = document.createElement('span')
+                    taskPoints.setAttribute('class', "rounded-2xl text-right")
+                    taskPoints.innerHTML = '$' + task.points
+                    topDiv.appendChild(taskPoints)
+
+                    const taskDesc = document.createElement('p')
+                    taskDesc.setAttribute('class', "rounded-2xl")
+                    taskDesc.innerHTML = task.taskdetails
+                    taskResult.appendChild(taskDesc)
+
+                    const submitButton = document.getElementById("submitButton");
+                    if (submitButton) submitButton.addEventListener("click", () => finishTask(task))
+                }, 0)
+            }
+
+            function finishTask(task) {
+                fetch("/kidFinishTask", { 
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ task: task })
+                })
                     .then((response) => response.json())
                     .then((data) => {
-                        const result = document.getElementById("result")
-                        result.innerHTML = ""
-                        data.forEach((category) => {
-                            const div = document.createElement("div")
-                            div.setAttribute('class', "grid bg-[" + category.color + "] rounded-2xl my-5 p-2 mx-5 max-w-4xl")
-                            result.appendChild(div)
+                        console.log(data.message)
+                        window.location.reload()
+                    })
+            }
 
-                            const titleAndEdit = document.createElement("div")
-                            titleAndEdit.setAttribute("class", "flex justify-center items-center mb-3")
-                            div.appendChild(titleAndEdit)
 
-                            const title = document.createElement("span")
-                            title.innerText = category.name
-                            title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded-2xl")
-                            titleAndEdit.appendChild(title)
 
-                            const totalResult = document.createElement("div")
-                            totalResult.setAttribute('class', "grid grid-cols-2 gap-3 mb-3")
-                            div.appendChild(totalResult)
-
-                            // Fuctionality for filling out the tasks inside the category
-                            // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
-                            const categoryNameDB = encodeURIComponent(category.name)
-                            fetch(`/kidDisplayTasks?category=${categoryNameDB}`, {
-                                credentials: 'include',
-                                method: "GET",
-                            })
+            function fetchCategories() {
+                const result = document.getElementById("result")
+                result.innerHTML = ""
+                fetch("/user", { method: "GET" })
+                    .then((userResponse) => userResponse.json())
+                    .then((userData) => {
+                        const pointDisplay = document.createElement("h2")
+                        pointDisplay.innerHTML = "You have " + userData.points + " points."
+                        result.appendChild(pointDisplay)
+                        fetch("/kidCategories", { method: "GET" })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            data.forEach((category) => {
+                                const div = document.createElement("div")
+                                div.setAttribute('class', "grid bg-[" + category.color + "] rounded-2xl my-5 p-2 mx-5 max-w-4xl")
+                                result.appendChild(div)
+                                
+                                const titleAndEdit = document.createElement("div")
+                                titleAndEdit.setAttribute("class", "flex justify-center items-center mb-3")
+                                div.appendChild(titleAndEdit)
+                                
+                                const title = document.createElement("span")
+                                title.innerText = category.name
+                                title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded-2xl")
+                                titleAndEdit.appendChild(title)
+                                
+                                const totalResult = document.createElement("div")
+                                totalResult.setAttribute('class', "grid grid-cols-2 gap-3 mb-3")
+                                div.appendChild(totalResult)
+                                
+                                // Fuctionality for filling out the tasks inside the category
+                                // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
+                                const categoryNameDB = encodeURIComponent(category.name)
+                                fetch(`/kidDisplayTasks?category=${categoryNameDB}`, {
+                                    credentials: 'include',
+                                    method: "GET",
+                                })
                                 .then((response) => response.json())
                                 .then((data) => {
                                     data.forEach((task) => {
                                         const taskResult = document.createElement("div")
                                         taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-2xl p-2")
                                         totalResult.appendChild(taskResult)
-
+                                        
                                         const topDiv = document.createElement("div")
                                         topDiv.setAttribute('class', "grid grid-cols-2 rounded-2xl mb-2")
                                         taskResult.appendChild(topDiv)
-
+                                        
                                         const taskTitle = document.createElement('span')
                                         taskTitle.setAttribute('class', "rounded-2xl font-bold font-lg")
                                         taskTitle.innerHTML = task.name
                                         topDiv.appendChild(taskTitle)
-
+                                        
                                         const taskPoints = document.createElement('span')
                                         taskPoints.setAttribute('class', "rounded-2xl text-right")
                                         taskPoints.innerHTML = '$' + task.points
                                         topDiv.appendChild(taskPoints)
-
+                                        
                                         const taskDesc = document.createElement('p')
                                         taskDesc.setAttribute('class', "rounded-2xl")
                                         taskDesc.innerHTML = task.taskdetails
                                         taskResult.appendChild(taskDesc)
+                                        if (!(task.completedBy.includes(userData._id))) {
+                                            const finishTaskBtn = document.createElement("button")
+                                            finishTaskBtn.innerHTML = "Task Complete!"
+                                            finishTaskBtn.setAttribute("class", "role-btn block mx-auto mt-3 px-5")
+                                            finishTaskBtn.addEventListener("click", () => finishTaskPopup(task))
+                                            taskResult.appendChild(finishTaskBtn)
+                                        } else {
+                                            const comeTomorrow = document.createElement("h2")
+                                            comeTomorrow.innerHTML = "Task refreshes at ___ time"
+                                            comeTomorrow.setAttribute("class", "bg-[#b2e6b2] block mx-auto mt-3 px-5 py-3 text-center rounded-2xl")
+                                            taskResult.appendChild(comeTomorrow)
+                                        }
+
                                     })
                                 })
+                            })
                         })
                     })
                 }
+
+                function closeDialog() {
+                    dialogKid.close();
+                }
+
+                
                 fetchCategories()
         </script>
     <% } %>

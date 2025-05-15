@@ -63,7 +63,7 @@ const taskSchema = new mongoose.Schema({
         required: true
     },
     points: {
-        type: String,
+        type: Number,
         required: true
     },
     catergoryName: {
@@ -75,6 +75,9 @@ const taskSchema = new mongoose.Schema({
     },
     children: {
         type: Array,
+    },
+    completedBy: {
+        type: Array
     }
 })
 
@@ -230,14 +233,24 @@ app.get('/kidCategories', requireAuth, async (req, res) => {
     }
 })
 
+// gets the current user
+app.get('/user', requireAuth, async (req, res) => {
+    const user = await User.findById(req.session.user);
+    try {
+        res.json(user)
+    }
+    catch (err) {
+        console.log("db error", err)
+        res.status(500).json({ message: 'Server error while fetching user' })
+    }
+})
+
 app.get('/kidDisplayTasks', requireAuth, async (req, res) => {
     try {
         const category = req.query.category;
-        console.log(category)
         const user = await User.findById(req.session.user);
 
         const tasksFound = await Task.find({ catergoryName: category, children: user._id.toString() }) 
-        console.log(tasksFound)
         res.json(tasksFound)
     }
     catch (err) {
@@ -257,6 +270,25 @@ app.get('/displayTasks', requireAuth, async (req, res) => {
     catch (error) {
         console.log("db error", error)
         res.status(500).json({ message: 'Server error while fetching tasks' })
+    }
+})
+
+app.post('/kidFinishTask', requireAuth, async (req, res) => {
+    try {
+        const { task } = req.body
+        const user = await User.findById({ _id: req.session.user })
+        user.points = (user.points || 0) + task.points
+        await user.save()
+        const result = await Task.updateOne(
+            {_id: task._id}, 
+            { $addToSet: {completedBy: user._id} }
+        )
+        console.log(result)
+        res.status(201).json({ message: 'Points added and task complete!' })
+    }
+    catch (error) {
+        console.log("db error", error)
+        res.status(500).json({ message: 'Server error' })
     }
 })
 
