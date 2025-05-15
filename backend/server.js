@@ -7,6 +7,11 @@ const path = require('path');
 const User = require('./users/user');
 const cors = require('cors');
 const expressLayouts = require('express-ejs-layouts');
+const { OpenAI } = require("openai");
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
 
 const app = express();
 
@@ -59,6 +64,10 @@ const taskSchema = new mongoose.Schema({
         required: true
     },
     taskdetails: {
+        type: String,
+        required: true
+    },
+    logo: {
         type: String,
         required: true
     },
@@ -149,6 +158,26 @@ app.get('/', (req, res) => {
         title: 'Home'
     });
 });
+
+app.post('/generateImage', async (req, res) => {
+    try {
+        const prompt = thing
+
+        const response = await openai.images.generate({
+            model: "dall-e-3",
+            prompt: prompt,
+            n: 1,
+            size: "256x256"
+        });
+
+        const imageUrl = response.data[0].url;
+        res.json({ imageUrl })
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error generating image')
+    }
+})
 
 app.get('/login', (req, res) => {
     if (req.session.user) {
