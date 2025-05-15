@@ -78,6 +78,20 @@ const taskSchema = new mongoose.Schema({
     },
     completedBy: {
         type: Array
+    },
+    // New fields for repeating tasks
+    isRepeating: {
+        type: Boolean,
+        default: false
+    },
+    repeatInterval: {
+        type: String,
+        enum: ['daily', 'weekly', 'monthly'],
+        default: null
+    },
+    lastResetTime: {
+        type: Date,
+        default: null
     }
 })
 
@@ -86,21 +100,21 @@ const Task = mongoose.model("Task", taskSchema)
 
 
 const rewardSchema = new mongoose.Schema({
-    rewardTitle: { 
-        type: String, 
-        required: true 
+    rewardTitle: {
+        type: String,
+        required: true
     },
-    description: { 
-        type: String, 
-        required: true 
+    description: {
+        type: String,
+        required: true
     },
-    pointsNeeded: { 
-        type: Number, 
-        required: true 
+    pointsNeeded: {
+        type: Number,
+        required: true
     },
-    parentEmail: { 
-        type: String, 
-        required: true 
+    parentEmail: {
+        type: String,
+        required: true
     }
 });
 
@@ -190,7 +204,7 @@ app.get('/profile', requireAuth, async (req, res) => {
     res.render('pages/profile', {
         title: 'Profile',
         role: user.role,
-        kids 
+        kids
     });
 });
 
@@ -250,7 +264,7 @@ app.get('/kidDisplayTasks', requireAuth, async (req, res) => {
         const category = req.query.category;
         const user = await User.findById(req.session.user);
 
-        const tasksFound = await Task.find({ catergoryName: category, children: user._id.toString() }) 
+        const tasksFound = await Task.find({ catergoryName: category, children: user._id.toString() })
         res.json(tasksFound)
     }
     catch (err) {
@@ -280,8 +294,8 @@ app.post('/kidFinishTask', requireAuth, async (req, res) => {
         user.points = (user.points || 0) + task.points
         await user.save()
         const result = await Task.updateOne(
-            {_id: task._id}, 
-            { $addToSet: {completedBy: user._id} }
+            { _id: task._id },
+            { $addToSet: { completedBy: user._id } }
         )
         console.log(result)
         res.status(201).json({ message: 'Points added and task complete!' })
@@ -292,23 +306,79 @@ app.post('/kidFinishTask', requireAuth, async (req, res) => {
     }
 })
 
-// For creating tasks to be added to the db
+// Function to check and reset repeating tasks
+async function resetRepeatingTasks() {
+    try {
+        const tasks = await Task.find({ isRepeating: true });
+        const now = new Date();
+
+        for (const task of tasks) {
+            if (!task.lastResetTime) {
+                task.lastResetTime = now;
+                await task.save();
+                continue;
+            }
+
+            let shouldReset = false;
+            const timeDiff = now - task.lastResetTime;
+
+            switch (task.repeatInterval) {
+                case 'daily':
+                    shouldReset = timeDiff >= 24 * 60 * 60 * 1000; // 24 hours
+                    break;
+                case 'weekly':
+                    shouldReset = timeDiff >= 7 * 24 * 60 * 60 * 1000; // 7 days
+                    break;
+                case 'monthly':
+                    // Approximate month as 30 days
+                    shouldReset = timeDiff >= 30 * 24 * 60 * 60 * 1000;
+                    break;
+            }
+
+            if (shouldReset) {
+                // Reset the task by clearing completedBy array
+                task.completedBy = [];
+                task.lastResetTime = now;
+                await task.save();
+            }
+        }
+    } catch (error) {
+        console.error('Error resetting tasks:', error);
+    }
+}
+
+// Run task reset check every hour
+setInterval(resetRepeatingTasks, 60 * 60 * 1000);
+
+// Also run it when server starts
+resetRepeatingTasks();
+
+// Modify createTask to handle repeating tasks
 app.post('/createTask', requireAuth, async (req, res) => {
     try {
-        // Getting informaiton from the form from task.ejs
-        const { catergoryName, name, taskdetails, points, kids } = req.body;
-        // Making sure that each field is actually filled in
+        const { catergoryName, name, taskdetails, points, kids, isRepeating, repeatInterval } = req.body;
         if (!name || !taskdetails || !points) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
-        // Creating a new document in the mongo database :D
-        const newTask = await Task.create({ catergoryName, name, taskdetails, points, CreatedBy: req.session.user, children: kids })
-        res.status(201).json({ message: 'Task created successfully!' })
+
+        const newTask = await Task.create({
+            catergoryName,
+            name,
+            taskdetails,
+            points,
+            CreatedBy: req.session.user,
+            children: kids,
+            isRepeating,
+            repeatInterval,
+            lastResetTime: new Date()
+        });
+
+        res.status(201).json({ message: 'Task created successfully!' });
+    } catch (error) {
+        console.log('db task error', error);
+        res.status(500).json({ message: 'Error creating task' });
     }
-    catch (error) {
-        console.log('db task error', error)
-    }
-})
+});
 
 app.post('/editTask', async (req, res) => {
     try {
@@ -318,7 +388,7 @@ app.post('/editTask', async (req, res) => {
             return res.status(400).json({ message: 'Task Id not found' });
         }
         // Update the task once submit is pressed
-        await Task.updateOne({_id}, { name: name, taskdetails: taskDetails, points: points})
+        await Task.updateOne({ _id }, { name: name, taskdetails: taskDetails, points: points })
         res.status(201).json({ message: 'Task updated successfully!' })
     }
     catch (error) {
@@ -581,6 +651,16 @@ app.delete('/rewards/:id', requireAuth, async (req, res) => {
     }
 });
 
+// Endpoint to get user points
+app.get('/user-points', requireAuth, async (req, res) => {
+    try {
+        const user = await User.findById(req.session.user);
+        res.json({ points: user.points || 0 });
+    } catch (error) {
+        console.error('Error fetching user points:', error);
+        res.status(500).json({ message: 'Error fetching points' });
+    }
+});
 
 app.get('/logout', (req, res) => {
     req.session.destroy();
