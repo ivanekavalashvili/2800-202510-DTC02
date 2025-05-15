@@ -453,7 +453,6 @@
                     .then((response) => response.json())
                     .then((data) => {
                         console.log(data.message)
-                        closeDialog();
                         window.location.reload()
                     })
             }
@@ -525,13 +524,13 @@
                                         if (!(task.completedBy.includes(userData._id))) {
                                             const finishTaskBtn = document.createElement("button")
                                             finishTaskBtn.innerHTML = "Task Complete!"
-                                            finishTaskBtn.setAttribute("class", "role-btn block mx-auto mt-3 px-10")
+                                            finishTaskBtn.setAttribute("class", "role-btn block mx-auto mt-3 px-5")
                                             finishTaskBtn.addEventListener("click", () => finishTaskPopup(task))
                                             taskResult.appendChild(finishTaskBtn)
                                         } else {
                                             const comeTomorrow = document.createElement("h2")
                                             comeTomorrow.innerHTML = "Task refreshes at ___ time"
-                                            comeTomorrow.setAttribute("class", "bg-[#b2e6b2] block mx-auto mt-3 px-10 py-3 rounded-2xl")
+                                            comeTomorrow.setAttribute("class", "bg-[#b2e6b2] block mx-auto mt-3 px-5 py-3 text-center rounded-2xl")
                                             taskResult.appendChild(comeTomorrow)
                                         }
 
