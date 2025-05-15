@@ -95,6 +95,18 @@
                 setTimeout(() => {
                     const submitButton = document.getElementById("submitButton");
                     if (submitButton) { submitButton.addEventListener("click", newTask) }
+
+                    // event listener for generate image button
+                    const generateImageBtn = document.getElementById("generateImageButton");
+                    if (generateImageBtn) {
+                        generateImageBtn.addEventListener("click", function () {
+                            const taskName = document.getElementById('taskName').value;
+                            const taskDetails = document.getElementById('taskDetails').value;
+                            console.log("image generation prompt stuff:", taskName, taskDetails);
+                            // call api here later
+                        });
+                    }
+
                     const kidCheck = document.getElementById("taskKids")
                     fetch("/kids", { method: "GET" })
                         .then((response) => response.json())
