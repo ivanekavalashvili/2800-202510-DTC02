@@ -102,7 +102,24 @@
                         generateImageBtn.addEventListener("click", function () {
                             const taskName = document.getElementById('taskName').value;
                             const taskDetails = document.getElementById('taskDetails').value;
-                            console.log("image generation prompt stuff:", taskName, taskDetails);
+
+                            if (!taskName || taskName.trim() === "") {
+                                alert("Please enter a task name before generating an image");
+                                return;
+                            }
+
+                            if (!taskDetails || taskDetails.trim() === "") {
+                                alert("Please enter a task details before generating an image");
+                                return;
+                            }
+
+                            let prompt = `Create a simple, vector logo icon thing for a task called "${taskName}"`;
+                            if (taskDetails && taskDetails.trim() !== "") {
+                                prompt += ` that involves "${taskDetails}"`;
+                            }
+                            prompt += `. Make it colorful and simple, for a family task management app. Style: flat vector illustration. If the task name or details don't make sense, just make a heart.`;
+                            
+                            console.log("prompt:", prompt);
                             // call api here later
                         });
                     }
