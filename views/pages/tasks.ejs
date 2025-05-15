@@ -14,10 +14,10 @@
     <dialog id="dialogBox">
         <div id="dialogResult"></div>
     </dialog>
-    
+
     <div id="result"></div>
 
-    <% if (role == "parent" ) { %>
+    <% if (role=="parent" ) { %>
         <button onclick="dialogMaker(createCategoryPopup)" class="role-btn block mx-auto px-10">Create Category</button>
 
         <template id="categoryCreationTemplate">
@@ -26,9 +26,10 @@
                     <h2 class="text-xl" id="Create a Category">Create a Category</h2>
                     <p>Name:</p>
                     <input name="name" type="text" id="categoryName" class="input" placeholder="Category name..."
-                    required>
+                        required>
                     <p for="color">Background Color:</p>
-                    <input name="color" type="color" id="categoryColor" class="block border-2 mx-auto w-20" value="#b2e6b2" required>
+                    <input name="color" type="color" id="categoryColor" class="block border-2 mx-auto w-20"
+                        value="#b2e6b2" required>
                     <br>
                     <div class="flex justify-between gap-2">
                         <button id="cancelButton" onclick="closeDialog()" class="role-btn">Cancel</button>
@@ -37,7 +38,7 @@
                     </div>
                 </div>
             </div>
-            </template>
+        </template>
 
         <template id="taskCreationPopup">
             <div class="modal flex">
@@ -47,12 +48,24 @@
                     <input name="categoryName" type="text" id="categoryNameTask" class="input" readonly>
                     <label for="name">Name of Task: </label>
                     <input name="name" type="text" id="taskName" class="input"
-                    placeholder="Input task name (EX. wash the dishes)" required>
+                        placeholder="Input task name (EX. wash the dishes)" required>
                     <label for="taskdetails">Task Details: </label>
                     <input name="taskdetails" type="text" id="taskDetails" class="input"
-                    placeholder="Describe the task and the intructions">
+                        placeholder="Describe the task and the intructions">
+
+                    <div class="mb-3">
+                        <div class="flex items-center">
+                            <div id="taskImagePreview"
+                                class="w-24 h-24 border-2 border-gray-300 rounded-md mr-3 flex items-center justify-center bg-gray-100">
+                                <span class="text-gray-400 text-sm text-center">Image<br>Preview</span>
+                            </div>
+                            <button type="button" id="generateImageButton" class="role-btn">Generate</button>
+                        </div>
+                    </div>
+
                     <label for="points">Points awarded: </label>
-                    <input name="points" type="number" id="pointsAwarded" class="input" placeholder="Input the number of points to be awarded" required>
+                    <input name="points" type="number" id="pointsAwarded" class="input"
+                        placeholder="Input the number of points to be awarded" required>
                     <label for="kids">Assigned to: </label>
                     <div id="taskKids"></div>
                     <div class="flex justify-between gap-2">
@@ -78,143 +91,143 @@
                 tasktemplate = document.getElementById("taskCreationPopup")
                 dialogResult.appendChild(tasktemplate.content.cloneNode(true))
                 document.getElementById('categoryNameTask').value = parentName
-                
+
                 setTimeout(() => {
-                const submitButton = document.getElementById("submitButton");
-                if (submitButton) {submitButton.addEventListener("click", newTask)}
-                const kidCheck = document.getElementById("taskKids")
-                fetch("/kids", { method: "GET" })
+                    const submitButton = document.getElementById("submitButton");
+                    if (submitButton) { submitButton.addEventListener("click", newTask) }
+                    const kidCheck = document.getElementById("taskKids")
+                    fetch("/kids", { method: "GET" })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            data.forEach((kid) => {
+
+                                const checkBtn = document.createElement("input")
+                                checkBtn.setAttribute("type", "checkbox")
+                                checkBtn.setAttribute("class", "m-3")
+                                checkBtn.setAttribute("name", kid._id)
+                                checkBtn.checked = true
+                                kidCheck.appendChild(checkBtn)
+
+                                const name = document.createElement("label")
+                                name.innerText = kid.username
+                                kidCheck.appendChild(name)
+
+                                br = document.createElement("br")
+                                kidCheck.appendChild(br)
+                            })
+                        })
+                }, 0)
+            }
+
+            // creates a category based on 
+            function createCategoryPopup() {
+                dialogResult.innerHTML = ""
+                categoryTemplate = document.getElementById("categoryCreationTemplate")
+                dialogResult.appendChild(categoryTemplate.content.cloneNode(true))
+
+                setTimeout(() => {
+                    formType = document.getElementById("Create a Category")
+                    formType.innerText = "Create a Category"
+
+                    const submitButton = document.getElementById("submitButton");
+                    if (submitButton) submitButton.addEventListener("click", newCategory)
+                }, 0)
+            }
+
+            function editCategoryPopup(category) {
+                dialog.showModal()
+                dialogResult.innerHTML = ""
+
+                categoryTemplate = document.getElementById("categoryCreationTemplate")
+                dialogResult.appendChild(categoryTemplate.content.cloneNode(true))
+
+                setTimeout(() => {
+                    formType = document.getElementById("Create a Category")
+                    formType.innerText = "Edit Category"
+
+                    const categoryName = document.getElementById("categoryName")
+                    categoryName.setAttribute("value", category.name)
+
+                    const categoryColor = document.getElementById("categoryColor")
+                    categoryColor.setAttribute("value", category.color)
+
+                    const submitButton = document.getElementById("submitButton");
+                    if (submitButton) submitButton.addEventListener("click", (e) => editCategory(category, e))
+
+                    const deleteButton = document.getElementById("deleteButton");
+                    deleteButton.setAttribute("class", "role-btn")
+                    if (deleteButton) deleteButton.addEventListener('click', (e) => deleteCategory(category, e))
+                }, 0)
+            }
+
+            // Creating the option to edit your tasks through the original pop for the task creation
+            function editTaskPopup(task) {
+                dialog.showModal()
+                dialogResult.innerHTML = ""
+
+                taskTemplate = document.getElementById("taskCreationPopup")
+
+                dialogResult.appendChild(taskTemplate.content.cloneNode(true))
+
+                setTimeout(() => {
+                    const categoryNameTask = document.getElementById("categoryNameTask")
+                    categoryNameTask.setAttribute("value", task.catergoryName)
+
+                    const taskName = document.getElementById("taskName")
+                    taskName.setAttribute("value", task.name)
+
+                    const taskDetails = document.getElementById("taskDetails")
+                    taskDetails.setAttribute("value", task.taskdetails)
+
+                    const taskPoints = document.getElementById("pointsAwarded")
+                    taskPoints.setAttribute("value", task.points)
+
+                    const submitButton = document.getElementById("submitButton");
+                    if (submitButton) submitButton.addEventListener("click", (e) => editTask(task, e))
+
+                    const deleteButton = document.getElementById("deleteButtonTask");
+                    deleteButton.setAttribute("class", "role-btn")
+                    if (deleteButton) deleteButton.addEventListener('click', (e) => deleteTask(task, e))
+                }, 0)
+            }
+
+            function fetchCategories() {
+                fetch("/categories", { method: "GET" })
                     .then((response) => response.json())
                     .then((data) => {
-                        data.forEach((kid) => {
-                            
-                            const checkBtn = document.createElement("input")
-                            checkBtn.setAttribute("type", "checkbox")
-                            checkBtn.setAttribute("class", "m-3")
-                            checkBtn.setAttribute("name", kid._id)
-                            checkBtn.checked = true
-                            kidCheck.appendChild(checkBtn)
-                            
-                            const name = document.createElement("label")
-                            name.innerText = kid.username
-                            kidCheck.appendChild(name)
-                            
-                            br = document.createElement("br")
-                            kidCheck.appendChild(br)
-                        })
-                    })
-            }, 0)
-        }
+                        const result = document.getElementById("result")
+                        result.innerHTML = ""
+                        data.forEach((category) => {
+                            const div = document.createElement("div")
+                            div.setAttribute('class', "grid bg-[" + category.color + "] rounded-2xl my-5 p-2 mx-5 max-w-4xl")
+                            result.appendChild(div)
 
-        // creates a category based on 
-        function createCategoryPopup() {
-            dialogResult.innerHTML = ""
-            categoryTemplate = document.getElementById("categoryCreationTemplate")
-            dialogResult.appendChild(categoryTemplate.content.cloneNode(true)) 
+                            const titleAndEdit = document.createElement("div")
+                            titleAndEdit.setAttribute("class", "flex justify-between items-center mb-3")
+                            div.appendChild(titleAndEdit)
 
-            setTimeout(() => {
-                formType = document.getElementById("Create a Category")
-                formType.innerText = "Create a Category"
+                            const title = document.createElement("span")
+                            title.innerText = category.name
+                            title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded-2xl")
+                            titleAndEdit.appendChild(title)
 
-                const submitButton = document.getElementById("submitButton");
-                if (submitButton) submitButton.addEventListener("click", newCategory)
-            }, 0)
-        }
+                            const editBtn = document.createElement("button")
+                            editBtn.innerHTML = "Edit category"
+                            editBtn.setAttribute("class", "role-btn ml-5 mr-3 px-3 bg-opacity-70")
+                            editBtn.addEventListener("click", () => editCategoryPopup(category))
+                            titleAndEdit.appendChild(editBtn)
 
-        function editCategoryPopup(category) {
-            dialog.showModal()
-            dialogResult.innerHTML = ""
+                            const totalResult = document.createElement("div")
+                            totalResult.setAttribute('class', "grid grid-cols-2 gap-3 mb-3")
+                            div.appendChild(totalResult)
 
-            categoryTemplate = document.getElementById("categoryCreationTemplate")
-            dialogResult.appendChild(categoryTemplate.content.cloneNode(true))
-
-            setTimeout(() => {
-                formType = document.getElementById("Create a Category")
-                formType.innerText = "Edit Category"
-
-                const categoryName = document.getElementById("categoryName")
-                categoryName.setAttribute("value", category.name)
-
-                const categoryColor = document.getElementById("categoryColor")
-                categoryColor.setAttribute("value", category.color)
-
-                const submitButton = document.getElementById("submitButton");
-                if (submitButton) submitButton.addEventListener("click", (e) => editCategory(category, e))
-
-                const deleteButton = document.getElementById("deleteButton");
-                deleteButton.setAttribute("class", "role-btn")
-                if (deleteButton) deleteButton.addEventListener('click', (e) => deleteCategory(category, e))
-            }, 0)
-        }
-
-        // Creating the option to edit your tasks through the original pop for the task creation
-        function editTaskPopup(task) {
-            dialog.showModal()
-            dialogResult.innerHTML = ""
-
-            taskTemplate = document.getElementById("taskCreationPopup")
-
-            dialogResult.appendChild(taskTemplate.content.cloneNode(true))
-
-            setTimeout(() => {
-                const categoryNameTask = document.getElementById("categoryNameTask")
-                categoryNameTask.setAttribute("value", task.catergoryName)
-
-                const taskName = document.getElementById("taskName")
-                taskName.setAttribute("value", task.name)
-
-                const taskDetails = document.getElementById("taskDetails")
-                taskDetails.setAttribute("value", task.taskdetails)
-
-                const taskPoints = document.getElementById("pointsAwarded")
-                taskPoints.setAttribute("value", task.points)
-
-                const submitButton = document.getElementById("submitButton");
-                if (submitButton) submitButton.addEventListener("click", (e) => editTask(task, e))
-
-                const deleteButton = document.getElementById("deleteButtonTask");
-                deleteButton.setAttribute("class", "role-btn")
-                if (deleteButton) deleteButton.addEventListener('click', (e) => deleteTask(task, e))
-            }, 0)
-        }
-
-        function fetchCategories() {
-            fetch("/categories", { method: "GET" })
-                .then((response) => response.json())
-                .then((data) => {
-                    const result = document.getElementById("result")
-                    result.innerHTML = ""
-                    data.forEach((category) => {
-                        const div = document.createElement("div")
-                        div.setAttribute('class', "grid bg-[" + category.color + "] rounded-2xl my-5 p-2 mx-5 max-w-4xl")
-                        result.appendChild(div)
-
-                        const titleAndEdit = document.createElement("div")
-                        titleAndEdit.setAttribute("class", "flex justify-between items-center mb-3")
-                        div.appendChild(titleAndEdit)
-
-                        const title = document.createElement("span")
-                        title.innerText = category.name
-                        title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded-2xl")
-                        titleAndEdit.appendChild(title)
-
-                        const editBtn = document.createElement("button")
-                        editBtn.innerHTML = "Edit category"
-                        editBtn.setAttribute("class", "role-btn ml-5 mr-3 px-3 bg-opacity-70")
-                        editBtn.addEventListener("click", () => editCategoryPopup(category))
-                        titleAndEdit.appendChild(editBtn)
-
-                        const totalResult = document.createElement("div")
-                        totalResult.setAttribute('class', "grid grid-cols-2 gap-3 mb-3")
-                        div.appendChild(totalResult)
-
-                        // Fuctionality for filling out the tasks inside the category
+                            // Fuctionality for filling out the tasks inside the category
                             // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
                             const categoryNameDB = encodeURIComponent(category.name)
                             fetch(`/displayTasks?category=${categoryNameDB}`, {
                                 credentials: 'include',
                                 method: "GET",
-                                })
+                            })
                                 .then((response) => response.json())
                                 .then((data) => {
                                     data.forEach((task) => {
@@ -222,7 +235,7 @@
                                         const taskResult = document.createElement("div")
                                         taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-2xl p-2")
                                         totalResult.appendChild(taskResult)
-                                        
+
                                         const topDiv = document.createElement("div")
                                         topDiv.setAttribute('class', "grid grid-cols-2 rounded-2xl mb-2")
                                         taskResult.appendChild(topDiv)
@@ -249,370 +262,372 @@
                                         taskResult.appendChild(editTaskBtn)
                                     })
                                 })
-                        
-                        const btn = document.createElement('button')
-                        btn.addEventListener("click", () => dialogMaker(displayTaskForm, category.name))
-                        btn.setAttribute("class", "role-btn")
-                        btn.innerText = "Add Task"
-                        div.appendChild(btn)
-                    })
-                })
-        }
 
-        function newTask() {
-            const name = document.getElementById('taskName').value
-            const taskdetails = document.getElementById('taskDetails').value
-            const points = document.getElementById('pointsAwarded').value
-            const catergoryName = document.getElementById('categoryNameTask').value
-            kids = []
-            const kidCheckboxes = document.querySelectorAll('#taskKids input[type="checkbox"]')
-            kidCheckboxes.forEach((checkbox) => {
-                if (checkbox.checked) {
-                    kids.push(checkbox.name)
-                }
-            })
-
-            fetch("/createTask", {
-                method: "POST" ,
-                headers: {"Content-Type": "application/json"}, 
-                body: JSON.stringify({ catergoryName, name, taskdetails, points, kids })
-            })
-            .then(res => res.json())
-            .then(data => {
-                fetchCategories();
-                closeDialog()
-            })
-            .catch(err => {
-                console.error("Error creating task:", err)
-            })
-        }
-
-        function newCategory(e) {
-            e.preventDefault();
-            const name = document.getElementById('categoryName').value
-            const color = document.getElementById('categoryColor').value
-
-            fetch("/createCategory", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, color })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data.message);
-                    fetchCategories();
-                    closeDialog();
-                })
-                .catch(err => {
-                    console.error("Error creating category:", err)
-                })
-        }
-
-        // Functions for task editing and deletion
-        function editTask(task, e) {
-            e.preventDefault();
-            const name = document.getElementById('taskName').value
-            const taskdetails = document.getElementById('taskDetails').value
-            const points = document.getElementById('pointsAwarded').value
-            const id = task._id
-
-            fetch("/editTask", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ _id: id, name: name, taskDetails: taskdetails, points: points})
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data.message);
-                    fetchCategories();
-                    closeDialog();
-                })
-        }
-
-        // Functions for category editing and deletion
-        function editCategory(category, e) {
-            e.preventDefault();
-            const newName = document.getElementById('categoryName').value
-            const newColor = document.getElementById('categoryColor').value
-            const oldName = category.name
-            const id = category._id
-
-            fetch("/editCategory", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ _id: id, name: newName, color: newColor, oldName: oldName })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data.message);
-                    fetchCategories();
-                    closeDialog();
-                })
-        }
-
-        function deleteTask(task, e) {
-            e.preventDefault();
-            fetch("/deleteTask", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ _id: task._id })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data.message);
-                    fetchCategories();
-                    closeDialog();
-                })
-        }
-
-        function deleteCategory(category, e) {
-            e.preventDefault();
-            fetch("/deleteCategory", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ _id: category._id })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data.message);
-                    fetchCategories();
-                    closeDialog();
-                })
-        }
-
-        function closeDialog() {
-            dialog.close();
-        }
-
-        fetchCategories()
-    </script>
-    <% } %>
-
-
-
-    <% if (role=="kid" ) { %>
-        <template id="taskFinishPopup">
-            <div class="modal flex">
-                <div class="modal-content p-5 max-h-screen">
-                    <h2>Have you completed this task?</h2>
-                    <div id="result"></div>
-                    <div class="flex justify-between gap-2">
-                        <button id="cancelButton" onclick="closeDialog()" class="role-btn" type="cancel">No</button>
-                        <button id="submitButton" class="role-btn" type="submit">Yes!</button>
-                    </div>
-                </div>
-            </div>
-        </template>
-        <script>
-            const dialogKid = document.querySelector("dialog")
-
-            function finishTaskPopup(task) {
-                dialogKid.showModal()
-                dialogResult.innerHTML = ""
-
-                taskTemplate = document.getElementById("taskFinishPopup")
-                dialogResult.appendChild(taskTemplate.content.cloneNode(true))
-                
-                setTimeout(() => {
-                    result = document.getElementById("result")
-
-                    const taskResult = document.createElement("div")
-                    taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-2xl p-2")
-                    result.appendChild(taskResult)
-
-                    const topDiv = document.createElement("div")
-                    topDiv.setAttribute('class', "grid grid-cols-2 rounded-2xl mb-2")
-                    taskResult.appendChild(topDiv)
-
-                    const taskTitle = document.createElement('span')
-                    taskTitle.setAttribute('class', "rounded-2xl font-bold font-lg")
-                    taskTitle.innerHTML = task.name
-                    topDiv.appendChild(taskTitle)
-
-                    const taskPoints = document.createElement('span')
-                    taskPoints.setAttribute('class', "rounded-2xl text-right")
-                    taskPoints.innerHTML = '$' + task.points
-                    topDiv.appendChild(taskPoints)
-
-                    const taskDesc = document.createElement('p')
-                    taskDesc.setAttribute('class', "rounded-2xl")
-                    taskDesc.innerHTML = task.taskdetails
-                    taskResult.appendChild(taskDesc)
-
-                    const submitButton = document.getElementById("submitButton");
-                    if (submitButton) submitButton.addEventListener("click", () => finishTask(task))
-                }, 0)
-            }
-
-            function finishTask(task) {
-                fetch("/kidFinishTask", { 
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ task: task })
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        console.log(data.message)
-                        window.location.reload()
-                    })
-            }
-
-
-
-            function fetchCategories() {
-                const result = document.getElementById("result")
-                result.innerHTML = ""
-                fetch("/user", { method: "GET" })
-                    .then((userResponse) => userResponse.json())
-                    .then((userData) => {
-                        const pointDisplay = document.createElement("h2")
-                        pointDisplay.innerHTML = "You have " + userData.points + " points."
-                        result.appendChild(pointDisplay)
-                        fetch("/kidCategories", { method: "GET" })
-                        .then((response) => response.json())
-                        .then((data) => {
-                            data.forEach((category) => {
-                                const div = document.createElement("div")
-                                div.setAttribute('class', "grid bg-[" + category.color + "] rounded-2xl my-5 p-2 mx-5 max-w-4xl")
-                                result.appendChild(div)
-                                
-                                const titleAndEdit = document.createElement("div")
-                                titleAndEdit.setAttribute("class", "flex justify-center items-center mb-3")
-                                div.appendChild(titleAndEdit)
-                                
-                                const title = document.createElement("span")
-                                title.innerText = category.name
-                                title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded-2xl")
-                                titleAndEdit.appendChild(title)
-                                
-                                const totalResult = document.createElement("div")
-                                totalResult.setAttribute('class', "grid grid-cols-2 gap-3 mb-3")
-                                div.appendChild(totalResult)
-                                
-                                // Fuctionality for filling out the tasks inside the category
-                                // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
-                                const categoryNameDB = encodeURIComponent(category.name)
-                                fetch(`/kidDisplayTasks?category=${categoryNameDB}`, {
-                                    credentials: 'include',
-                                    method: "GET",
-                                })
-                                .then((response) => response.json())
-                                .then((data) => {
-                                    data.forEach((task) => {
-                                        const taskResult = document.createElement("div")
-                                        taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-2xl p-2")
-                                        totalResult.appendChild(taskResult)
-                                        
-                                        const topDiv = document.createElement("div")
-                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-2xl mb-2")
-                                        taskResult.appendChild(topDiv)
-                                        
-                                        const taskTitle = document.createElement('span')
-                                        taskTitle.setAttribute('class', "rounded-2xl font-bold font-lg")
-                                        taskTitle.innerHTML = task.name
-                                        topDiv.appendChild(taskTitle)
-                                        
-                                        const taskPoints = document.createElement('span')
-                                        taskPoints.setAttribute('class', "rounded-2xl text-right")
-                                        taskPoints.innerHTML = '$' + task.points
-                                        topDiv.appendChild(taskPoints)
-                                        
-                                        const taskDesc = document.createElement('p')
-                                        taskDesc.setAttribute('class', "rounded-2xl")
-                                        taskDesc.innerHTML = task.taskdetails
-                                        taskResult.appendChild(taskDesc)
-                                        if (!(task.completedBy.includes(userData._id))) {
-                                            const finishTaskBtn = document.createElement("button")
-                                            finishTaskBtn.innerHTML = "Task Complete!"
-                                            finishTaskBtn.setAttribute("class", "role-btn block mx-auto mt-3 px-5")
-                                            finishTaskBtn.addEventListener("click", () => finishTaskPopup(task))
-                                            taskResult.appendChild(finishTaskBtn)
-                                        } else {
-                                            const comeTomorrow = document.createElement("h2")
-                                            comeTomorrow.innerHTML = "Task refreshes at ___ time"
-                                            comeTomorrow.setAttribute("class", "bg-[#b2e6b2] block mx-auto mt-3 px-5 py-3 text-center rounded-2xl")
-                                            taskResult.appendChild(comeTomorrow)
-                                        }
-
-                                    })
-                                })
-                            })
+                            const btn = document.createElement('button')
+                            btn.addEventListener("click", () => dialogMaker(displayTaskForm, category.name))
+                            btn.setAttribute("class", "role-btn")
+                            btn.innerText = "Add Task"
+                            div.appendChild(btn)
                         })
                     })
-                }
+            }
 
-                function closeDialog() {
-                    dialogKid.close();
-                }
+            function newTask() {
+                const name = document.getElementById('taskName').value
+                const taskdetails = document.getElementById('taskDetails').value
+                const points = document.getElementById('pointsAwarded').value
+                const catergoryName = document.getElementById('categoryNameTask').value
+                kids = []
+                const kidCheckboxes = document.querySelectorAll('#taskKids input[type="checkbox"]')
+                kidCheckboxes.forEach((checkbox) => {
+                    if (checkbox.checked) {
+                        kids.push(checkbox.name)
+                    }
+                })
 
-                
-                fetchCategories()
+                fetch("/createTask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ catergoryName, name, taskdetails, points, kids })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        fetchCategories();
+                        closeDialog()
+                    })
+                    .catch(err => {
+                        console.error("Error creating task:", err)
+                    })
+            }
+
+            function newCategory(e) {
+                e.preventDefault();
+                const name = document.getElementById('categoryName').value
+                const color = document.getElementById('categoryColor').value
+
+                fetch("/createCategory", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, color })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data.message);
+                        fetchCategories();
+                        closeDialog();
+                    })
+                    .catch(err => {
+                        console.error("Error creating category:", err)
+                    })
+            }
+
+            // Functions for task editing and deletion
+            function editTask(task, e) {
+                e.preventDefault();
+                const name = document.getElementById('taskName').value
+                const taskdetails = document.getElementById('taskDetails').value
+                const points = document.getElementById('pointsAwarded').value
+                const id = task._id
+
+                fetch("/editTask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ _id: id, name: name, taskDetails: taskdetails, points: points })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data.message);
+                        fetchCategories();
+                        closeDialog();
+                    })
+            }
+
+            // Functions for category editing and deletion
+            function editCategory(category, e) {
+                e.preventDefault();
+                const newName = document.getElementById('categoryName').value
+                const newColor = document.getElementById('categoryColor').value
+                const oldName = category.name
+                const id = category._id
+
+                fetch("/editCategory", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ _id: id, name: newName, color: newColor, oldName: oldName })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data.message);
+                        fetchCategories();
+                        closeDialog();
+                    })
+            }
+
+            function deleteTask(task, e) {
+                e.preventDefault();
+                fetch("/deleteTask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ _id: task._id })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data.message);
+                        fetchCategories();
+                        closeDialog();
+                    })
+            }
+
+            function deleteCategory(category, e) {
+                e.preventDefault();
+                fetch("/deleteCategory", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ _id: category._id })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data.message);
+                        fetchCategories();
+                        closeDialog();
+                    })
+            }
+
+            function closeDialog() {
+                dialog.close();
+            }
+
+            fetchCategories()
         </script>
-    <% } %>
+        <% } %>
 
-    <% if (role==undefined ) { %>
-        <p>Please log in</p>
-    <% } %>
 
-    <div id="weatherDiv"
-        style="background: #f4ffe4; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: Open Sans, sans-serif; z-index: 1000; width: 200px;"
-        class="fixed max-md:relative md:bottom-10 md:right-10 max-md:mx-auto my-10">
-        <h4 style="margin-bottom: 8px; font: 600 1rem 'Open Sans', sans-serif; color: #2e8b3d;">Current Weather</h4>
-        <p id="weather-temp" style="margin: 6px 0 2px 0; font-size: 1rem;"></p>
-        <p id="weather-desc" style="margin: 0 0 8px 0; font-size: 0.9rem; color: #444;"></p>
-        <img id="weather-icon" src="" alt="Weather Icon" style="width: 50px; display: none;">
-    </div>
 
-    <script>
-    let latitude;
-    let longitude;
+            <% if (role=="kid" ) { %>
+                <template id="taskFinishPopup">
+                    <div class="modal flex">
+                        <div class="modal-content p-5 max-h-screen">
+                            <h2>Have you completed this task?</h2>
+                            <div id="result"></div>
+                            <div class="flex justify-between gap-2">
+                                <button id="cancelButton" onclick="closeDialog()" class="role-btn"
+                                    type="cancel">No</button>
+                                <button id="submitButton" class="role-btn" type="submit">Yes!</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <script>
+                    const dialogKid = document.querySelector("dialog")
 
-    function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(success, error);
-        } else {
-            console.log("Geolocation is not supported by this browser.");
-        }
-    }
+                    function finishTaskPopup(task) {
+                        dialogKid.showModal()
+                        dialogResult.innerHTML = ""
 
-    function success(position) {
-        latitude = position.coords.latitude
-        longitude = position.coords.longitude
-        console.log(longitude, latitude)
-        getWeather(latitude, longitude);
-    }
+                        taskTemplate = document.getElementById("taskFinishPopup")
+                        dialogResult.appendChild(taskTemplate.content.cloneNode(true))
 
-    function error() {
-        alert("Sorry, no position available.");
-    }
+                        setTimeout(() => {
+                            result = document.getElementById("result")
 
-    function getWeather(latitude, longitude) {
-        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=55aacf4680def095e9090e51cee74084`;
+                            const taskResult = document.createElement("div")
+                            taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-2xl p-2")
+                            result.appendChild(taskResult)
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                const temp = data.main.temp;
-                const description = data.weather[0].description;
-                const image = data.weather[0].icon;
-                weatherDiv.innerHTML =
-                    ` <p>${temp}°C</p>
+                            const topDiv = document.createElement("div")
+                            topDiv.setAttribute('class', "grid grid-cols-2 rounded-2xl mb-2")
+                            taskResult.appendChild(topDiv)
+
+                            const taskTitle = document.createElement('span')
+                            taskTitle.setAttribute('class', "rounded-2xl font-bold font-lg")
+                            taskTitle.innerHTML = task.name
+                            topDiv.appendChild(taskTitle)
+
+                            const taskPoints = document.createElement('span')
+                            taskPoints.setAttribute('class', "rounded-2xl text-right")
+                            taskPoints.innerHTML = '$' + task.points
+                            topDiv.appendChild(taskPoints)
+
+                            const taskDesc = document.createElement('p')
+                            taskDesc.setAttribute('class', "rounded-2xl")
+                            taskDesc.innerHTML = task.taskdetails
+                            taskResult.appendChild(taskDesc)
+
+                            const submitButton = document.getElementById("submitButton");
+                            if (submitButton) submitButton.addEventListener("click", () => finishTask(task))
+                        }, 0)
+                    }
+
+                    function finishTask(task) {
+                        fetch("/kidFinishTask", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ task: task })
+                        })
+                            .then((response) => response.json())
+                            .then((data) => {
+                                console.log(data.message)
+                                window.location.reload()
+                            })
+                    }
+
+
+
+                    function fetchCategories() {
+                        const result = document.getElementById("result")
+                        result.innerHTML = ""
+                        fetch("/user", { method: "GET" })
+                            .then((userResponse) => userResponse.json())
+                            .then((userData) => {
+                                const pointDisplay = document.createElement("h2")
+                                pointDisplay.innerHTML = "You have " + userData.points + " points."
+                                result.appendChild(pointDisplay)
+                                fetch("/kidCategories", { method: "GET" })
+                                    .then((response) => response.json())
+                                    .then((data) => {
+                                        data.forEach((category) => {
+                                            const div = document.createElement("div")
+                                            div.setAttribute('class', "grid bg-[" + category.color + "] rounded-2xl my-5 p-2 mx-5 max-w-4xl")
+                                            result.appendChild(div)
+
+                                            const titleAndEdit = document.createElement("div")
+                                            titleAndEdit.setAttribute("class", "flex justify-center items-center mb-3")
+                                            div.appendChild(titleAndEdit)
+
+                                            const title = document.createElement("span")
+                                            title.innerText = category.name
+                                            title.setAttribute("class", "text-2xl text-center font-bold bg-white bg-opacity-70 p-3 mb-2 rounded-2xl")
+                                            titleAndEdit.appendChild(title)
+
+                                            const totalResult = document.createElement("div")
+                                            totalResult.setAttribute('class', "grid grid-cols-2 gap-3 mb-3")
+                                            div.appendChild(totalResult)
+
+                                            // Fuctionality for filling out the tasks inside the category
+                                            // Encode the url just incase it has spaces (Other wise it will think you sent 2 different parameters)
+                                            const categoryNameDB = encodeURIComponent(category.name)
+                                            fetch(`/kidDisplayTasks?category=${categoryNameDB}`, {
+                                                credentials: 'include',
+                                                method: "GET",
+                                            })
+                                                .then((response) => response.json())
+                                                .then((data) => {
+                                                    data.forEach((task) => {
+                                                        const taskResult = document.createElement("div")
+                                                        taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-2xl p-2")
+                                                        totalResult.appendChild(taskResult)
+
+                                                        const topDiv = document.createElement("div")
+                                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-2xl mb-2")
+                                                        taskResult.appendChild(topDiv)
+
+                                                        const taskTitle = document.createElement('span')
+                                                        taskTitle.setAttribute('class', "rounded-2xl font-bold font-lg")
+                                                        taskTitle.innerHTML = task.name
+                                                        topDiv.appendChild(taskTitle)
+
+                                                        const taskPoints = document.createElement('span')
+                                                        taskPoints.setAttribute('class', "rounded-2xl text-right")
+                                                        taskPoints.innerHTML = '$' + task.points
+                                                        topDiv.appendChild(taskPoints)
+
+                                                        const taskDesc = document.createElement('p')
+                                                        taskDesc.setAttribute('class', "rounded-2xl")
+                                                        taskDesc.innerHTML = task.taskdetails
+                                                        taskResult.appendChild(taskDesc)
+                                                        if (!(task.completedBy.includes(userData._id))) {
+                                                            const finishTaskBtn = document.createElement("button")
+                                                            finishTaskBtn.innerHTML = "Task Complete!"
+                                                            finishTaskBtn.setAttribute("class", "role-btn block mx-auto mt-3 px-5")
+                                                            finishTaskBtn.addEventListener("click", () => finishTaskPopup(task))
+                                                            taskResult.appendChild(finishTaskBtn)
+                                                        } else {
+                                                            const comeTomorrow = document.createElement("h2")
+                                                            comeTomorrow.innerHTML = "Task refreshes at ___ time"
+                                                            comeTomorrow.setAttribute("class", "bg-[#b2e6b2] block mx-auto mt-3 px-5 py-3 text-center rounded-2xl")
+                                                            taskResult.appendChild(comeTomorrow)
+                                                        }
+
+                                                    })
+                                                })
+                                        })
+                                    })
+                            })
+                    }
+
+                    function closeDialog() {
+                        dialogKid.close();
+                    }
+
+
+                    fetchCategories()
+                </script>
+                <% } %>
+
+                    <% if (role==undefined ) { %>
+                        <p>Please log in</p>
+                        <% } %>
+
+                            <div id="weatherDiv"
+                                style="background: #f4ffe4; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: Open Sans, sans-serif; z-index: 1000; width: 200px;"
+                                class="fixed max-md:relative md:bottom-10 md:right-10 max-md:mx-auto my-10">
+                                <h4 style="margin-bottom: 8px; font: 600 1rem 'Open Sans', sans-serif; color: #2e8b3d;">
+                                    Current Weather</h4>
+                                <p id="weather-temp" style="margin: 6px 0 2px 0; font-size: 1rem;"></p>
+                                <p id="weather-desc" style="margin: 0 0 8px 0; font-size: 0.9rem; color: #444;"></p>
+                                <img id="weather-icon" src="" alt="Weather Icon" style="width: 50px; display: none;">
+                            </div>
+
+                            <script>
+                                let latitude;
+                                let longitude;
+
+                                function getLocation() {
+                                    if (navigator.geolocation) {
+                                        navigator.geolocation.getCurrentPosition(success, error);
+                                    } else {
+                                        console.log("Geolocation is not supported by this browser.");
+                                    }
+                                }
+
+                                function success(position) {
+                                    latitude = position.coords.latitude
+                                    longitude = position.coords.longitude
+                                    console.log(longitude, latitude)
+                                    getWeather(latitude, longitude);
+                                }
+
+                                function error() {
+                                    alert("Sorry, no position available.");
+                                }
+
+                                function getWeather(latitude, longitude) {
+                                    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=55aacf4680def095e9090e51cee74084`;
+
+                                    fetch(url)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            const temp = data.main.temp;
+                                            const description = data.weather[0].description;
+                                            const image = data.weather[0].icon;
+                                            weatherDiv.innerHTML =
+                                                ` <p>${temp}°C</p>
                     <p>${description}</p>
                     <img src="http://openweathermap.org/img/w/${image}.png" alt="Weather Icon" />
                     `;
 
-                console.log(` Temperature: ${temp}°C`);
-                console.log(` Description: ${description}`);
-                console.log(`Icon URL: http://openweathermap.org/img/wn/${image}@2x.png`);
-            })
-            .catch(error => {
-                console.error("Error fetching weather:", error);
-            });
-    }
+                                            console.log(` Temperature: ${temp}°C`);
+                                            console.log(` Description: ${description}`);
+                                            console.log(`Icon URL: http://openweathermap.org/img/wn/${image}@2x.png`);
+                                        })
+                                        .catch(error => {
+                                            console.error("Error fetching weather:", error);
+                                        });
+                                }
 
 
-    window.onload = getLocation;
-</script>
+                                window.onload = getLocation;
+                            </script>
 
 
 </body>
