@@ -15,9 +15,17 @@
         <% if (kids && kids.length> 0) { %>
             <div class="kid-list-container">
                 <h3>Linked Kid Accounts</h3>
-                <ul class="kid-list">
+            <ul class="kid-list">
                 <% kids.forEach(kid=> { %>
-                <li><%= kid.username %></li><% }) %></ul>
+                    <li class="kid-row">
+                        <span class="kid-name">
+                            <%= kid.username %>
+                        </span>
+                        <button class="nav-btn delete-kid-btn" data-kid-id="<%= kid._id %>">Delete</button>
+                    </li>
+                    <% }) %>
+            </ul>
+
                 </div>
         <% } else { %>
             <p>No kid accounts linked yet.</p><% } %>
@@ -89,6 +97,30 @@
             });
         }
     });
+
+     document.querySelectorAll('.delete-kid-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const kidId = button.dataset.kidId;
+                const confirmed = confirm("Are you sure you want to delete this kid?");
+                if (!confirmed) return;
+
+                try {
+                    const res = await fetch(`/kids/${kidId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (res.ok) {
+                        location.reload(); 
+                    } else {
+                        alert("Failed to delete kid.");
+                    }
+                } catch (err) {
+                    console.error("Delete error:", err);
+                    alert("An error occurred while trying to delete the kid.");
+                }
+            });
+        });
+    </script>
 </script>
 </body>
 
