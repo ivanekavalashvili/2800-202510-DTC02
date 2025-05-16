@@ -117,10 +117,47 @@
                             if (taskDetails && taskDetails.trim() !== "") {
                                 prompt += ` that involves "${taskDetails}"`;
                             }
-                            prompt += `. Make it colorful and simple, for a family task management app. Style: flat vector illustration. If the task name or details don't make sense, just make a heart.`;
-                            
+                            prompt += `. Make it colorful and simple, for a family task management app. Style: flat vector illustration. Avoid using text in the image.`;
+
                             console.log("prompt:", prompt);
-                            // call api here later
+
+                            const previewElement = document.getElementById('taskImagePreview');
+                            previewElement.innerHTML = '<span class="text-gray-400">Loading...</span>';
+
+                            fetch('/generate-image', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ prompt: prompt })
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.imageUrl) {
+                                        previewElement.innerHTML = `<img src="${data.imageUrl}" alt="Task icon" class="w-full h-full object-contain">`;
+
+                                        let imageUrlInput = document.getElementById('taskImageUrl');
+                                        if (!imageUrlInput) {
+                                            imageUrlInput = document.createElement('input');
+                                            imageUrlInput.type = 'hidden';
+                                            imageUrlInput.id = 'taskImageUrl';
+                                            imageUrlInput.name = 'taskImageUrl';
+                                            previewElement.parentNode.appendChild(imageUrlInput);
+                                        }
+                                        imageUrlInput.value = data.imageUrl;
+                                    } else {
+                                        previewElement.innerHTML = '<span class="text-red-500">Failed to generate image</span>';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error generating image:', error);
+                                    previewElement.innerHTML = '<span class="text-red-500">Error</span>';
+                                });
                         });
                     }
 

@@ -19,6 +19,7 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.1",
     "mongoose": "^8.14.1",
+    "openai": "^4.98.0",
     "session": "^0.1.0"
   }
 }

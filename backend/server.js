@@ -7,6 +7,7 @@ const path = require('path');
 const User = require('./users/user');
 const cors = require('cors');
 const expressLayouts = require('express-ejs-layouts');
+const { OpenAI } = require('openai');
 
 const app = express();
 
@@ -671,3 +672,39 @@ app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
+// Initialize the OpenAI client with your API key
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
+app.post('/generate-image', async (req, res) => {
+    try {
+        const prompt = req.body.prompt;
+
+        if (!prompt) {
+            return res.status(400).json({ error: 'Prompt is required' });
+        }
+
+        console.log('Generating image with prompt:', prompt);
+
+        const response = await openai.images.generate({
+            model: "dall-e-2", // DALL-E 2 has higher rate limits
+            prompt: prompt,
+            n: 1,
+            size: "256x256"
+        });
+
+        if (response && response.data && response.data.length > 0) {
+            const imageUrl = response.data[0].url;
+            return res.json({ imageUrl });
+        } else {
+            return res.status(500).json({ error: 'No image generated' });
+        }
+    } catch (err) {
+        console.error('Error generating image:', err);
+        return res.status(500).json({
+            error: err.message || 'Error generating image',
+            fallbackImageUrl: 'https://placehold.co/600x400/orange/white?text=Task+Icon'
+        });
+    }
+});
