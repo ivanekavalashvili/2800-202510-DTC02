@@ -135,7 +135,7 @@
                                 .then(data => {
                                     if (data.imageUrl) {
                                         previewElement.innerHTML = `<img src="${data.imageUrl}" alt="Task icon" class="w-full h-full object-contain">`;
-                                        
+
                                         let imageUrlInput = document.getElementById('taskImageUrl');
                                         imageUrlInput.value = data.imageUrl;
                                     } else {
@@ -236,7 +236,7 @@
                     const taskPoints = document.getElementById("pointsAwarded")
                     taskPoints.setAttribute("value", task.points)
 
-                    
+
                     const generateImageBtn = document.getElementById("generateImageButton");
                     if (generateImageBtn) {
                         generateImageBtn.addEventListener("click", async () => {
@@ -597,8 +597,13 @@
                         })
                             .then((response) => response.json())
                             .then((data) => {
-                                console.log(data.message)
-                                window.location.reload()
+                                console.log(data.message);
+                                // Update points display in header
+                                const pointsDisplay = document.getElementById('pointsDisplay');
+                                if (pointsDisplay && data.points !== undefined) {
+                                    pointsDisplay.textContent = `Points: ${data.points}`;
+                                }
+                                window.location.reload();
                             })
                     }
 
@@ -608,9 +613,6 @@
                         fetch("/user", { method: "GET" })
                             .then((userResponse) => userResponse.json())
                             .then((userData) => {
-                                const pointDisplay = document.createElement("h2")
-                                pointDisplay.innerHTML = "You have " + userData.points + " points."
-                                result.appendChild(pointDisplay)
                                 fetch("/kidCategories", { method: "GET" })
                                     .then((response) => response.json())
                                     .then((data) => {

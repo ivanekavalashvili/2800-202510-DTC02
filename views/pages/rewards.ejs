@@ -45,13 +45,13 @@
                 </form>
             </div>
         </div>
-       
-            <div class="reward-header">
-                <h3>Your Rewards</h3>
-            </div>
-            <% if (rewards.length===0) { %>
-                <p>No rewards created yet.</p>
-                <% } else { %>
+
+        <div class="reward-header">
+            <h3>Your Rewards</h3>
+        </div>
+        <% if (rewards.length===0) { %>
+            <p>No rewards created yet.</p>
+            <% } else { %>
                 <div class="reward-list">
                     <% rewards.forEach(reward=> { %>
                         <div class="reward-card" data-id="<%= reward._id %>">
@@ -65,16 +65,23 @@
                                 <%= reward.pointsNeeded %> pts
                             </div>
                             <% if (role==='parent' ) { %>
-                                <button class="edit-reward-btn" data-id="<%= reward._id %>" data-title="<%= reward.rewardTitle %>"
-                                    data-description="<%= reward.description %>" data-points="<%= reward.pointsNeeded %>">
+                                <button class="edit-reward-btn" data-id="<%= reward._id %>"
+                                    data-title="<%= reward.rewardTitle %>" data-description="<%= reward.description %>"
+                                    data-points="<%= reward.pointsNeeded %>">
                                     Edit
                                 </button>
-                                <% } %>
+                                <% } else if (role==='kid' ) { %>
+                                    <button class="claim-reward-btn" data-id="<%= reward._id %>"
+                                        data-points="<%= reward.pointsNeeded %>" <%=user.points>= reward.pointsNeeded ?
+                                        '' : 'disabled' %>>
+                                        <%= user.points>= reward.pointsNeeded ? 'Claim Reward' : 'Not Enough Points' %>
+                                    </button>
+                                    <% } %>
                         </div>
                         <% }) %>
                 </div>
-                    <% } %>
-                       
+                <% } %>
+
 
     </body>
 
@@ -106,10 +113,10 @@
                     }
                 });
             }
-            
+
             document.querySelectorAll(".edit-reward-btn").forEach(button => {
                 button.addEventListener("click", () => {
-            
+
                     editForm.rewardId.value = button.dataset.id;
                     editForm.rewardTitle.value = button.dataset.title;
                     editForm.description.value = button.dataset.description;
@@ -124,7 +131,7 @@
             closeEditBtn.addEventListener("click", () => {
                 editModal.style.display = "none";
             });
-           
+
             deleteBtn.addEventListener("click", async () => {
                 const rewardId = editForm.rewardId.value;
 
@@ -197,6 +204,38 @@
                 });
             }
 
+            // Add claim reward functionality for kids
+            document.querySelectorAll(".claim-reward-btn").forEach(button => {
+                button.addEventListener("click", async () => {
+                    const rewardId = button.dataset.id;
+                    const pointsCost = parseInt(button.dataset.points);
+
+                    if (!confirm("Are you sure you want to claim this reward?")) return;
+
+                    try {
+                        const res = await fetch(`/rewards/${rewardId}/claim`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" }
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            // Update points display in header
+                            const pointsDisplay = document.getElementById('pointsDisplay');
+                            if (pointsDisplay && data.newPoints !== undefined) {
+                                pointsDisplay.textContent = `Points: ${data.newPoints}`;
+                            }
+                            alert("Reward claimed successfully!");
+                            location.reload();
+                        } else {
+                            alert(data.message || "Failed to claim reward.");
+                        }
+                    } catch (error) {
+                        console.error("Error claiming reward:", error);
+                        alert("Error claiming reward. Please try again.");
+                    }
+                });
+            });
 
         });
     </script>

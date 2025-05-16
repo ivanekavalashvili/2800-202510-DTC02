@@ -28,11 +28,14 @@
         </div>
         <div class="nav-right">
             <% if (typeof user !=='undefined' ) { %>
-                <a href="/profile" class="nav-btn profile">My Profile</a>
-                <a href="/logout" class="nav-btn logout">Logout</a>
-                <% } else { %>
-                    <a href="/login" class="nav-btn login">Log In</a>
+                <% if (user.role==='kid' ) { %>
+                    <span id="pointsDisplay" class="nav-points">Points: <%= user.points %></span>
                     <% } %>
+                        <a href="/profile" class="nav-btn profile">My Profile</a>
+                        <a href="/logout" class="nav-btn logout">Logout</a>
+                        <% } else { %>
+                            <a href="/login" class="nav-btn login">Log In</a>
+                            <% } %>
         </div>
     </nav>
 </header>

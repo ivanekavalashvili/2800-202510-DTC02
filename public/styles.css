@@ -244,6 +244,8 @@ body {
 .nav-right {
     display: flex;
     gap: 16px;
+    align-items: center;
+    height: 100%;
 }
 
 .nav-btn {
@@ -566,6 +568,7 @@ span {
         transform: translateY(0);
     }
 }
+
 .kid-list-container {
     margin-top: 32px;
     background: var(--color-surface);
@@ -600,6 +603,7 @@ span {
 .kid-list li:last-child {
     border-bottom: none;
 }
+
 .form {
     display: none;
 }
@@ -660,15 +664,18 @@ span {
     color: #2e8b57;
     margin-bottom: 12px;
 }
-.reward-header{
+
+.reward-header {
     text-align: center;
     margin-top: 20px;
     margin-bottom: 10px;
 }
+
 .reward-btn {
     text-align: center;
     margin-top: 150px;
 }
+
 .kid-list {
     list-style: none;
     padding: 0;
@@ -686,4 +693,39 @@ span {
 .kid-name {
     font-size: 1rem;
     font-weight: 500;
+}
+
+.nav-points {
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-right: 0;
+    font-family: 'Quicksand', Arial, sans-serif;
+    display: inline-flex;
+    align-items: center;
+}
+
+.claim-reward-btn {
+    width: 100%;
+    padding: 8px 16px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    background: var(--color-primary);
+    color: var(--color-white);
+    font-family: 'Quicksand', Arial, sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.claim-reward-btn:hover:not([disabled]) {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(46, 139, 61, 0.2);
+}
+
+.claim-reward-btn[disabled] {
+    background: var(--color-text-lighter);
+    cursor: not-allowed;
+    opacity: 0.7;
 }
