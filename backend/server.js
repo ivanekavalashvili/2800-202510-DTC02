@@ -354,9 +354,6 @@ async function resetRepeatingTasks() {
 // Run task reset check every hour
 setInterval(resetRepeatingTasks, 60 * 60 * 1000);
 
-// Also run it when server starts
-resetRepeatingTasks();
-
 // Modify createTask to handle repeating tasks
 app.post('/createTask', requireAuth, async (req, res) => {
     try {
@@ -387,19 +384,31 @@ app.post('/createTask', requireAuth, async (req, res) => {
 
 app.post('/editTask', async (req, res) => {
     try {
-        const { _id, logoUrl, name, taskDetails, points } = req.body;
+        const { _id, logoUrl, name, taskDetails, points, isRepeating, repeatInterval } = req.body;
         console.log(_id + ' ' + name + ' ' + taskDetails + ' ' + points)
         if (!_id) {
             return res.status(400).json({ message: 'Task Id not found' });
         }
         // Update the task once submit is pressed
-        await Task.updateOne({ _id }, { name: name, logoUrl: logoUrl, taskdetails: taskDetails, points: points })
+        await Task.updateOne(
+            { _id },
+            {
+                name: name,
+                logoUrl: logoUrl,
+                taskdetails: taskDetails,
+                points: points,
+                isRepeating: isRepeating,
+                repeatInterval: repeatInterval,
+                // Only update lastResetTime if repeating status or interval changed
+                ...(isRepeating ? { lastResetTime: new Date() } : {})
+            }
+        );
         res.status(201).json({ message: 'Task updated successfully!' })
     }
     catch (error) {
         console.log('db category error', error)
     }
-})
+});
 
 app.post('/createCategory', async (req, res) => {
     try {

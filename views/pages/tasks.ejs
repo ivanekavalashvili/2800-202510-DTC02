@@ -68,6 +68,21 @@
                     <label for="points">Points awarded: </label>
                     <input name="points" type="number" id="pointsAwarded" class="input"
                         placeholder="Input the number of points to be awarded" required>
+
+                    <div class="mb-4">
+                        <div class="flex items-center justify-center mb-2">
+                            <input type="checkbox" id="isRepeating" class="mr-2">
+                            <label for="isRepeating">Make this a repeating task</label>
+                        </div>
+                        <div id="repeatIntervalContainer" class="hidden">
+                            <select id="repeatInterval" class="input">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <label for="kids">Assigned to: </label>
                     <div id="taskKids"></div>
                     <div class="flex justify-between gap-2">
@@ -95,6 +110,7 @@
                 document.getElementById('categoryNameTask').value = parentName
 
                 setTimeout(() => {
+                    setupRepeatingTaskUI();
                     const submitButton = document.getElementById("submitButton");
                     if (submitButton) { submitButton.addEventListener("click", newTask) }
 
@@ -220,7 +236,6 @@
                 dialogResult.innerHTML = ""
 
                 taskTemplate = document.getElementById("taskCreationPopup")
-
                 dialogResult.appendChild(taskTemplate.content.cloneNode(true))
 
                 setTimeout(() => {
@@ -236,6 +251,17 @@
                     const taskPoints = document.getElementById("pointsAwarded")
                     taskPoints.setAttribute("value", task.points)
 
+                    // Set up repeating task UI
+                    setupRepeatingTaskUI();
+                    const isRepeatingCheckbox = document.getElementById("isRepeating");
+                    const repeatIntervalSelect = document.getElementById("repeatInterval");
+                    const repeatIntervalContainer = document.getElementById("repeatIntervalContainer");
+
+                    if (task.isRepeating) {
+                        isRepeatingCheckbox.checked = true;
+                        repeatIntervalContainer.classList.remove('hidden');
+                        repeatIntervalSelect.value = task.repeatInterval;
+                    }
 
                     const generateImageBtn = document.getElementById("generateImageButton");
                     if (generateImageBtn) {
@@ -395,6 +421,8 @@
                 const taskdetails = document.getElementById('taskDetails').value
                 const points = document.getElementById('pointsAwarded').value
                 const catergoryName = document.getElementById('categoryNameTask').value
+                const isRepeating = document.getElementById('isRepeating').checked
+                const repeatInterval = isRepeating ? document.getElementById('repeatInterval').value : null
                 kids = []
                 const kidCheckboxes = document.querySelectorAll('#taskKids input[type="checkbox"]')
                 kidCheckboxes.forEach((checkbox) => {
@@ -406,7 +434,16 @@
                 fetch("/createTask", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ catergoryName, name, logoUrl, taskdetails, points, kids })
+                    body: JSON.stringify({
+                        catergoryName,
+                        name,
+                        logoUrl,
+                        taskdetails,
+                        points,
+                        kids,
+                        isRepeating,
+                        repeatInterval
+                    })
                 })
                     .then(res => res.json())
                     .then(data => {
@@ -416,6 +453,18 @@
                     .catch(err => {
                         console.error("Error creating task:", err)
                     })
+            }
+
+            // Add event listener for repeating task checkbox
+            function setupRepeatingTaskUI() {
+                const isRepeatingCheckbox = document.getElementById('isRepeating');
+                const repeatIntervalContainer = document.getElementById('repeatIntervalContainer');
+
+                if (isRepeatingCheckbox) {
+                    isRepeatingCheckbox.addEventListener('change', (e) => {
+                        repeatIntervalContainer.classList.toggle('hidden', !e.target.checked);
+                    });
+                }
             }
 
             function newCategory(e) {
@@ -446,12 +495,22 @@
                 const logoUrl = document.getElementById('taskImageUrl').value
                 const taskdetails = document.getElementById('taskDetails').value
                 const points = document.getElementById('pointsAwarded').value
+                const isRepeating = document.getElementById('isRepeating').checked
+                const repeatInterval = isRepeating ? document.getElementById('repeatInterval').value : null
                 const id = task._id
 
                 fetch("/editTask", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ _id: id, logoUrl: logoUrl, name: name, taskDetails: taskdetails, points: points })
+                    body: JSON.stringify({
+                        _id: id,
+                        logoUrl: logoUrl,
+                        name: name,
+                        taskDetails: taskdetails,
+                        points: points,
+                        isRepeating: isRepeating,
+                        repeatInterval: repeatInterval
+                    })
                 })
                     .then(res => res.json())
                     .then(data => {
@@ -686,7 +745,12 @@
                                                             taskResult.appendChild(finishTaskBtn)
                                                         } else {
                                                             const comeTomorrow = document.createElement("h2")
-                                                            comeTomorrow.innerHTML = "Task refreshes at ___ time"
+                                                            let refreshMessage = "Task completed";
+                                                            if (task.isRepeating) {
+                                                                const nextRefresh = getNextRefreshTime(task.lastResetTime, task.repeatInterval);
+                                                                refreshMessage = `Task refreshes ${nextRefresh}`;
+                                                            }
+                                                            comeTomorrow.innerHTML = refreshMessage;
                                                             comeTomorrow.setAttribute("class", "bg-[#b2e6b2] block mx-auto mt-3 px-5 py-3 text-center rounded-2xl")
                                                             taskResult.appendChild(comeTomorrow)
                                                         }
@@ -696,6 +760,41 @@
                                         })
                                     })
                             })
+                    }
+
+                    // Helper function to calculate next refresh time
+                    function getNextRefreshTime(lastResetTime, interval) {
+                        if (!lastResetTime || !interval) return "soon";
+
+                        const last = new Date(lastResetTime);
+                        const now = new Date();
+                        let next;
+
+                        switch (interval) {
+                            case 'daily':
+                                next = new Date(last.setDate(last.getDate() + 1));
+                                break;
+                            case 'weekly':
+                                next = new Date(last.setDate(last.getDate() + 7));
+                                break;
+                            case 'monthly':
+                                next = new Date(last.setMonth(last.getMonth() + 1));
+                                break;
+                            default:
+                                return "soon";
+                        }
+
+                        // If the next refresh is in the past, it means it should refresh now
+                        if (next < now) return "very soon";
+
+                        // Calculate relative time
+                        const diffHours = Math.round((next - now) / (1000 * 60 * 60));
+                        if (diffHours < 24) return `in ${diffHours} hours`;
+                        const diffDays = Math.round(diffHours / 24);
+                        if (diffDays === 1) return "tomorrow";
+                        if (diffDays < 7) return `in ${diffDays} days`;
+                        if (diffDays < 30) return `in ${Math.round(diffDays / 7)} weeks`;
+                        return `in ${Math.round(diffDays / 30)} months`;
                     }
 
                     function closeDialog() {
