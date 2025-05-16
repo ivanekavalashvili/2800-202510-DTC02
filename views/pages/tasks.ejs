@@ -111,7 +111,6 @@
                             }
 
                             let prompt = `Create a simple, vector logo icon thing for a task called "${taskName}"`;
-
                             prompt += `. Make it colorful and simple, for a family task management app. `
                             prompt += `Style: flat vector illustration. Stick to a white background. Focus on one object from the task. `;
                             prompt += `VERY VERY OMEGA IMPORTANT: Create a LARGE icon that FILLS THE ENTIRE FRAME. The icon should be prominent and centered, taking up most of the available space. Create ONLY an illustration with NO TEXT whatsoever. Do not include any words, letters, numbers, labels, or text of any kind. The image must be 100% text-free.`;
@@ -236,6 +235,57 @@
 
                     const taskPoints = document.getElementById("pointsAwarded")
                     taskPoints.setAttribute("value", task.points)
+
+                    
+                    const generateImageBtn = document.getElementById("generateImageButton");
+                    if (generateImageBtn) {
+                        generateImageBtn.addEventListener("click", async () => {
+                            const taskName = document.getElementById('taskName').value;
+                            const taskDetails = document.getElementById('taskDetails').value;
+
+                            if (!taskName || taskName.trim() === "") {
+                                alert("Please enter a task name before generating an image");
+                                return;
+                            }
+
+                            let prompt = `Create a simple, vector logo icon thing for a task called "${taskName}"`;
+                            prompt += `. Make it colorful and simple, for a family task management app. `
+                            prompt += `Style: flat vector illustration. Stick to a white background. Focus on one object from the task. `;
+                            prompt += `VERY VERY OMEGA IMPORTANT: Create a LARGE icon that FILLS THE ENTIRE FRAME. The icon should be prominent and centered, taking up most of the available space. Create ONLY an illustration with NO TEXT whatsoever. Do not include any words, letters, numbers, labels, or text of any kind. The image must be 100% text-free.`;
+                            console.log("prompt:", prompt);
+
+                            const previewElement = document.getElementById('taskImagePreview');
+                            previewElement.innerHTML = '<span class="text-gray-400">Loading...</span>';
+
+                            fetch('/generate-image', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ prompt: prompt })
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.imageUrl) {
+                                        previewElement.innerHTML = `<img src="${data.imageUrl}" alt="Task icon" class="w-full h-full object-contain">`;
+
+                                        let imageUrlInput = document.getElementById('taskImageUrl');
+                                        imageUrlInput.value = data.imageUrl;
+                                    } else {
+                                        previewElement.innerHTML = '<span class="text-red-500">Failed to generate image</span>';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error generating image:', error);
+                                    previewElement.innerHTML = '<span class="text-red-500">Error</span>';
+                                });
+                        });
+                    }
 
                     const submitButton = document.getElementById("submitButton");
                     if (submitButton) submitButton.addEventListener("click", (e) => editTask(task, e))
@@ -393,6 +443,7 @@
             function editTask(task, e) {
                 e.preventDefault();
                 const name = document.getElementById('taskName').value
+                const logoUrl = document.getElementById('taskImageUrl').value
                 const taskdetails = document.getElementById('taskDetails').value
                 const points = document.getElementById('pointsAwarded').value
                 const id = task._id
@@ -400,7 +451,7 @@
                 fetch("/editTask", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ _id: id, name: name, taskDetails: taskdetails, points: points })
+                    body: JSON.stringify({ _id: id, logoUrl: logoUrl, name: name, taskDetails: taskdetails, points: points })
                 })
                     .then(res => res.json())
                     .then(data => {

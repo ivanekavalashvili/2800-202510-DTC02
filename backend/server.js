@@ -60,8 +60,7 @@ const taskSchema = new mongoose.Schema({
         required: true
     },
     logoUrl: {
-        type: String,
-        required: true
+        type: String
     },
     taskdetails: {
         type: String,
@@ -408,13 +407,13 @@ app.post('/createTask', requireAuth, async (req, res) => {
 
 app.post('/editTask', async (req, res) => {
     try {
-        const { _id, name, taskDetails, points } = req.body;
+        const { _id, logoUrl, name, taskDetails, points } = req.body;
         console.log(_id + ' ' + name + ' ' + taskDetails + ' ' + points)
         if (!_id) {
             return res.status(400).json({ message: 'Task Id not found' });
         }
         // Update the task once submit is pressed
-        await Task.updateOne({ _id }, { name: name, taskdetails: taskDetails, points: points })
+        await Task.updateOne({ _id }, { name: name, logoUrl: logoUrl, taskdetails: taskDetails, points: points })
         res.status(201).json({ message: 'Task updated successfully!' })
     }
     catch (error) {
