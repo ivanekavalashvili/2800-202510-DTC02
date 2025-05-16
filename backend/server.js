@@ -154,26 +154,6 @@ app.get('/', (req, res) => {
     });
 });
 
-app.post('/generateImage', async (req, res) => {
-    try {
-        const { prompt } = req.body
-
-        const response = await openai.images.generate({
-            model: "dall-e-3",
-            prompt: prompt,
-            n: 1,
-            size: "1024x1024"
-        });
-
-        const imageUrl = response.data[0].url;
-        res.json({ imageUrl })
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Error generating image')
-    }
-})
-
 app.get('/login', (req, res) => {
     if (req.session.user) {
         return res.redirect('/tasks');
@@ -484,20 +464,6 @@ app.post('/deleteCategory', async (req, res) => {
         console.log('db category error', error)
     }
 })
-
-app.post('/deleteTask', requireAuth, async (req, res) => {
-    try {
-        const { taskId, categoryName } = req.body;
-
-        // Delete the task
-        await Task.findByIdAndDelete(taskId);
-
-        res.json({ message: 'Task deleted successfully' });
-    } catch (err) {
-        console.error('Error deleting task:', err);
-        res.status(500).json({ message: 'Error deleting task' });
-    }
-});
 
 // API Routes
 app.post('/register', async (req, res) => {
