@@ -708,14 +708,12 @@ app.post('/generate-image', async (req, res) => {
         if (!prompt) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
-
-        console.log('Generating image with prompt:', prompt);
-
+        
         const response = await openai.images.generate({
-            model: "dall-e-2", // DALL-E 2 has higher rate limits
+            model: "dall-e-3",
             prompt: prompt,
             n: 1,
-            size: "256x256"
+            size: "1024x1024"
         });
 
         if (response && response.data && response.data.length > 0) {
@@ -728,7 +726,7 @@ app.post('/generate-image', async (req, res) => {
         console.error('Error generating image:', err);
         return res.status(500).json({
             error: err.message || 'Error generating image',
-            fallbackImageUrl: 'https://placehold.co/600x400/orange/white?text=Task+Icon'
+            fallbackImageUrl: 'https://upload.wikimedia.org/wikipedia/en/7/73/Trollface.png'
         });
     }
 });
