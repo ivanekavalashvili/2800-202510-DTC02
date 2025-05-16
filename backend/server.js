@@ -302,7 +302,7 @@ app.post('/kidFinishTask', requireAuth, async (req, res) => {
             { $addToSet: { completedBy: user._id } }
         )
         console.log(result)
-        res.status(201).json({ message: 'Points added and task complete!' })
+        res.status(201).json({ message: 'Points added and task complete!', points: user.points })
     }
     catch (error) {
         console.log("db error", error)
@@ -715,5 +715,36 @@ app.post('/generate-image', async (req, res) => {
             error: err.message || 'Error generating image',
             fallbackImageUrl: 'https://upload.wikimedia.org/wikipedia/en/7/73/Trollface.png'
         });
+    }
+});
+
+// Claim a reward
+app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
+    try {
+        const user = await User.findById(req.session.user);
+        if (user.role !== 'kid') {
+            return res.status(403).json({ message: 'Only kids can claim rewards' });
+        }
+
+        const reward = await Reward.findById(req.params.id);
+        if (!reward) {
+            return res.status(404).json({ message: 'Reward not found' });
+        }
+
+        if (user.points < reward.pointsNeeded) {
+            return res.status(400).json({ message: 'Not enough points to claim this reward' });
+        }
+
+        // Deduct points and save
+        user.points -= reward.pointsNeeded;
+        await user.save();
+
+        res.status(200).json({
+            message: 'Reward claimed successfully!',
+            newPoints: user.points
+        });
+    } catch (err) {
+        console.error('Error claiming reward:', err);
+        res.status(500).json({ message: 'Server error while claiming reward' });
     }
 });
