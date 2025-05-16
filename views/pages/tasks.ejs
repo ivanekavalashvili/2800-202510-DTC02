@@ -99,7 +99,7 @@
                     // event listener for generate image button
                     const generateImageBtn = document.getElementById("generateImageButton");
                     if (generateImageBtn) {
-                        generateImageBtn.addEventListener("click", function () {
+                        generateImageBtn.addEventListener("click", async () => {
                             const taskName = document.getElementById('taskName').value;
                             const taskDetails = document.getElementById('taskDetails').value;
 

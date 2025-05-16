@@ -63,6 +63,10 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    logo: {
+        type: String,
+        required: true
+    },
     points: {
         type: Number,
         required: true
@@ -150,6 +154,26 @@ app.get('/', (req, res) => {
         title: 'Home'
     });
 });
+
+app.post('/generateImage', async (req, res) => {
+    try {
+        const { prompt } = req.body
+
+        const response = await openai.images.generate({
+            model: "dall-e-3",
+            prompt: prompt,
+            n: 1,
+            size: "1024x1024"
+        });
+
+        const imageUrl = response.data[0].url;
+        res.json({ imageUrl })
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error generating image')
+    }
+})
 
 app.get('/login', (req, res) => {
     if (req.session.user) {
