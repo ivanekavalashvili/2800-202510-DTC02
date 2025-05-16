@@ -49,6 +49,7 @@
                     <label for="name">Name of Task: </label>
                     <input name="name" type="text" id="taskName" class="input"
                         placeholder="Input task name (EX. wash the dishes)" required>
+                    <input type="text" id="taskImageUrl" name="taskImageUrl">
 
                     <div class="mb-3">
                         <div class="flex items-center">
@@ -135,15 +136,8 @@
                                 .then(data => {
                                     if (data.imageUrl) {
                                         previewElement.innerHTML = `<img src="${data.imageUrl}" alt="Task icon" class="w-full h-full object-contain">`;
-
+                                        
                                         let imageUrlInput = document.getElementById('taskImageUrl');
-                                        if (!imageUrlInput) {
-                                            imageUrlInput = document.createElement('input');
-                                            imageUrlInput.type = 'hidden';
-                                            imageUrlInput.id = 'taskImageUrl';
-                                            imageUrlInput.name = 'taskImageUrl';
-                                            previewElement.parentNode.appendChild(imageUrlInput);
-                                        }
                                         imageUrlInput.value = data.imageUrl;
                                     } else {
                                         previewElement.innerHTML = '<span class="text-red-500">Failed to generate image</span>';
@@ -335,6 +329,7 @@
 
             function newTask() {
                 const name = document.getElementById('taskName').value
+                const logoUrl = document.getElementById('taskImageUrl').value
                 const taskdetails = document.getElementById('taskDetails').value
                 const points = document.getElementById('pointsAwarded').value
                 const catergoryName = document.getElementById('categoryNameTask').value
@@ -349,7 +344,7 @@
                 fetch("/createTask", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ catergoryName, name, taskdetails, points, kids })
+                    body: JSON.stringify({ catergoryName, name, logoUrl, taskdetails, points, kids })
                 })
                     .then(res => res.json())
                     .then(data => {

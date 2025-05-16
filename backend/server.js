@@ -59,11 +59,11 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    taskdetails: {
+    logoUrl: {
         type: String,
         required: true
     },
-    logo: {
+    taskdetails: {
         type: String,
         required: true
     },
@@ -381,7 +381,7 @@ resetRepeatingTasks();
 // Modify createTask to handle repeating tasks
 app.post('/createTask', requireAuth, async (req, res) => {
     try {
-        const { catergoryName, name, taskdetails, points, kids, isRepeating, repeatInterval } = req.body;
+        const { catergoryName, name, imageUrl, taskdetails, points, kids, isRepeating, repeatInterval } = req.body;
         if (!name || !taskdetails || !points) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
@@ -389,6 +389,7 @@ app.post('/createTask', requireAuth, async (req, res) => {
         const newTask = await Task.create({
             catergoryName,
             name,
+            imageUrl,
             taskdetails,
             points,
             CreatedBy: req.session.user,
