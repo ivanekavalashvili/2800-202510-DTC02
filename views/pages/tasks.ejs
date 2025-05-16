@@ -296,9 +296,14 @@
                                         taskResult.appendChild(topDiv)
 
                                         const taskTitle = document.createElement('span')
-                                        taskTitle.setAttribute('class', "rounded-2xl font-bold font-lg")
+                                        taskTitle.setAttribute('class', " flex rounded-2xl font-bold font-lg")
                                         taskTitle.innerHTML = task.name
                                         topDiv.appendChild(taskTitle)
+
+                                        const logo = document.createElement('img')
+                                        logo.setAttribute('class', "flex rounded-full size-20 font-bold font-lg")
+                                        logo.src = task.logoUrl
+                                        topDiv.appendChild(logo)
 
                                         const taskPoints = document.createElement('span')
                                         taskPoints.setAttribute('class', "rounded-2xl text-right")
