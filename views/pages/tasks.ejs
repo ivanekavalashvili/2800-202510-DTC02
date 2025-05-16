@@ -42,7 +42,7 @@
 
         <template id="taskCreationPopup">
             <div class="modal flex">
-                <div class="modal-content p-5 max-h-screen overflow-scroll">
+                <div class="modal-content p-5 max-h-screen overflow-y-auto">
                     <p class="text-xl">Create a Task</p>
                     <label for="categoryName">Catergory Name: </label>
                     <input name="categoryName" type="text" id="categoryNameTask" class="input" readonly>
@@ -551,7 +551,7 @@
 
                             const taskResult = document.createElement("div")
                             taskResult.setAttribute('class', "bg-white bg-opacity-70 shadow rounded-2xl p-2")
-                            totalResult.appendChild(taskResult)
+                            result.appendChild(taskResult)
 
                             const topDiv = document.createElement("div")
                             topDiv.setAttribute('class', "grid grid-cols-2 md:grid-cols-3 rounded-2xl mb-2")
@@ -643,20 +643,32 @@
                                                 .then((data) => {
                                                     data.forEach((task) => {
                                                         const taskResult = document.createElement("div")
-                                                        taskResult.setAttribute('class', "bg-white bg-opacity-70 rounded-2xl p-2")
+                                                        taskResult.setAttribute('class', "bg-white bg-opacity-70 shadow rounded-2xl p-2")
                                                         totalResult.appendChild(taskResult)
 
                                                         const topDiv = document.createElement("div")
-                                                        topDiv.setAttribute('class', "grid grid-cols-2 rounded-2xl mb-2")
+                                                        topDiv.setAttribute('class', "grid grid-cols-2 md:grid-cols-3 rounded-2xl mb-2")
                                                         taskResult.appendChild(topDiv)
 
                                                         const taskTitle = document.createElement('span')
-                                                        taskTitle.setAttribute('class', "rounded-2xl font-bold font-lg")
+                                                        taskTitle.setAttribute('class', " flex rounded-2xl font-bold font-lg")
                                                         taskTitle.innerHTML = task.name
                                                         topDiv.appendChild(taskTitle)
 
+                                                        if (task.logoUrl) {
+                                                            const logo = document.createElement('img')
+                                                            logo.setAttribute('class', "flex rounded-full shadow size-20 mx-auto font-bold font-lg")
+                                                            logo.src = task.logoUrl
+                                                            topDiv.appendChild(logo)
+                                                        } else {
+                                                            const placeholder = document.createElement('div')
+                                                            placeholder.setAttribute('class', "w-20 h-20 bg-gray-200 rounded-full flex mx-auto items-center justify-center font-bold text-2xl")
+                                                            placeholder.innerHTML = '<span class="text-gray-400 text-xs">No icon</span>'
+                                                            topDiv.appendChild(placeholder)
+                                                        }
+
                                                         const taskPoints = document.createElement('span')
-                                                        taskPoints.setAttribute('class', "rounded-2xl text-right")
+                                                        taskPoints.setAttribute('class', "rounded-2xl md:text-right")
                                                         taskPoints.innerHTML = '⭐' + task.points
                                                         topDiv.appendChild(taskPoints)
 
