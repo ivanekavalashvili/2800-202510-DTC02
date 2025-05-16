@@ -49,7 +49,7 @@
                     <label for="name">Name of Task: </label>
                     <input name="name" type="text" id="taskName" class="input"
                         placeholder="Input task name (EX. wash the dishes)" required>
-                    <input type="text" id="taskImageUrl" name="taskImageUrl">
+                    <input type="text" id="taskImageUrl" name="taskImageUrl" hidden>
 
                     <div class="mb-3">
                         <div class="flex items-center">
@@ -302,7 +302,7 @@
 
                                         const taskPoints = document.createElement('span')
                                         taskPoints.setAttribute('class', "rounded-2xl text-right")
-                                        taskPoints.innerHTML = '$' + task.points
+                                        taskPoints.innerHTML = '⭐' + task.points
                                         topDiv.appendChild(taskPoints)
 
                                         const taskDesc = document.createElement('p')
@@ -501,7 +501,7 @@
 
                             const taskPoints = document.createElement('span')
                             taskPoints.setAttribute('class', "rounded-2xl text-right")
-                            taskPoints.innerHTML = '$' + task.points
+                            taskPoints.innerHTML = '⭐' + task.points
                             topDiv.appendChild(taskPoints)
 
                             const taskDesc = document.createElement('p')
@@ -582,7 +582,7 @@
 
                                                         const taskPoints = document.createElement('span')
                                                         taskPoints.setAttribute('class', "rounded-2xl text-right")
-                                                        taskPoints.innerHTML = '$' + task.points
+                                                        taskPoints.innerHTML = '⭐' + task.points
                                                         topDiv.appendChild(taskPoints)
 
                                                         const taskDesc = document.createElement('p')
