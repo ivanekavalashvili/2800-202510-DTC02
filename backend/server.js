@@ -599,6 +599,26 @@ app.post('/add-kid', async (req, res) => {
     }
 });
 
+app.delete('/kids/:id', requireAuth, async (req, res) => {
+    try {
+        const user = res.locals.user;
+        const kidId = req.params.id;
+
+        const kid = await User.findOne({ _id: kidId, parent_email: user.email, role: 'kid' });
+        if (!kid) {
+            return res.status(404).json({ message: "Kid not found or does not belong to this parent" });
+        }
+
+        await User.deleteOne({ _id: kidId });
+
+        res.status(200).json({ message: "Kid deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting kid:", err);
+        res.status(500).json({ message: "Server error while deleting kid" });
+    }
+});
+
+
 // Create reward
 app.post('/rewards', requireAuth, async (req, res) => {
     try {
