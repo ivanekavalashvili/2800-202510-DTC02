@@ -49,9 +49,6 @@
                     <label for="name">Name of Task: </label>
                     <input name="name" type="text" id="taskName" class="input"
                         placeholder="Input task name (EX. wash the dishes)" required>
-                    <label for="taskdetails">Task Details: </label>
-                    <input name="taskdetails" type="text" id="taskDetails" class="input"
-                        placeholder="Describe the task and the intructions">
 
                     <div class="mb-3">
                         <div class="flex items-center">
@@ -62,6 +59,10 @@
                             <button type="button" id="generateImageButton" class="role-btn">Generate</button>
                         </div>
                     </div>
+
+                    <label for="taskdetails">Task Details: </label>
+                    <input name="taskdetails" type="text" id="taskDetails" class="input"
+                        placeholder="Describe the task and the intructions">
 
                     <label for="points">Points awarded: </label>
                     <input name="points" type="number" id="pointsAwarded" class="input"
@@ -108,17 +109,11 @@
                                 return;
                             }
 
-                            if (!taskDetails || taskDetails.trim() === "") {
-                                alert("Please enter a task details before generating an image");
-                                return;
-                            }
-
                             let prompt = `Create a simple, vector logo icon thing for a task called "${taskName}"`;
-                            if (taskDetails && taskDetails.trim() !== "") {
-                                prompt += ` that involves "${taskDetails}"`;
-                            }
-                            prompt += `. Make it colorful and simple, for a family task management app. Style: flat vector illustration. Avoid using text in the image.`;
 
+                            prompt += `. Make it colorful and simple, for a family task management app. `
+                            prompt += `Style: flat vector illustration. Stick to a white background. Focus on one object from the task. `;
+                            prompt += `VERY VERY OMEGA IMPORTANT: Create a LARGE icon that FILLS THE ENTIRE FRAME. The icon should be prominent and centered, taking up most of the available space. Create ONLY an illustration with NO TEXT whatsoever. Do not include any words, letters, numbers, labels, or text of any kind. The image must be 100% text-free.`;
                             console.log("prompt:", prompt);
 
                             const previewElement = document.getElementById('taskImagePreview');
