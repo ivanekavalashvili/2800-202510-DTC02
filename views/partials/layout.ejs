@@ -54,12 +54,12 @@
         </nav>
         <% } else if (title !=='Login' ) { %>
             <%- include('header') %>
+            <%- include('footer') %>
         <% } %>
 
         <main class="content flex-grow">
             <%- body %>
         </main>
-
         <% if (typeof scripts !=='undefined' && scripts.length> 0) { %>
             <% scripts.forEach(function(script) { %>
                 <script src="<%= script %>"></script>
