@@ -99,7 +99,7 @@
                     // event listener for generate image button
                     const generateImageBtn = document.getElementById("generateImageButton");
                     if (generateImageBtn) {
-                        generateImageBtn.addEventListener("click", function () {
+                        generateImageBtn.addEventListener("click", async () => {
                             const taskName = document.getElementById('taskName').value;
                             const taskDetails = document.getElementById('taskDetails').value;
 
@@ -121,7 +121,21 @@
                             
                             console.log("prompt:", prompt);
                             // call api here later
-                            
+                            result = await fetch('/generateImage', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ prompt })
+                            })
+
+                            const imageResult = await result.JSON();
+
+                            console.log(imageResult)
+
+                            taskImagePreview = document.getElementById("taskImagePreview")
+                            taskImagePreview.innerHTML = ""
+
+                            img = document.createElement("img")
+                            img.src = imageResult
                         });
                     }
 
