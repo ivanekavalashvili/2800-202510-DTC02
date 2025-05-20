@@ -124,6 +124,23 @@ const rewardSchema = new mongoose.Schema({
 
 const Reward = mongoose.model('Reward', rewardSchema);
 
+// notifications for both rewards and tasks
+const notificationSchema = new mongoose.Schema({
+    forWho: {
+        type: String,
+        required: true
+    },
+    taskRewardId: {
+        type: String,
+        required: true
+    },
+    taskOrReward: {
+        type: String,
+        required: true
+    },
+});
+
+const Notification = mongoose.model('Notification', notificationSchema);
 
 // Make user data available to all templates
 app.use(async (req, res, next) => {
@@ -295,13 +312,27 @@ app.post('/kidFinishTask', requireAuth, async (req, res) => {
     try {
         const { task } = req.body
         const user = await User.findById({ _id: req.session.user })
+
+        // updates the kid's points with the amount from the task
         user.points = (user.points || 0) + task.points
         await user.save()
-        const result = await Task.updateOne(
+
+        // updates the task completedBy array to show the kid has completed the task
+        const completed = await Task.updateOne(
             { _id: task._id },
             { $addToSet: { completedBy: user._id } }
         )
-        console.log(result)
+        console.log(completed)
+
+        // creates a notification to notify the parent that the kid has completed a task and audit it.
+        const notify = await Notification.create({
+            forWho: user.parent_email,
+            taskRewardId: task._id,
+            taskOrReward: "task"
+        })
+        
+        console.log(notify)
+        
         res.status(201).json({ message: 'Points added and task complete!', points: user.points })
     }
     catch (error) {

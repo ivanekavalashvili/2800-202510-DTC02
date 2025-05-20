@@ -595,9 +595,11 @@
                         </div>
                     </div>
                 </template>
+        
                 <script>
                     const dialogKid = document.querySelector("dialog")
-
+            
+            // Creates a confirmation popup for kid after they ckick that they have completed their task
                     function finishTaskPopup(task) {
                         dialogKid.showModal()
                         dialogResult.innerHTML = ""
@@ -648,7 +650,9 @@
                         }, 0)
                     }
 
-                    function finishTask(task) {
+                    // Adds points to the kid's profile and marks them as having finished the task on the task itself
+            // I refresh the page to update the render because calling fetchcategories again wasn't working for some reason
+            function finishTask(task) {
                         fetch("/kidFinishTask", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -665,7 +669,7 @@
                                 window.location.reload();
                             })
                     }
-
+            // fetches the kid's data to show how many points they have, then renders each category, then each task
                     function fetchCategories() {
                         const result = document.getElementById("result")
                         result.innerHTML = ""
