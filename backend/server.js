@@ -63,7 +63,7 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    logoUrl: {
+    filename: {
         type: String
     },
     taskdetails: {
@@ -382,9 +382,10 @@ app.post('/createTask', requireAuth, async (req, res) => {
         
         let filename = null;
         if (logoUrl) {
-            const filename = `img-${new Date().toString().split(" ").join("").slice(0, 23).replace(/[:.]/g, '-')}-${Math.random().toString().slice(2, -1)}.png`
+            filename = `img-${new Date().toString().split(" ").join("").slice(0, 23).replace(/[:.]/g, '-')}-${Math.random().toString().slice(2, -1)}.png`
             const savedPath = await downloadImage(logoUrl, filename)
         }
+        console.log(filename)
 
         const newTask = await Task.create({
             catergoryName,
