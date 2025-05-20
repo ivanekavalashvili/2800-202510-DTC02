@@ -376,10 +376,11 @@
                                         taskTitle.innerHTML = task.name
                                         topDiv.appendChild(taskTitle)
 
-                                        if (task.logoUrl) {
+                                        if (task.filename) {
+                                            console.log(task.filename)
                                             const logo = document.createElement('img')
                                             logo.setAttribute('class', "flex rounded-full shadow size-20 mx-auto font-bold font-lg")
-                                            logo.src = task.logoUrl
+                                            logo.src = "http://localhost:3000/images/" + task.filename
                                             topDiv.appendChild(logo)
                                         } else {
                                             const placeholder = document.createElement('div')
@@ -623,10 +624,10 @@
                             taskTitle.innerHTML = task.name
                             topDiv.appendChild(taskTitle)
 
-                            if (task.logoUrl) {
+                            if (task.filename) {
                                 const logo = document.createElement('img')
                                 logo.setAttribute('class', "flex rounded-full shadow size-20 mx-auto font-bold font-lg")
-                                logo.src = task.logoUrl
+                                logo.src = "http://localhost:3000/images/" + task.filename
                                 topDiv.appendChild(logo)
                             } else {
                                 const placeholder = document.createElement('div')
@@ -720,10 +721,10 @@
                                                         taskTitle.innerHTML = task.name
                                                         topDiv.appendChild(taskTitle)
 
-                                                        if (task.logoUrl) {
+                                                        if (task.filename) {
                                                             const logo = document.createElement('img')
                                                             logo.setAttribute('class', "flex rounded-full shadow size-20 mx-auto font-bold font-lg")
-                                                            logo.src = task.logoUrl
+                                                            logo.src = "http://localhost:3000/images/" + task.filename
                                                             topDiv.appendChild(logo)
                                                         } else {
                                                             const placeholder = document.createElement('div')

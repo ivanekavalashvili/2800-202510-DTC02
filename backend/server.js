@@ -8,6 +8,9 @@ const User = require('./users/user');
 const cors = require('cors');
 const expressLayouts = require('express-ejs-layouts');
 const { OpenAI } = require('openai');
+const fs = require('fs');
+const axios = require('axios');
+
 
 const app = express();
 
@@ -26,6 +29,7 @@ app.set("layout extractStyles", true);
 // Middleware
 app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('/images', express.static(path.join(__dirname, 'images')))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -59,7 +63,7 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    logoUrl: {
+    filename: {
         type: String
     },
     taskdetails: {
@@ -390,6 +394,20 @@ async function resetRepeatingTasks() {
 // Run task reset check every hour
 setInterval(resetRepeatingTasks, 60 * 60 * 1000);
 
+// Also run it when server starts
+resetRepeatingTasks();
+
+async function downloadImage(imageUrl, filename) {
+    const res = await axios.get(imageUrl, { responseType: 'stream' });
+    const filePath = path.join(__dirname, 'images', filename);
+    const writer = fs.createWriteStream(filePath);
+    res.data.pipe(writer);
+    return new Promise((resolve, reject) => {
+        writer.on('finish', () => resolve(`/images/${filename}`));
+        writer.on('error', reject);
+    })
+}
+
 // Modify createTask to handle repeating tasks
 app.post('/createTask', requireAuth, async (req, res) => {
     try {
@@ -397,11 +415,18 @@ app.post('/createTask', requireAuth, async (req, res) => {
         if (!name || !taskdetails || !points) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
+        
+        let filename = null;
+        if (logoUrl) {
+            filename = `img-${new Date().toString().split(" ").join("").slice(0, 23).replace(/[:.]/g, '-')}-${Math.random().toString().slice(2, -1)}.png`
+            const savedPath = await downloadImage(logoUrl, filename)
+        }
+        console.log(filename)
 
         const newTask = await Task.create({
             catergoryName,
             name,
-            logoUrl,
+            filename,
             taskdetails,
             points,
             CreatedBy: req.session.user,
