@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -132,25 +134,49 @@
                 editModal.style.display = "none";
             });
 
-            deleteBtn.addEventListener("click", async () => {
+           deleteBtn.addEventListener("click", async () => {
                 const rewardId = editForm.rewardId.value;
 
-                if (!rewardId) return alert("No reward selected.");
-                if (!confirm("Are you sure you want to delete this reward?")) return;
+                if (!rewardId) return Swal.fire("Oops!", "No reward selected.", "error");
 
-                const res = await fetch(`/rewards/${rewardId}`, {
-                    method: "DELETE"
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This reward will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#247A34',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        const res = await fetch(`/rewards/${rewardId}`, {
+                            method: "DELETE"
+                        });
+
+                        const data = await res.json();
+                           if (res.ok) {
+                           Swal.fire({
+                                   title: 'Deleted!',
+                                   text: 'Reward has been deleted.',
+                                   icon: 'success',
+                                   confirmButtonColor: '#247A34',
+                               }).then(() => {
+                                   editModal.style.display = "none";
+                                   location.reload();
+                               });
+
+                        } else {
+                            Swal.fire({
+                                   title: 'Error',
+                                   text: 'Error deleting the reward',
+                                   icon: 'error',
+                                   confirmButtonColor: '#247A34',
+                               });
+                        }
+                    }
                 });
-
-                const data = await res.json();
-                if (res.ok) {
-                    alert("Reward deleted.");
-                    editModal.style.display = "none";
-                    location.reload();
-                } else {
-                    alert(data.message || "Error deleting reward.");
-                }
             });
+
 
 
             if (form) {
@@ -168,7 +194,7 @@
 
                     const data = await res.json();
                     if (res.ok) {
-                        alert("Reward Created");
+    
                         form.reset();
                         modal.style.display = "none";
                         location.reload();
