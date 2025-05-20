@@ -11,7 +11,6 @@
     </svg>
     <h1>Gamify Life</h1>
 
-
     <div class="role-toggle" style="display: flex;">
         <button class="role-btn active" id="parentBtn" type="button">Parent</button>
         <button class="role-btn" id="kidBtn" type="button">Kid</button>
@@ -31,7 +30,7 @@
         <form id="signupForm" class="form">
             <input class="input" type="text" name="fullName" placeholder="Full Name" required>
             <input class="input" type="email" name="email" placeholder="Email" required>
-            <input class="input" type="password" name="password" placeholder="Password" required>
+            <input class="input" type="password" name="password" placeholder="Password" required >
             <input class="input" type="password" name="confirmPassword" placeholder="Confirm Password" required>
             <button class="login-btn" type="submit">Sign Up</button>
             <div class="toggle-form">
@@ -39,80 +38,39 @@
             </div>
         </form>
     </div>
-    <div class="login-container">
-        <svg class="trophy-icon" viewBox="0 0 64 64" fill="none">
-            <rect width="64" height="64" rx="16" fill="#b2e6b2" />
-            <path d="M20 24a12 12 0 0 0 24 0V16H20v8Z" fill="#2e8b3d" />
-            <rect x="24" y="36" width="16" height="8" rx="4" fill="#2e8b3d" />
-            <rect x="28" y="44" width="8" height="8" rx="4" fill="#2e8b3d" />
-            <circle cx="32" cy="24" r="6" fill="#b2e6b2" />
-            <ellipse cx="32" cy="26" rx="2" ry="1" fill="#2e8b3d" />
-            <circle cx="29" cy="23" r="1" fill="#2e8b3d" />
-            <circle cx="35" cy="23" r="1" fill="#2e8b3d" />
-        </svg>
-        <h1>Gamify Life</h1>
-    
-    
-        <div class="role-toggle" style="display: flex;">
-            <button class="role-btn active" id="parentBtn" type="button">Parent</button>
-            <button class="role-btn" id="kidBtn" type="button">Kid</button>
-        </div>
-    
-        <div class="forms-container">
-            <form id="loginForm" class="form active">
-                <input class="input" type="text" name="Username/email" placeholder="Email or Username" required>
-                <input class="input" type="password" name="password" placeholder="Password" required>
-                <a href="#" class="forgot">Forgot password?</a>
-                <button class="login-btn" type="submit">Log In</button>
-                <div class="toggle-form">
-                    Don't have an account? <a href="/login?signup=true" id="showSignup">Sign Up</a>
-                </div>
-            </form>
-    
-            <form id="signupForm" class="form">
-                <input class="input" type="text" name="fullName" placeholder="Full Name" required>
-                <input class="input" type="email" name="email" placeholder="Email" required>
-                <input class="input" type="password" name="password" placeholder="Password" required>
-                <input class="input" type="password" name="confirmPassword" placeholder="Confirm Password" required>
-                <button class="login-btn" type="submit">Sign Up</button>
-                <div class="toggle-form">
-                    Already have an account? <a href="/login" id="showLogin">Log In</a>
-                </div>
-            </form>
-        </div>
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const loginForm = document.getElementById("loginForm");
-                const signupForm = document.getElementById("signupForm");
-                const showSignupLink = document.getElementById("showSignup");
-                const showLoginLink = document.getElementById("showLogin");
-                const roleToggle = document.querySelector(".role-toggle");
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginForm = document.getElementById("loginForm");
+            const signupForm = document.getElementById("signupForm");
+            const showSignupLink = document.getElementById("showSignup");
+            const showLoginLink = document.getElementById("showLogin");
+            const roleToggle = document.querySelector(".role-toggle");
 
-                const urlParams = new URLSearchParams(window.location.search);
-                const isSignup = urlParams.get("signup") === "true";
+            const urlParams = new URLSearchParams(window.location.search);
+            const isSignup = urlParams.get("signup") === "true";
 
-                if (isSignup) {
-                    loginForm.classList.remove("active");
-                    signupForm.classList.add("active");
-                    if (roleToggle) roleToggle.style.display = "none";
-                } else {
-                    loginForm.classList.add("active");
-                    signupForm.classList.remove("active");
-                    if (roleToggle) roleToggle.style.display = "flex";
-                }
+            if (isSignup) {
+                loginForm.classList.remove("active");
+                signupForm.classList.add("active");
+                if (roleToggle) roleToggle.style.display = "none";
+            } else {
+                loginForm.classList.add("active");
+                signupForm.classList.remove("active");
+                if (roleToggle) roleToggle.style.display = "flex";
+            }
 
-                showSignupLink.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    loginForm.classList.remove("active");
-                    signupForm.classList.add("active");
-                    if (roleToggle) roleToggle.style.display = "none";
-                });
-
-                showLoginLink.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    signupForm.classList.remove("active");
-                    loginForm.classList.add("active");
-                    if (roleToggle) roleToggle.style.display = "flex";
-                });
+            showSignupLink.addEventListener("click", (e) => {
+                e.preventDefault();
+                loginForm.classList.remove("active");
+                signupForm.classList.add("active");
+                if (roleToggle) roleToggle.style.display = "none";
             });
-        </script>
+
+            showLoginLink.addEventListener("click", (e) => {
+                e.preventDefault();
+                signupForm.classList.remove("active");
+                loginForm.classList.add("active");
+                if (roleToggle) roleToggle.style.display = "flex";
+            });
+        });
+    </script>
