@@ -122,28 +122,12 @@ const Reward = mongoose.model('Reward', rewardSchema);
 
 // notifications for both rewards and tasks
 const notificationSchema = new mongoose.Schema({
-    name: {
+    forWho: {
         type: String,
         required: true
     },
-    description: {
+    taskRewardId: {
         type: String,
-        required: true
-    },
-    points: {
-        type: Number,
-        required: true
-    },
-    childId: {
-        type: String,
-        required: true
-    },
-    parentEmail: {
-        type: String,
-        required: true
-    },
-    when: {
-        type: Date,
         required: true
     },
     taskOrReward: {
@@ -338,14 +322,11 @@ app.post('/kidFinishTask', requireAuth, async (req, res) => {
 
         // creates a notification to notify the parent that the kid has completed a task and audit it.
         const notify = await Notification.create({
-            name: task.name,
-            description: task.description,
-            points: task.points,
-            childId: user._id,
-            parentEmail: user.parent_email,
-            when: new Date(),
+            forWho: user.parent_email,
+            taskRewardId: task._id,
             taskOrReward: "task"
         })
+        
         console.log(notify)
         
         res.status(201).json({ message: 'Points added and task complete!' })
