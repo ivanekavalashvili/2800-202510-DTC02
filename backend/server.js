@@ -126,6 +126,10 @@ const Reward = mongoose.model('Reward', rewardSchema);
 
 // notifications for both rewards and tasks
 const notificationSchema = new mongoose.Schema({
+    fromWho: {
+        type: String,
+        required: true
+    },
     forWho: {
         type: String,
         required: true
@@ -326,11 +330,12 @@ app.post('/kidFinishTask', requireAuth, async (req, res) => {
 
         // creates a notification to notify the parent that the kid has completed a task and audit it.
         const notify = await Notification.create({
+            fromWho: user._id,
             forWho: user.parent_email,
             taskRewardId: task._id,
             taskOrReward: "task"
         })
-        
+        console.log("This is the notification that is generated:")
         console.log(notify)
         
         res.status(201).json({ message: 'Points added and task complete!', points: user.points })
@@ -778,6 +783,16 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
         // Deduct points and save
         user.points -= reward.pointsNeeded;
         await user.save();
+
+        // creates a notification to notify the parent that the kid has completed a task and audit it.
+        const notify = await Notification.create({
+            fromWho: user._id,
+            forWho: user.parent_email,
+            taskRewardId: reward._id,
+            taskOrReward: "reward"
+        })
+        console.log("This is the notification that is generated:")
+        console.log(notify)
 
         res.status(200).json({
             message: 'Reward claimed successfully!',
