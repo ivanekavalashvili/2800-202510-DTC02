@@ -257,10 +257,16 @@
                     const repeatIntervalSelect = document.getElementById("repeatInterval");
                     const repeatIntervalContainer = document.getElementById("repeatIntervalContainer");
 
+                    
                     if (task.isRepeating) {
                         isRepeatingCheckbox.checked = true;
                         repeatIntervalContainer.classList.remove('hidden');
                         repeatIntervalSelect.value = task.repeatInterval;
+                    }
+
+                    const previewElement = document.getElementById('taskImagePreview');
+                    if (task.filename) {
+                        previewElement.innerHTML = `<img src="http://localhost:3000/images/${task.filename}" alt="Task icon" class="w-full h-full object-contain">`;
                     }
 
                     const generateImageBtn = document.getElementById("generateImageButton");
@@ -280,7 +286,6 @@
                             prompt += `VERY VERY OMEGA IMPORTANT: Create a LARGE icon that FILLS THE ENTIRE FRAME. The icon should be prominent and centered, taking up most of the available space. Create ONLY an illustration with NO TEXT whatsoever. Do not include any words, letters, numbers, labels, or text of any kind. The image must be 100% text-free.`;
                             console.log("prompt:", prompt);
 
-                            const previewElement = document.getElementById('taskImagePreview');
                             previewElement.innerHTML = '<span class="text-gray-400">Loading...</span>';
 
                             fetch('/generate-image', {

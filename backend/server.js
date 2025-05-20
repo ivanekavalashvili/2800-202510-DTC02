@@ -450,20 +450,43 @@ app.post('/editTask', async (req, res) => {
         if (!_id) {
             return res.status(400).json({ message: 'Task Id not found' });
         }
+
+        let filename = null;
+        if (logoUrl) {
+            filename = `img-${new Date().toString().split(" ").join("").slice(0, 23).replace(/[:.]/g, '-')}-${Math.random().toString().slice(2, -1)}.png`
+            const savedPath = await downloadImage(logoUrl, filename)
+            console.log(filename)
+            await Task.updateOne(
+                { _id },
+                {
+                    name: name,
+                    filename: filename,
+                    taskdetails: taskDetails,
+                    points: points,
+                    isRepeating: isRepeating,
+                    repeatInterval: repeatInterval,
+                    // Only update lastResetTime if repeating status or interval changed
+                    ...(isRepeating ? { lastResetTime: new Date() } : {})
+                }
+            );
+        } else {
+            await Task.updateOne(
+                { _id },
+                {
+                    name: name,
+                    taskdetails: taskDetails,
+                    points: points,
+                    isRepeating: isRepeating,
+                    repeatInterval: repeatInterval,
+                    // Only update lastResetTime if repeating status or interval changed
+                    ...(isRepeating ? { lastResetTime: new Date() } : {})
+                }
+            );
+        }
+
         // Update the task once submit is pressed
-        await Task.updateOne(
-            { _id },
-            {
-                name: name,
-                logoUrl: logoUrl,
-                taskdetails: taskDetails,
-                points: points,
-                isRepeating: isRepeating,
-                repeatInterval: repeatInterval,
-                // Only update lastResetTime if repeating status or interval changed
-                ...(isRepeating ? { lastResetTime: new Date() } : {})
-            }
-        );
+
+
         res.status(201).json({ message: 'Task updated successfully!' })
     }
     catch (error) {
