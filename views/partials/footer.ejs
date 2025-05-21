@@ -12,7 +12,7 @@
 
 </head>
 <footer
-    class="fixed bottom-0 left-0 w-full flex flex-col justify-items-between p-4 border-t border-gray-300 bg-white visible md:collapse">
+    class="fixed bottom-0 left-0 w-full flex flex-col justify-items-between p-4 border-t border-gray-300 bg-white visible md:collapse" style="z-index: 5000;">
     <div class="grid grid-cols-5 justify-items-center ">
         <a href="/tasks" class="nav-link">
             <svg id="btn" class="border border-2 border-black w-12 bg-[#E4F7E4] hover:bg-[#D2F5C7] rounded-md"
@@ -71,7 +71,7 @@
                 </g>
             </svg>
         </a>
-        <a href="/notifications" class="nav-link">
+        <a href="/notifications-page" class="nav-link">
             <svg class="border border-2 border-black w-12 bg-[#E4F7E4] hover:bg-[#D2F5C7] rounded-md"
                 viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -82,7 +82,12 @@
                         fill="#0F0F0F"></path>
                 </g>
             </svg>
-            </button>
+            <span id="notification-badge"
+                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
+                style="display: none;">
+                0
+            </span>
+        </a>
             <a href="/logout" class="nav-link">
                 <svg class="border border-2 border-black w-12 bg-[#E4F7E4] hover:bg-[#D2F5C7] rounded-md"
                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -99,5 +104,29 @@
             </a>
     </div>
 </footer>
+
+<script>
+    async function updateNotificationBadge() {
+        try {
+            const response = await fetch('/notifications');
+            const notifications = await response.json();
+            const unreadCount = notifications.filter(n => !n.isRead).length;
+            const badge = document.getElementById('notification-badge');
+
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error updating notification badge:', error);
+        }
+    }
+
+    // Update badge every 30 seconds
+    setInterval(updateNotificationBadge, 30000);
+    document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+</script>
 
 </html>
