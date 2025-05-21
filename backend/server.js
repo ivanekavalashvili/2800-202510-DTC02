@@ -641,7 +641,6 @@ app.post('/add-kid', async (req, res) => {
         const passwordHash = await bcrypt.hash(password, 10);
 
         const newKid = new User({
-            email: `kid-${username}@placeholder.com`,
             username,
             passwordHash,
             parent_email: parent.email,
