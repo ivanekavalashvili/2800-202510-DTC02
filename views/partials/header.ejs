@@ -1,41 +1,79 @@
-<header class="site-header collapse md:visible">
-    <nav class="nav-container">
-        <div class="nav-left">
-            <a href="/tasks" class="nav-logo">
-                <svg class="nav-trophy-icon" width="32" height="32" viewBox="0 0 64 64" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamify Life</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="flex bg-[#f4ffe4] p-4 px-8 justify-between items-center shadow-sm">
+        <div class="flex items-center">
+            <a href="/tasks" class="flex items-center no-underline">
+                <svg class="w-8 h-8" viewBox="0 0 64 64" fill="none">
                     <rect width="64" height="64" rx="16" fill="#b2e6b2" />
-                    <path d="M20 24h24v-8H20v8z" fill="#2e8b3d" />
-                    <path d="M20 16v8a12 12 0 0024 0v-8H20z" fill="#2e8b3d" />
+                    <path d="M20 24a12 12 0 0 0 24 0V16H20v8Z" fill="#2e8b3d" />
                     <rect x="24" y="36" width="16" height="8" rx="4" fill="#2e8b3d" />
-                    <rect x="28" y="44" width="8" height="8" rx="2" fill="#2e8b3d" />
+                    <rect x="28" y="44" width="8" height="8" rx="4" fill="#2e8b3d" />
                     <circle cx="32" cy="24" r="6" fill="#b2e6b2" />
                     <ellipse cx="32" cy="26" rx="2" ry="1" fill="#2e8b3d" />
                     <circle cx="29" cy="23" r="1" fill="#2e8b3d" />
                     <circle cx="35" cy="23" r="1" fill="#2e8b3d" />
-                    <!-- Left handle -->
-                    <path d="M8 20h8v12H8a4 4 0 01-4-4v-4a4 4 0 014-4z" fill="#2e8b3d" />
-                    <!-- Right handle -->
-                    <path d="M56 20h-8v12h8a4 4 0 004-4v-4a4 4 0 00-4-4z" fill="#2e8b3d" />
                 </svg>
-                <span>Gamify Life</span>
+                <span class="text-2xl font-bold text-[#2E8B3D] ml-2">Gamify Life</span>
             </a>
         </div>
-        <div class="nav-middle">
-            <a href="/about" class="nav-link">About</a>
+        <div class="flex items-center space-x-4">
             <a href="/tasks" class="nav-link">Tasks</a>
             <a href="/rewards" class="nav-link">Rewards</a>
-        </div>
-        <div class="nav-right">
+            <a href="/about" class="nav-link">About</a>
             <% if (typeof user !=='undefined' ) { %>
                 <% if (user.role==='kid' ) { %>
-                    <span id="pointsDisplay" class="nav-points">Points: <%= user.points %></span>
+                    <span class="nav-link">Points: <%= user.points %></span>
                     <% } %>
-                        <a href="/profile" class="nav-btn profile">My Profile</a>
-                        <a href="/logout" class="nav-btn logout">Logout</a>
+                        <a href="/profile" class="nav-link">Profile</a>
+                        <a href="/notifications-page" class="nav-link relative">
+                            <i class="bi bi-bell"></i>
+                            <span id="notification-badge"
+                                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
+                                style="display: none;">
+                                0
+                            </span>
+                        </a>
+                        <a href="/logout" class="nav-btn">Logout</a>
                         <% } else { %>
-                            <a href="/login" class="nav-btn login">Log In</a>
+                            <a href="/login" class="nav-btn">Login</a>
                             <% } %>
         </div>
     </nav>
-</header>
+
+    <script>
+        async function updateNotificationBadge() {
+            try {
+                const response = await fetch('/notifications');
+                const notifications = await response.json();
+                const unreadCount = notifications.filter(n => !n.isRead).length;
+                const badge = document.getElementById('notification-badge');
+
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error updating notification badge:', error);
+            }
+        }
+
+        // Update badge every 30 seconds
+        setInterval(updateNotificationBadge, 30000);
+        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+    </script>
+</body>
+
+</html>

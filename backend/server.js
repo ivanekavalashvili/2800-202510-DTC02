@@ -146,6 +146,29 @@ const notificationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
+    },
+    points: {
+        type: Number,
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    isRead: {
+        type: Boolean,
+        default: false
+    },
+    auditNotes: {
+        type: String
+    },
+    modifiedPoints: {
+        type: Number
+    }
 });
 
 const Notification = mongoose.model('Notification', notificationSchema);
@@ -337,11 +360,13 @@ app.post('/kidFinishTask', requireAuth, async (req, res) => {
             fromWho: user._id,
             forWho: user.parent_email,
             taskRewardId: task._id,
-            taskOrReward: "task"
+            taskOrReward: "task",
+            points: task.points,
+            status: 'pending'
         })
         console.log("This is the notification that is generated:")
         console.log(notify)
-        
+
         res.status(201).json({ message: 'Points added and task complete!', points: user.points })
     }
     catch (error) {
@@ -415,7 +440,7 @@ app.post('/createTask', requireAuth, async (req, res) => {
         if (!name || !taskdetails || !points) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
-        
+
         let filename = null;
         if (logoUrl) {
             filename = `img-${new Date().toString().split(" ").join("").slice(0, 23).replace(/[:.]/g, '-')}-${Math.random().toString().slice(2, -1)}.png`
@@ -837,7 +862,9 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
             fromWho: user._id,
             forWho: user.parent_email,
             taskRewardId: reward._id,
-            taskOrReward: "reward"
+            taskOrReward: "reward",
+            points: reward.pointsNeeded,
+            status: 'pending'
         })
         console.log("This is the notification that is generated:")
         console.log(notify)
@@ -849,5 +876,159 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
     } catch (err) {
         console.error('Error claiming reward:', err);
         res.status(500).json({ message: 'Server error while claiming reward' });
+    }
+});
+
+// Get notifications for a user
+app.get('/notifications', requireAuth, async (req, res) => {
+    try {
+        const user = await User.findById(req.session.user);
+        const notifications = await Notification.find({ forWho: user.email })
+            .sort({ createdAt: -1 });
+        res.json(notifications);
+    } catch (err) {
+        console.error('Error fetching notifications:', err);
+        res.status(500).json({ message: 'Server error while fetching notifications' });
+    }
+});
+
+// Delete a notification
+app.delete('/notifications/:id', requireAuth, async (req, res) => {
+    try {
+        const notification = await Notification.findById(req.params.id);
+        if (!notification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        const user = await User.findById(req.session.user);
+        if (notification.forWho !== user.email) {
+            return res.status(403).json({ message: 'Not authorized to delete this notification' });
+        }
+
+        await Notification.deleteOne({ _id: req.params.id });
+        res.status(200).json({ message: 'Notification deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting notification:', err);
+        res.status(500).json({ message: 'Server error while deleting notification' });
+    }
+});
+
+// Update notification status (for audit)
+app.put('/notifications/:id/audit', requireAuth, async (req, res) => {
+    try {
+        const { status, modifiedPoints, auditNotes } = req.body;
+        const notification = await Notification.findById(req.params.id);
+
+        if (!notification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        const user = await User.findById(req.session.user);
+        if (notification.forWho !== user.email) {
+            return res.status(403).json({ message: 'Not authorized to audit this notification' });
+        }
+
+        // Update notification
+        notification.status = status;
+        notification.auditNotes = auditNotes;
+        notification.modifiedPoints = modifiedPoints;
+        await notification.save();
+
+        // If approved or rejected, update user points and create child notification
+        if (status === 'approved' || status === 'rejected') {
+            const child = await User.findById(notification.fromWho);
+            const pointsChange = modifiedPoints || notification.points;
+
+            if (status === 'approved') {
+                child.points += pointsChange;
+            } else {
+                child.points -= pointsChange;
+            }
+            await child.save();
+
+            // Create notification for child
+            await Notification.create({
+                fromWho: user._id,
+                forWho: child.email,
+                taskRewardId: notification.taskRewardId,
+                taskOrReward: notification.taskOrReward,
+                status: status,
+                points: pointsChange,
+                auditNotes: auditNotes
+            });
+        }
+
+        res.status(200).json({ message: 'Notification audited successfully' });
+    } catch (err) {
+        console.error('Error auditing notification:', err);
+        res.status(500).json({ message: 'Server error while auditing notification' });
+    }
+});
+
+// Mark notification as read
+app.put('/notifications/:id/read', requireAuth, async (req, res) => {
+    try {
+        const notification = await Notification.findById(req.params.id);
+        if (!notification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        const user = await User.findById(req.session.user);
+        if (notification.forWho !== user.email) {
+            return res.status(403).json({ message: 'Not authorized to update this notification' });
+        }
+
+        notification.isRead = true;
+        await notification.save();
+        res.status(200).json({ message: 'Notification marked as read' });
+    } catch (err) {
+        console.error('Error marking notification as read:', err);
+        res.status(500).json({ message: 'Server error while updating notification' });
+    }
+});
+
+app.get('/notifications-page', requireAuth, (req, res) => {
+    res.render('pages/notifications', {
+        title: 'Notifications',
+        role: res.locals.user.role
+    });
+});
+
+// Get a single notification by ID
+app.get('/notifications/:id', requireAuth, async (req, res) => {
+    try {
+        const notification = await Notification.findById(req.params.id);
+        if (!notification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        const user = await User.findById(req.session.user);
+        if (notification.forWho !== user.email) {
+            return res.status(403).json({ message: 'Not authorized to view this notification' });
+        }
+
+        // Get the kid's information who triggered the notification
+        const kid = await User.findById(notification.fromWho);
+        const notificationWithKid = {
+            ...notification.toObject(),
+            kidName: kid.username,
+            kidEmail: kid.email
+        };
+
+        // If it's a reward claim, get the reward details
+        if (notification.taskOrReward === 'reward') {
+            const reward = await Reward.findById(notification.taskRewardId);
+            if (reward) {
+                notificationWithKid.rewardDetails = {
+                    title: reward.rewardTitle,
+                    description: reward.description
+                };
+            }
+        }
+
+        res.json(notificationWithKid);
+    } catch (err) {
+        console.error('Error fetching notification:', err);
+        res.status(500).json({ message: 'Server error while fetching notification' });
     }
 });
