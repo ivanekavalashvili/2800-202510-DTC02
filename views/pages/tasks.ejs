@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -129,10 +130,15 @@
                                 const taskName = document.getElementById('taskName').value;
                                 const taskDetails = document.getElementById('taskDetails').value;
 
-                                if (!taskName || taskName.trim() === "") {
-                                    alert("Please enter a task name before generating an image");
-                                    return;
-                                }
+                            if (!taskName || taskName.trim() === "") {
+                                Swal.fire({
+                                    title: 'Missing Task Name',
+                                    text: 'Please enter a task name before generating an image.',
+                                    icon: 'warning',
+                                    confirmButtonColor: '#247A34'
+                                });
+                                return;
+                            }
 
                                 // This prompt ensures that the logos generated are coherant and suit the themes of the app
                                 let prompt = `Create a simple, vector logo icon thing for a task called "${taskName}"`;
@@ -286,10 +292,15 @@
                                 const taskName = document.getElementById('taskName').value;
                                 const taskDetails = document.getElementById('taskDetails').value;
 
-                                if (!taskName || taskName.trim() === "") {
-                                    alert("Please enter a task name before generating an image");
-                                    return;
-                                }
+                            if (!taskName || taskName.trim() === "") {
+                               Swal.fire({
+                                    title: 'Missing Task Name',
+                                    text: 'Please enter a task name before generating an image.',
+                                    icon: 'warning',
+                                    confirmButtonColor: '#247A34'
+                                });
+                                return;
+                            }
 
                                 let prompt = `Create a simple, vector logo icon thing for a task called "${taskName}"`;
                                 prompt += `. Make it colorful and simple, for a family task management app. `
@@ -879,9 +890,14 @@
                 getWeather(latitude, longitude);
             }
 
-            function error() {
-                alert("Sorry, no position available.");
-            }
+                                function error() {
+                                   Swal.fire({
+                                        title: 'Unavailable',
+                                        text: 'Sorry, no position available.',
+                                        icon: 'info',
+                                        confirmButtonColor: '#247A34'
+                                    });
+                                }
 
             function getWeather(latitude, longitude) {
                 const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=55aacf4680def095e9090e51cee74084`;
