@@ -805,3 +805,12 @@ span {
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+
+.nav-paragraphs {
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-right: 0;
+    font-family: 'Quicksand', Arial, sans-serif;
+    display: inline-flex;
+    text-align: center;
+}
