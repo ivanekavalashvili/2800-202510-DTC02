@@ -24,6 +24,18 @@
                     <input class="input" type="text" name="rewardTitle" placeholder="Title" required />
                     <input class="input" type="text" name="description" placeholder="description" required />
                     <input class="input" type="text" name="pointsNeeded" placeholder="cost" required />
+                    <div class="flex items-center justify-center mb-2">
+                        <input type="checkbox" id="isRepeatable" class="mr-2">
+                        <label for="isRepeatable">Make this a repeatable reward</label>
+                    </div>
+                    <div id="repeatIntervalRewardContainer" class="hidden">
+                        <select id="repeatIntervalReward" class="input">
+                            <option value="daily">daily</option>
+                            <option value="weekly">weekly</option>
+                            <option value="unlimited">Unlimited</option>
+                        </select>
+                    </div>
+                    </div>
                     <button type="submit" class="login-btn">Create Reward</button>
                 </form>
             </div>
