@@ -25,7 +25,7 @@
                     <h2 class="text-xl" id="Create a Category">Create a Category</h2>
                     <p>Name:</p>
                     <input name="name" type="text" id="categoryName" class="input" placeholder="Category name..."
-                        required>
+                        required oninput="validateTextInput(this)">
                         <p for="color">Background Color:</p>
                         <input name="color" type="color" id="categoryColor" class="block border-2 mx-auto w-20"
                         value="#b2e6b2" required>
@@ -47,7 +47,7 @@
                     <input name="categoryName" type="text" id="categoryNameTask" class="input" readonly>
                     <label for="name">Name of Task: </label>
                     <input name="name" type="text" id="taskName" class="input"
-                        placeholder="Input task name (EX. wash the dishes)" required>
+                        placeholder="Input task name (EX. wash the dishes)" required oninput="validateTextInput(this)">
                     <input type="text" id="taskImageUrl" name="taskImageUrl" hidden>
 
                     <div class="mb-3">
@@ -62,7 +62,7 @@
 
                     <label for="taskdetails">Task Details: </label>
                     <input name="taskdetails" type="text" id="taskDetails" class="input"
-                        placeholder="Describe the task and the intructions">
+                        placeholder="Describe the task and the intructions" oninput="validateTextInput(this)">
 
                     <label for="points">Points awarded: </label>
                     <input name="points" type="number" id="pointsAwarded" class="input"
@@ -424,16 +424,32 @@
             }
 
             function newTask() {
-                const name = document.getElementById('taskName').value
-                const logoUrl = document.getElementById('taskImageUrl').value
-                const taskdetails = document.getElementById('taskDetails').value
+                const nameInput = document.getElementById('taskName');
+                const name = nameInput.value;
+                const logoUrl = document.getElementById('taskImageUrl').value;
+                const taskDetailsInput = document.getElementById('taskDetails');
+                const taskdetails = taskDetailsInput.value;
                 const pointsInput = document.getElementById('pointsAwarded');
                 const points = pointsInput.value;
-            
+                
+                let isValid = true;
+                
+                if (!(/^[a-zA-Z0-9 .,!?()-]+$/).test(name)) {
+                    validateTextInput(nameInput);
+                    isValid = false;
+                }
+                
+                if (taskdetails && !(/^[a-zA-Z0-9 .,!?()-]+$/).test(taskdetails)) {
+                    validateTextInput(taskDetailsInput);
+                    isValid = false;
+                }
+                
                 if (points <= 0 || !Number.isInteger(Number(points))) {
                     validatePointsInput(pointsInput);
-                    return;
+                    isValid = false;
                 }
+                
+                if (!isValid) return; // stop if any validation fails
                 
                 const catergoryName = document.getElementById('categoryNameTask').value
                 const isRepeating = document.getElementById('isRepeating').checked
@@ -484,9 +500,15 @@
 
             function newCategory(e) {
                 e.preventDefault();
-                const name = document.getElementById('categoryName').value
-                const color = document.getElementById('categoryColor').value
-
+                const nameInput = document.getElementById('categoryName');
+                const name = nameInput.value;
+                const color = document.getElementById('categoryColor').value;
+                
+                if (!(/^[a-zA-Z0-9 .,!?()-]+$/).test(name)) {
+                    validateTextInput(nameInput);
+                    return;
+                }
+                
                 fetch("/createCategory", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -506,20 +528,36 @@
             // Functions for task editing and deletion
             function editTask(task, e) {
                 e.preventDefault();
-                const name = document.getElementById('taskName').value
-                const logoUrl = document.getElementById('taskImageUrl').value
-                const taskdetails = document.getElementById('taskDetails').value
+                const nameInput = document.getElementById('taskName');
+                const name = nameInput.value;
+                const logoUrl = document.getElementById('taskImageUrl').value;
+                const taskDetailsInput = document.getElementById('taskDetails');
+                const taskdetails = taskDetailsInput.value;
                 const pointsInput = document.getElementById('pointsAwarded');
-                const points = pointsInput.value
-                const isRepeating = document.getElementById('isRepeating').checked
-                const repeatInterval = isRepeating ? document.getElementById('repeatInterval').value : null
-                const id = task._id
-
+                const points = pointsInput.value;
+                const isRepeating = document.getElementById('isRepeating').checked;
+                const repeatInterval = isRepeating ? document.getElementById('repeatInterval').value : null;
+                const id = task._id;
+                
+                let isValid = true;
+                
+                if (!(/^[a-zA-Z0-9 .,!?()-]+$/).test(name)) {
+                    validateTextInput(nameInput);
+                    isValid = false;
+                }
+                
+                if (taskdetails && !(/^[a-zA-Z0-9 .,!?()-]+$/).test(taskdetails)) {
+                    validateTextInput(taskDetailsInput);
+                    isValid = false;
+                }
+                
                 if (points <= 0 || !Number.isInteger(Number(points))) {
                     validatePointsInput(pointsInput);
-                    return;
+                    isValid = false;
                 }
-
+                
+                if (!isValid) return; // stop if any validation fails
+                
                 fetch("/editTask", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -619,6 +657,31 @@
                     input.setCustomValidity('');
                     
                     const tooltip = document.getElementById('points-tooltip');
+                    if (tooltip) tooltip.remove();
+                }
+            }
+
+            function validateTextInput(input) {
+                const regex = /^[a-zA-Z0-9 .,!?()-]+$/;
+                const value = input.value;
+                
+                if (!regex.test(value) && value.trim() !== '') {
+                    input.classList.add('border-red-500');
+                        input.setCustomValidity('Please only use alphanumeric characters, spaces, and basic punctuation');
+                    
+                    let tooltip = document.getElementById(`${input.id}-tooltip`);
+                    if (!tooltip) {
+                        tooltip = document.createElement('div');
+                        tooltip.id = `${input.id}-tooltip`;
+                        tooltip.className = 'text-red-500 text-sm';
+                        input.parentNode.insertBefore(tooltip, input.nextSibling);
+                    }
+                    tooltip.textContent = 'Please only use alphanumeric characters, spaces, and basic punctuation';
+                } else {
+                    input.classList.remove('border-red-500');
+                    input.setCustomValidity('');
+                    
+                    const tooltip = document.getElementById(`${input.id}-tooltip`);
                     if (tooltip) tooltip.remove();
                 }
             }
