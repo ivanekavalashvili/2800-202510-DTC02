@@ -1032,3 +1032,23 @@ app.get('/notifications/:id', requireAuth, async (req, res) => {
         res.status(500).json({ message: 'Server error while fetching notification' });
     }
 });
+
+//Get username and points for leaderboard
+app.get('/leaderboard', requireAuth, async (req, res) => {
+    const currentUser = await User.findById(req.session.user);
+
+    if (currentUser.role !== 'kid') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    try {
+        const leaderboard = await User.find({ parent_email: currentUser.parent_email, role: 'kid' })
+            .select('username points')
+            .sort({ points: -1 });
+
+        res.json(leaderboard);
+    } catch (err) {
+        console.error('Error fetching leaderboard:', err);
+        res.status(500).json({ message: 'Error fetching leaderboard' });
+    }
+});
