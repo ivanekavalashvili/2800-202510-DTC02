@@ -256,7 +256,7 @@ app.get('/profile', requireAuth, async (req, res) => {
     res.render('pages/profile', {
         title: 'Profile',
         role: user.role,
-        username: user.username || user.email, 
+        username: user.username || user.email,
         kids
     });
 });
@@ -940,10 +940,20 @@ app.put('/notifications/:id/audit', requireAuth, async (req, res) => {
             const child = await User.findById(notification.fromWho);
             const pointsChange = modifiedPoints || notification.points;
 
-            if (status === 'approved') {
-                child.points += pointsChange;
+            if (notification.taskOrReward === 'task') {
+                if (status === 'approved') {
+                    // For tasks, only add points on approval
+                    child.points += pointsChange;
+                }
+                // For tasks, do nothing on rejection since points were already deducted
             } else {
-                child.points -= pointsChange;
+                // For rewards
+                if (status === 'approved') {
+                    // Points already deducted when claiming reward
+                } else {
+                    // Refund points on reward rejection
+                    child.points += pointsChange;
+                }
             }
             await child.save();
 
