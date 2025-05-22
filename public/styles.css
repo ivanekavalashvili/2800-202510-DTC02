@@ -515,7 +515,7 @@ span {
 
 /*Popup forms*/
 .modal {
-    display: none;
+    
     position: fixed;
     z-index: 999;
     top: 0;
@@ -814,3 +814,5 @@ span {
     display: inline-flex;
     text-align: center;
 }
+
+
