@@ -76,6 +76,11 @@
                         <div class="points">
                             <%= reward.pointsNeeded %> pts
                         </div>
+                        <% if (reward.isRepeatable) { %>
+                            <p class="description">Repeatable: <%= reward.repeatInterval %>
+                            </p>
+                            <% } %>
+
                         <% if (role==='parent' ) { %>
                             <button class="edit-reward-btn" data-id="<%= reward._id %>"
                                 data-title="<%= reward.rewardTitle %>" data-description="<%= reward.description %>"
@@ -113,8 +118,6 @@
             const deleteBtn = document.getElementById("deleteRewardBtn");
             const repeatableCheckbox = document.getElementById("isRepeatable");
             const repeatIntervalContainer = document.getElementById("repeatIntervalRewardContainer");
-            const isRepeatable = document.getElementById("isRepeatable").checked;
-            const repeatInterval = isRepeatable? document.getElementById("repeatIntervalReward").value: null;
 
 
             if (modal && openBtn && closeBtn) {
@@ -209,6 +212,8 @@
                     const title = form.rewardTitle.value
                     const description = form.description.value;
                     const cost = form.pointsNeeded.value
+                     const isRepeatable = document.getElementById("isRepeatable").checked;
+                    const repeatInterval = isRepeatable ? document.getElementById("repeatIntervalReward").value : null;
 
                     const res = await fetch("/rewards", {
                         method: "POST",
