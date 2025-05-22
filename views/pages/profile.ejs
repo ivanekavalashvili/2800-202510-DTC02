@@ -34,10 +34,14 @@
             <p>No kid accounts linked yet.</p><% } %>
         <% } %>
         <% if (role==="kid" ) { %>
-            <p>This is testing kid rendering</p><% } %>
+            <div class="leaderboard-section">
+                <h2>Family Leaderboard</h2>
+                <ul id="leaderboard-list"></ul>
+            </div><% } %>
         <% if (!role) { %>
             <p>Role is undefined</p> <% } %>
     </div>
+
 
    
     <div id="addKidModal" class="modal" style="display: none;">
