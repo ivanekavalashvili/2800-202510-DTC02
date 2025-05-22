@@ -136,6 +136,10 @@ const rewardSchema = new mongoose.Schema({
     claimedBy: {
         type: [String], 
         default: []
+    },
+    lastResetTime: {
+        type: Date,
+        default: null
     }
 });
 
@@ -435,6 +439,48 @@ setInterval(resetRepeatingTasks, 60 * 60 * 1000);
 
 // Also run it when server starts
 resetRepeatingTasks();
+
+//function to check and reset rewards
+async function resetRepeatableRewards() {
+    try {
+        const rewards = await Reward.find({ isRepeatable: true, repeatInterval: { $ne: 'unlimited' } });
+        const now = new Date();
+
+        for (const reward of rewards) {
+            if (!reward.lastResetTime) {
+                reward.lastResetTime = now;
+                reward.claimedBy = [];
+                await reward.save();
+                continue;
+            }
+
+            let shouldReset = false;
+            const timeDiff = now - reward.lastResetTime;
+
+            switch (reward.repeatInterval) {
+                case 'daily':
+                    shouldReset = timeDiff >= 24 * 60 * 60 * 1000;
+                    break;
+                case 'weekly':
+                    shouldReset = timeDiff >= 7 * 24 * 60 * 60 * 1000;
+                    break;
+            }
+
+            if (shouldReset) {
+                reward.claimedBy = [];
+                reward.lastResetTime = now;
+                await reward.save();
+            }
+        }
+    } catch (error) {
+        console.error('Error resetting rewards:', error);
+    }
+}
+
+setInterval(resetRepeatableRewards, 60 * 60 * 1000); 
+
+resetRepeatableRewards(); 
+
 
 async function downloadImage(imageUrl, filename) {
     const res = await axios.get(imageUrl, { responseType: 'stream' });
@@ -865,20 +911,28 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
         if (!reward) {
             return res.status(404).json({ message: 'Reward not found' });
         }
-        if (!reward.isRepeatable && reward.claimedBy.includes(user._id.toString())) {
+        const hasClaimed = reward.claimedBy.includes(user._id.toString());
+
+        if (!reward.isRepeatable && hasClaimed) {
             return res.status(400).json({ message: 'This reward can only be claimed once' });
+        }
+
+        if (reward.isRepeatable && reward.repeatInterval !== 'unlimited' && hasClaimed) {
+            return res.status(400).json({ message: `This reward can only be claimed once per ${reward.repeatInterval}` });
         }
 
         if (user.points < reward.pointsNeeded) {
             return res.status(400).json({ message: 'Not enough points to claim this reward' });
         }
-        if (!reward.isRepeatable) {
-            reward.claimedBy.push(user._id.toString());
-            await reward.save();
-        }
-        // Deduct points and save
+
+    
+        reward.claimedBy.push(user._id.toString());
+        await reward.save();
+
+        // Deduct points
         user.points -= reward.pointsNeeded;
         await user.save();
+
 
         // creates a notification to notify the parent that the kid has completed a task and audit it.
         const notify = await Notification.create({
