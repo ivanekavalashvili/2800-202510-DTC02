@@ -31,8 +31,8 @@
                         </div>
                         <div id="repeatIntervalRewardContainer" class="hidden">
                             <select id="repeatIntervalReward" class="input">
-                                <option value="daily">Once per day</option>
-                                <option value="weekly">Once per week</option>
+                                <option value="daily">daily</option>
+                                <option value="weekly">weekly</option>
                                 <option value="unlimited">Unlimited</option>
                             </select>
                         </div>
@@ -111,6 +111,8 @@
             const closeEditBtn = document.getElementById("closeEditRewardModal");
             const editForm = document.getElementById("editRewardForm");
             const deleteBtn = document.getElementById("deleteRewardBtn");
+            const repeatableCheckbox = document.getElementById("isRepeatable");
+            const repeatIntervalContainer = document.getElementById("repeatIntervalRewardContainer");
 
 
             if (modal && openBtn && closeBtn) {
@@ -127,6 +129,12 @@
                     if (event.target === modal) {
                         modal.style.display = "none";
                     }
+                });
+            }
+            
+            if (repeatableCheckbox) {
+                repeatableCheckbox.addEventListener("change", () => {
+                    repeatIntervalContainer.classList.toggle("hidden", !repeatableCheckbox.checked);
                 });
             }
 
