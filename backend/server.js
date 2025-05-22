@@ -123,6 +123,15 @@ const rewardSchema = new mongoose.Schema({
     parentEmail: {
         type: String,
         required: true
+    },
+    isRepeatable: {
+        type: Boolean,
+        default: false
+    },
+    repeatInterval: {
+        type: String,
+        enum: ['daily', 'weekly', 'unlimited'],
+        default: null
     }
 });
 
