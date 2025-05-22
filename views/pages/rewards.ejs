@@ -8,6 +8,7 @@
 </head>
 
 <body>
+
     <body>
         <div class="reward-btn">
             <% if (role==="parent" ) { %>
@@ -21,7 +22,8 @@
                 <form id="addRewardForm">
                     <input class="input" type="text" name="rewardTitle" placeholder="Title" required />
                     <input class="input" type="text" name="description" placeholder="description" required />
-                    <input class="input" type="text" name="pointsNeeded" placeholder="cost" required />
+                    <input class="input" type="number" name="pointsNeeded" placeholder="cost" min="1" step="1" required
+                        oninput="validatePointsInput(this)" title="Points must be a positive whole number" />
                     <button type="submit" class="login-btn">Create Reward</button>
                 </form>
             </div>
@@ -34,7 +36,8 @@
                     <input type="hidden" name="rewardId" />
                     <input class="input" type="text" name="rewardTitle" placeholder="Title" required />
                     <input class="input" type="text" name="description" placeholder="description" required />
-                    <input class="input" type="text" name="pointsNeeded" placeholder="cost" required />
+                    <input class="input" type="number" name="pointsNeeded" placeholder="cost" min="1" step="1" required
+                        oninput="validatePointsInput(this)" title="Points must be a positive whole number" />
                     <div style="display: flex; justify-content: space-between; gap: 10px;">
                         <button type="submit" class="nav-btn">Save Changes</button>
                         <button type="button" id="deleteRewardBtn" class="nav-btn">
@@ -155,9 +158,15 @@
             if (form) {
                 form.addEventListener("submit", async (e) => {
                     e.preventDefault();
-                    const title = form.rewardTitle.value
+                    const title = form.rewardTitle.value;
                     const description = form.description.value;
-                    const cost = form.pointsNeeded.value
+                    const costInput = form.pointsNeeded;
+                    const cost = costInput.value;
+
+                    if (cost <= 0 || !Number.isInteger(Number(cost))) {
+                        validatePointsInput(costInput);
+                        return;
+                    }
 
                     const res = await fetch("/rewards", {
                         method: "POST",
@@ -183,7 +192,13 @@
                     const rewardId = editForm.rewardId.value;
                     const title = editForm.rewardTitle.value;
                     const description = editForm.description.value;
-                    const cost = editForm.pointsNeeded.value;
+                    const costInput = editForm.pointsNeeded;
+                    const cost = costInput.value;
+
+                    if (cost <= 0 || !Number.isInteger(Number(cost))) {
+                        validatePointsInput(costInput);
+                        return;
+                    }
 
                     const res = await fetch(`/rewards/${rewardId}`, {
                         method: "PUT",
@@ -237,6 +252,31 @@
             });
 
         });
+
+        function validatePointsInput(input) {
+            let value = Number(input.value);
+
+            if (value <= 0 || !Number.isInteger(value)) {
+                input.classList.add('border-red-500');
+                input.setCustomValidity('Points must be a positive whole number');
+
+                let tooltip = document.getElementById(`${input.name}-tooltip`);
+                if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.id = `${input.name}-tooltip`;
+                    tooltip.className = 'text-red-500 text-sm';
+                    input.parentNode.insertBefore(tooltip, input.nextSibling);
+                }
+                tooltip.textContent = 'Points must be a positive whole number';
+            } else {
+                input.classList.remove('border-red-500');
+                input.setCustomValidity('');
+
+                const tooltip = document.getElementById(`${input.name}-tooltip`);
+                if (tooltip) tooltip.remove();
+            }
+        }
     </script>
-    </body>
+</body>
+
 </html>

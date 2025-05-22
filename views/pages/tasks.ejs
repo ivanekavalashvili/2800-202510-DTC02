@@ -66,7 +66,10 @@
 
                     <label for="points">Points awarded: </label>
                     <input name="points" type="number" id="pointsAwarded" class="input"
-                        placeholder="Input the number of points to be awarded" required>
+                        placeholder="Input the number of points to be awarded" 
+                        min="1" step="1" required
+                        oninput="validatePointsInput(this)"
+                        title="Points must be a positive whole number">
 
                     <div class="mb-4">
                         <div class="flex items-center justify-center mb-2">
@@ -424,7 +427,14 @@
                 const name = document.getElementById('taskName').value
                 const logoUrl = document.getElementById('taskImageUrl').value
                 const taskdetails = document.getElementById('taskDetails').value
-                const points = document.getElementById('pointsAwarded').value
+                const pointsInput = document.getElementById('pointsAwarded');
+                const points = pointsInput.value;
+            
+                if (points <= 0 || !Number.isInteger(Number(points))) {
+                    validatePointsInput(pointsInput);
+                    return;
+                }
+                
                 const catergoryName = document.getElementById('categoryNameTask').value
                 const isRepeating = document.getElementById('isRepeating').checked
                 const repeatInterval = isRepeating ? document.getElementById('repeatInterval').value : null
@@ -499,10 +509,16 @@
                 const name = document.getElementById('taskName').value
                 const logoUrl = document.getElementById('taskImageUrl').value
                 const taskdetails = document.getElementById('taskDetails').value
-                const points = document.getElementById('pointsAwarded').value
+                const pointsInput = document.getElementById('pointsAwarded');
+                const points = pointsInput.value
                 const isRepeating = document.getElementById('isRepeating').checked
                 const repeatInterval = isRepeating ? document.getElementById('repeatInterval').value : null
                 const id = task._id
+
+                if (points <= 0 || !Number.isInteger(Number(points))) {
+                    validatePointsInput(pointsInput);
+                    return;
+                }
 
                 fetch("/editTask", {
                     method: "POST",
@@ -523,6 +539,9 @@
                         fetchCategories();
                         closeDialog();
                     })
+                    .catch(err => {
+                        console.error("Error editing task:", err);
+                    });
             }
 
             // Functions for category editing and deletion
@@ -578,6 +597,30 @@
 
             function closeDialog() {
                 dialog.close();
+            }
+
+            function validatePointsInput(input) {
+                let value = Number(input.value);
+                
+                if (value <= 0 || !Number.isInteger(value)) {
+                    input.classList.add('border-red-500');
+                    input.setCustomValidity('Points must be a positive whole number');
+                    
+                    let tooltip = document.getElementById('points-tooltip');
+                    if (!tooltip) {
+                        tooltip = document.createElement('div');
+                        tooltip.id = 'points-tooltip';
+                        tooltip.className = 'text-red-500 text-sm';
+                        input.parentNode.insertBefore(tooltip, input.nextSibling);
+                    }
+                    tooltip.textContent = 'Points must be a positive whole number';
+                } else {
+                    input.classList.remove('border-red-500');
+                    input.setCustomValidity('');
+                    
+                    const tooltip = document.getElementById('points-tooltip');
+                    if (tooltip) tooltip.remove();
+                }
             }
 
             fetchCategories()
