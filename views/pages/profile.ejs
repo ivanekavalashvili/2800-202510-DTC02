@@ -9,6 +9,9 @@
 </head>
 
 <body>
+    <header class="profile-header">
+        <h1>Welcome, <%= user.username || user.email %>!</h1>
+    </header>
     <div class="profile-content">
         <% if (role==="parent" ) { %>
             <a href="#" id="openAddKidModal" class="nav-btn">Add Kid</a>
@@ -27,9 +30,6 @@
                     </li>
                     <% }) %>
             </ul>
-
-
-                </div>
         <% } else { %>
             <p>No kid accounts linked yet.</p><% } %>
         <% } %>
@@ -41,8 +41,6 @@
         <% if (!role) { %>
             <p>Role is undefined</p> <% } %>
     </div>
-
-
    
     <div id="addKidModal" class="modal" style="display: none;">
         <div class="modal-content">
