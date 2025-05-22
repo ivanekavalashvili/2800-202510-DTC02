@@ -144,8 +144,8 @@
                     text: "This reward will be permanently deleted.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#247A34',
-                    cancelButtonColor: '#3085d6',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#247A34',
                     confirmButtonText: 'Yes, delete it!'
                 }).then(async (result) => {
                     if (result.isConfirmed) {
@@ -258,7 +258,19 @@
                     const rewardId = button.dataset.id;
                     const pointsCost = parseInt(button.dataset.points);
 
-                    if (!confirm("Are you sure you want to claim this reward?")) return;
+                    const confirmed = await Swal.fire({
+                        title: 'Claim Reward?',
+                        text: 'Are you sure you want to claim this reward?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#247A34',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, claim it',
+                        cancelButtonText: 'Cancel'
+                    });
+
+                    if (!confirmed.isConfirmed) return;
+
 
                     try {
                         const res = await fetch(`/rewards/${rewardId}/claim`, {
@@ -273,14 +285,15 @@
                             if (pointsDisplay && data.newPoints !== undefined) {
                                 pointsDisplay.textContent = `Points: ${data.newPoints}`;
                             }
-                           Swal.fire({
+                      Swal.fire({
                                 title: 'Success!',
                                 text: 'Reward claimed successfully!',
                                 icon: 'success',
                                 confirmButtonColor: '#247A34'
+                            }).then(() => {
+                                location.reload();
                             });
 
-                            location.reload();
                         } else {
                             Swal.fire({
                                 title: 'Error',
