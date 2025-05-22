@@ -256,6 +256,7 @@ app.get('/profile', requireAuth, async (req, res) => {
     res.render('pages/profile', {
         title: 'Profile',
         role: user.role,
+        username: user.username || user.email, 
         kids
     });
 });
