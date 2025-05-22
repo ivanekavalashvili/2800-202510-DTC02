@@ -707,7 +707,7 @@ app.delete('/kids/:id', requireAuth, async (req, res) => {
 // Create reward
 app.post('/rewards', requireAuth, async (req, res) => {
     try {
-        const { title, description, cost } = req.body;
+        const { title, description, cost, isRepeatable, repeatInterval } = req.body;
 
         if (!title || !description || !cost) {
             return res.status(400).json({ message: 'All fields are required' });
@@ -719,7 +719,10 @@ app.post('/rewards', requireAuth, async (req, res) => {
             rewardTitle: title,
             description,
             pointsNeeded: parseInt(cost),
-            parentEmail: user.email
+            parentEmail: user.email,
+            isRepeatable: isRepeatable === 'true' || isRepeatable === true, 
+            repeatInterval: isRepeatable ? repeatInterval : null
+
         });
 
         await newReward.save();
