@@ -113,6 +113,8 @@
             const deleteBtn = document.getElementById("deleteRewardBtn");
             const repeatableCheckbox = document.getElementById("isRepeatable");
             const repeatIntervalContainer = document.getElementById("repeatIntervalRewardContainer");
+            const isRepeatable = document.getElementById("isRepeatable").checked;
+            const repeatInterval = isRepeatable? document.getElementById("repeatIntervalReward").value: null;
 
 
             if (modal && openBtn && closeBtn) {
@@ -211,7 +213,7 @@
                     const res = await fetch("/rewards", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ title, description, cost }),
+                        body: JSON.stringify({ title, description, cost, isRepeatable, repeatInterval }),
                     });
 
                     const data = await res.json();
