@@ -47,12 +47,7 @@ signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!selectedRole) {
-        Swal.fire({
-            title: 'Role Required',
-            text: 'Please select a role (Parent or Kid).',
-            icon: 'warning',
-            confirmButtonColor: '#247A34'
-        });
+        alert('Please select a role (Parent or Kid).');
         return;
     }
 
@@ -71,12 +66,7 @@ signupForm.addEventListener('submit', async (e) => {
     if (data.message === 'User registered successfully!') {
         window.location.href = '/login';
     } else {
-        Swal.fire({
-            title: 'Notice',
-            text: data.message || 'Something happened.',
-            icon: 'info',
-            confirmButtonColor: '#247A34'
-        });
+        alert(data.message);
     }
 });
 
@@ -85,12 +75,7 @@ loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!selectedRole) {
-        Swal.fire({
-            title: 'Role Required',
-            text: 'Please select a role (Parent or Kid).',
-            icon: 'warning',
-            confirmButtonColor: '#247A34'
-        });
+        alert('Please select a role (Parent or Kid).');
         return;
     }
 
@@ -109,11 +94,6 @@ loginForm.addEventListener('submit', async (e) => {
     if (data.message === 'Login successful!') {
         window.location.href = '/tasks';
     } else {
-        Swal.fire({
-            title: 'Notice',
-            text: data.message || 'Something happened.',
-            icon: 'info',
-            confirmButtonColor: '#247A34'
-        });
+        alert(data.message);
     }
 });
