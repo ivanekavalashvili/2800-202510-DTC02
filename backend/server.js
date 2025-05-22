@@ -1001,7 +1001,8 @@ app.put('/notifications/:id/read', requireAuth, async (req, res) => {
 app.get('/notifications-page', requireAuth, (req, res) => {
     res.render('pages/notifications', {
         title: 'Notifications',
-        role: res.locals.user.role
+        role: res.locals.user.role,
+        layout: 'partials/layout'
     });
 });
 
