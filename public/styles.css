@@ -613,10 +613,11 @@ span {
 }
 
 .profile-content {
-    margin-top: 120px;
+    margin-top: 50px;
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 100px;
     padding: 2rem;
     background-color: var(--color-surface);
     border-radius: 20px;
@@ -728,4 +729,67 @@ span {
     background: var(--color-text-lighter);
     cursor: not-allowed;
     opacity: 0.7;
+}
+.leaderboard-section {
+    margin-top: 2rem;
+    background-color: #f4fdf4;
+    border: 2px solid #a5d6a7;
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+#leaderboard-list li {
+    padding: 0.5rem 0;
+    font-weight: 500;
+}
+.leaderboard-section {
+    margin: 2rem auto;
+    background-color: #ffffff;
+    border: 2px solid #b2e6b2;
+    padding: 1.5rem 2rem;
+    border-radius: 20px;
+    max-width: 400px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    text-align: left;
+}
+
+.leaderboard-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #247A34;
+    text-align: center;
+}
+
+#leaderboard-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#leaderboard-list li {
+    padding: 0.6rem 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #333;
+    border-bottom: 1px solid #e0f2e9;
+}
+
+#leaderboard-list li:last-child {
+    border-bottom: none;
+}
+.profile-header {
+    background-color: #eafce9;
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #b2e6b2;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.profile-header h1 {
+    font-size: 1.8rem;
+    color: #247A34;
+    margin: 0;
+    margin-top: 72px;
+
 }
