@@ -132,6 +132,10 @@ const rewardSchema = new mongoose.Schema({
         type: String,
         enum: ['daily', 'weekly', 'unlimited'],
         default: null
+    },
+    claimedBy: {
+        type: [String], 
+        default: []
     }
 });
 
@@ -861,11 +865,17 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
         if (!reward) {
             return res.status(404).json({ message: 'Reward not found' });
         }
+        if (!reward.isRepeatable && reward.claimedBy.includes(user._id.toString())) {
+            return res.status(400).json({ message: 'This reward can only be claimed once' });
+        }
 
         if (user.points < reward.pointsNeeded) {
             return res.status(400).json({ message: 'Not enough points to claim this reward' });
         }
-
+        if (!reward.isRepeatable) {
+            reward.claimedBy.push(user._id.toString());
+            await reward.save();
+        }
         // Deduct points and save
         user.points -= reward.pointsNeeded;
         await user.save();
