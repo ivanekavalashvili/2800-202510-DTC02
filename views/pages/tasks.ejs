@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -122,7 +123,12 @@
                             const taskDetails = document.getElementById('taskDetails').value;
 
                             if (!taskName || taskName.trim() === "") {
-                                alert("Please enter a task name before generating an image");
+                                Swal.fire({
+                                    title: 'Missing Task Name',
+                                    text: 'Please enter a task name before generating an image.',
+                                    icon: 'warning',
+                                    confirmButtonColor: '#247A34'
+                                });
                                 return;
                             }
 
@@ -270,7 +276,12 @@
                             const taskDetails = document.getElementById('taskDetails').value;
 
                             if (!taskName || taskName.trim() === "") {
-                                alert("Please enter a task name before generating an image");
+                               Swal.fire({
+                                    title: 'Missing Task Name',
+                                    text: 'Please enter a task name before generating an image.',
+                                    icon: 'warning',
+                                    confirmButtonColor: '#247A34'
+                                });
                                 return;
                             }
 
@@ -840,7 +851,12 @@
                                 }
 
                                 function error() {
-                                    alert("Sorry, no position available.");
+                                   Swal.fire({
+                                        title: 'Unavailable',
+                                        text: 'Sorry, no position available.',
+                                        icon: 'info',
+                                        confirmButtonColor: '#247A34'
+                                    });
                                 }
 
                                 function getWeather(latitude, longitude) {
