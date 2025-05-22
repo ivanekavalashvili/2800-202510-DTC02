@@ -19,12 +19,15 @@
                 <% kids.forEach(kid=> { %>
                     <li class="kid-row">
                         <span class="kid-name">
-                            <%= kid.username %>
+                            <%= kid.username %> — <strong>
+                                    <%= kid.points || 0 %> pts
+                                </strong>
                         </span>
                         <button class="nav-btn delete-kid-btn" data-kid-id="<%= kid._id %>">Delete</button>
                     </li>
                     <% }) %>
             </ul>
+
 
                 </div>
         <% } else { %>
