@@ -9,10 +9,10 @@
 
 <body>
     <body>
-        <div class="reward-btn">
-            <% if (role==="parent" ) { %>
-                <a href="#" id="openAddRewardModal" class="nav-btn">Add Reward</a>
-                <% } %>
+        <div class="reward-btn mt-5 md:mt-24">
+            <div class="reward-header">
+                <h3>Your Rewards</h3>
+            </div>
         </div>
         <div id="AddRewardModal" class="modal" style="display: none;">
             <div class="modal-content">
@@ -45,43 +45,44 @@
             </div>
         </div>
 
-        <div class="reward-header">
-            <h3>Your Rewards</h3>
-        </div>
         <% if (rewards.length===0) { %>
             <p>No rewards created yet.</p>
-            <% } else { %>
-                <div class="reward-list">
-                    <% rewards.forEach(reward=> { %>
-                        <div class="reward-card" data-id="<%= reward._id %>">
-                            <div class="title">
-                                <%= reward.rewardTitle %>
-                            </div>
-                            <div class="description">
-                                <%= reward.description %>
-                            </div>
-                            <div class="points">
-                                <%= reward.pointsNeeded %> pts
-                            </div>
-                            <% if (role==='parent' ) { %>
-                                <button class="edit-reward-btn" data-id="<%= reward._id %>"
-                                    data-title="<%= reward.rewardTitle %>" data-description="<%= reward.description %>"
-                                    data-points="<%= reward.pointsNeeded %>">
-                                    Edit
-                                </button>
-                                <% } else if (role==='kid' ) { %>
-                                    <button class="claim-reward-btn" data-id="<%= reward._id %>"
-                                        data-points="<%= reward.pointsNeeded %>" <%=user.points>= reward.pointsNeeded ?
-                                        '' : 'disabled' %>>
-                                        <%= user.points>= reward.pointsNeeded ? 'Claim Reward' : 'Not Enough Points' %>
-                                    </button>
-                                    <% } %>
+        <% } else { %>
+            <div class="reward-list">
+                <% rewards.forEach(reward=> { %>
+                    <div class="reward-card" data-id="<%= reward._id %>">
+                        <div class="title">
+                            <%= reward.rewardTitle %>
                         </div>
-                        <% }) %>
-                </div>
-                <% } %>
+                        <div class="description">
+                            <%= reward.description %>
+                        </div>
+                        <div class="points">
+                            <%= reward.pointsNeeded %> pts
+                        </div>
+                        <% if (role==='parent' ) { %>
+                            <button class="edit-reward-btn" data-id="<%= reward._id %>"
+                                data-title="<%= reward.rewardTitle %>" data-description="<%= reward.description %>"
+                                data-points="<%= reward.pointsNeeded %>">
+                                Edit
+                            </button>
+                            <% } else if (role==='kid' ) { %>
+                                <button class="claim-reward-btn" data-id="<%= reward._id %>"
+                                    data-points="<%= reward.pointsNeeded %>" <%=user.points>= reward.pointsNeeded ?
+                                    '' : 'disabled' %>>
+                                    <%= user.points>= reward.pointsNeeded ? 'Claim Reward' : 'Not Enough Points' %>
+                                </button>
+                                <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
 
-
+        <div class="reward-btn mt-3">
+        <% if (role==="parent" ) { %>
+            <a href="#" id="openAddRewardModal" class="nav-btn">Create Reward</a> 
+        <% } %>
+        </div>
     </body>
 
     <script>
