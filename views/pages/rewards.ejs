@@ -10,6 +10,7 @@
 </head>
 
 <body>
+
     <body>
         <div class="reward-btn mt-5 md:mt-24">
             <div class="reward-header">
@@ -63,47 +64,54 @@
 
         <% if (rewards.length===0) { %>
             <p>No rewards created yet.</p>
-        <% } else { %>
-            <div class="reward-list">
-                <% rewards.forEach(reward=> { %>
-                    <div class="reward-card" data-id="<%= reward._id %>">
-                        <div class="title">
-                            <%= reward.rewardTitle %>
-                        </div>
-                        <div class="description">
-                            <%= reward.description %>
-                        </div>
-                        <div class="points">
-                            <%= reward.pointsNeeded %> pts
-                        </div>
-                        <% if (reward.isRepeatable) { %>
-                            <p class="description">Repeatable: <%= reward.repeatInterval %>
-                            </p>
-                            <% } %>
-
-                        <% if (role==='parent' ) { %>
-                            <button class="edit-reward-btn" data-id="<%= reward._id %>"
-                                data-title="<%= reward.rewardTitle %>" data-description="<%= reward.description %>"
-                                data-points="<%= reward.pointsNeeded %>">
-                                Edit
-                            </button>
-                            <% } else if (role==='kid' ) { %>
-                                <button class="claim-reward-btn" data-id="<%= reward._id %>"
-                                    data-points="<%= reward.pointsNeeded %>" <%=user.points>= reward.pointsNeeded ?
-                                    '' : 'disabled' %>>
-                                    <%= user.points>= reward.pointsNeeded ? 'Claim Reward' : 'Not Enough Points' %>
-                                </button>
+            <% } else { %>
+                <div class="reward-list">
+                    <% rewards.forEach(reward=> { %>
+                        <div class="reward-card" data-id="<%= reward._id %>">
+                            <div class="title">
+                                <%= reward.rewardTitle %>
+                            </div>
+                            <div class="description">
+                                <%= reward.description %>
+                            </div>
+                            <div class="points">
+                                <%= reward.pointsNeeded %> pts
+                            </div>
+                            <% if (reward.isRepeatable) { %>
+                                <p class="description">Repeatable: <%= reward.repeatInterval %>
+                                </p>
                                 <% } %>
-                    </div>
-                <% }) %>
-            </div>
-        <% } %>
 
-        <div class="reward-btn mt-3">
-        <% if (role==="parent" ) { %>
-            <a href="#" id="openAddRewardModal" class="nav-btn">Create Reward</a> 
-        <% } %>
-        </div>
+                                    <% if (role==='parent' ) { %>
+                                        <button class="edit-reward-btn" data-id="<%= reward._id %>"
+                                            data-title="<%= reward.rewardTitle %>"
+                                            data-description="<%= reward.description %>"
+                                            data-points="<%= reward.pointsNeeded %>">
+                                            Edit
+                                        </button>
+                                        <% } else if (role==='kid' ) { %>
+                                            <% const alreadyClaimed=reward.claimedBy &&
+                                                reward.claimedBy.includes(user._id.toString()); const
+                                                canClaim=user.points>= reward.pointsNeeded && (!reward.isRepeatable ?
+                                                !alreadyClaimed : true);
+                                                %>
+                                                <button class="claim-reward-btn" data-id="<%= reward._id %>"
+                                                    data-points="<%= reward.pointsNeeded %>" <%=canClaim ? ''
+                                                    : 'disabled' %>>
+                                                    <%= canClaim ? 'Claim Reward' : (!reward.isRepeatable &&
+                                                        alreadyClaimed ? 'Already Claimed' : 'Not Enough Points' ) %>
+                                                </button>
+                                                <% } %>
+                        </div>
+                        <% }) %>
+                </div>
+                <% } %>
+
+                    <div class="reward-btn mt-3">
+                        <% if (role==="parent" ) { %>
+                            <a href="#" id="openAddRewardModal" class="nav-btn">Create Reward</a>
+                            <% } %>
+                    </div>
     </body>
 
     <script>
@@ -136,7 +144,7 @@
                     }
                 });
             }
-            
+
             if (repeatableCheckbox) {
                 repeatableCheckbox.addEventListener("change", () => {
                     repeatIntervalContainer.classList.toggle("hidden", !repeatableCheckbox.checked);
@@ -161,7 +169,7 @@
                 editModal.style.display = "none";
             });
 
-           deleteBtn.addEventListener("click", async () => {
+            deleteBtn.addEventListener("click", async () => {
                 const rewardId = editForm.rewardId.value;
 
                 if (!rewardId) return Swal.fire("Oops!", "No reward selected.", "error");
@@ -181,24 +189,24 @@
                         });
 
                         const data = await res.json();
-                           if (res.ok) {
-                           Swal.fire({
-                                   title: 'Deleted!',
-                                   text: 'Reward has been deleted.',
-                                   icon: 'success',
-                                   confirmButtonColor: '#247A34',
-                               }).then(() => {
-                                   editModal.style.display = "none";
-                                   location.reload();
-                               });
+                        if (res.ok) {
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: 'Reward has been deleted.',
+                                icon: 'success',
+                                confirmButtonColor: '#247A34',
+                            }).then(() => {
+                                editModal.style.display = "none";
+                                location.reload();
+                            });
 
                         } else {
                             Swal.fire({
-                                   title: 'Error',
-                                   text: 'Error deleting the reward',
-                                   icon: 'error',
-                                   confirmButtonColor: '#247A34',
-                               });
+                                title: 'Error',
+                                text: 'Error deleting the reward',
+                                icon: 'error',
+                                confirmButtonColor: '#247A34',
+                            });
                         }
                     }
                 });
@@ -212,7 +220,7 @@
                     const title = form.rewardTitle.value
                     const description = form.description.value;
                     const cost = form.pointsNeeded.value
-                     const isRepeatable = document.getElementById("isRepeatable").checked;
+                    const isRepeatable = document.getElementById("isRepeatable").checked;
                     const repeatInterval = isRepeatable ? document.getElementById("repeatIntervalReward").value : null;
 
                     const res = await fetch("/rewards", {
@@ -258,7 +266,7 @@
                     });
 
                     const data = await res.json();
-                   if (res.ok) {
+                    if (res.ok) {
                         Swal.fire({
                             title: 'Success!',
                             text: 'Reward updated!',
@@ -314,7 +322,7 @@
                             if (pointsDisplay && data.newPoints !== undefined) {
                                 pointsDisplay.textContent = `Points: ${data.newPoints}`;
                             }
-                      Swal.fire({
+                            Swal.fire({
                                 title: 'Success!',
                                 text: 'Reward claimed successfully!',
                                 icon: 'success',
@@ -334,7 +342,7 @@
                         }
                     } catch (error) {
                         console.error("Error claiming reward:", error);
-                       Swal.fire({
+                        Swal.fire({
                             title: 'Error',
                             text: data.message || 'Error claiming reward.',
                             icon: 'error',
@@ -347,5 +355,6 @@
 
         });
     </script>
-    </body>
+</body>
+
 </html>
