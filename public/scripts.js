@@ -47,7 +47,12 @@ signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!selectedRole) {
-        alert('Please select a role (Parent or Kid).');
+        Swal.fire({
+            title: 'Role Required',
+            text: 'Please select a role (Parent or Kid).',
+            icon: 'warning',
+            confirmButtonColor: '#247A34'
+        });
         return;
     }
 
@@ -66,7 +71,12 @@ signupForm.addEventListener('submit', async (e) => {
     if (data.message === 'User registered successfully!') {
         window.location.href = '/login';
     } else {
-        alert(data.message);
+        Swal.fire({
+            title: 'Notice',
+            text: data.message || 'Something happened.',
+            icon: 'info',
+            confirmButtonColor: '#247A34'
+        });
     }
 });
 
@@ -75,7 +85,12 @@ loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!selectedRole) {
-        alert('Please select a role (Parent or Kid).');
+        Swal.fire({
+            title: 'Role Required',
+            text: 'Please select a role (Parent or Kid).',
+            icon: 'warning',
+            confirmButtonColor: '#247A34'
+        });
         return;
     }
 
@@ -94,6 +109,11 @@ loginForm.addEventListener('submit', async (e) => {
     if (data.message === 'Login successful!') {
         window.location.href = '/tasks';
     } else {
-        alert(data.message);
+        Swal.fire({
+            title: 'Notice',
+            text: data.message || 'Something happened.',
+            icon: 'info',
+            confirmButtonColor: '#247A34'
+        });
     }
 });
