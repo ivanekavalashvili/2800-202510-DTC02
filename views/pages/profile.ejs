@@ -50,7 +50,7 @@
             <h2>Add a Kid Account</h2>
             <form id="addKidForm">
                 <input class="input" type="text" name="username" placeholder="Kid's Username" required />
-                <input class="input" type="password" name="password" placeholder="Password" required />
+                <input class="input" type="password" name="password" placeholder="Password" required minlength="8" />
                 <button type="submit" class="login-btn">Create Kid Account</button>
             </form>
         </div>
@@ -127,6 +127,34 @@
                 }
             });
         });
+         document.addEventListener('DOMContentLoaded', async () => {
+                const leaderboardList = document.getElementById('leaderboard-list');
+
+                try {
+                    const res = await fetch('/leaderboard');
+                    const data = await res.json();
+
+                    const currentUsername = "<%= user.username %>";
+
+                    leaderboardList.innerHTML = '';
+                    data.forEach((kid, index) => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>#${index + 1}</strong> ${kid.username} — ${kid.points || 0} pts`;
+
+                        if (kid.username === currentUsername) {
+                            li.style.fontWeight = 'bold';
+                            li.style.color = '#2e8b3d';
+                            li.innerHTML += ' (You)';
+                        }
+
+                        leaderboardList.appendChild(li);
+                    });
+                } catch (err) {
+                    console.error('Error loading leaderboard:', err);
+                    leaderboardList.innerHTML = '<li>Could not load leaderboard.</li>';
+                }
+            });
+
     </script>
 </script>
 </body>
