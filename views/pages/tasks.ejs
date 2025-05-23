@@ -19,7 +19,7 @@
 
         <!-- All of the parent rendering and logic -->
         <% if (role=="parent" ) { %>
-            <button onclick="dialogMaker(createCategoryPopup)" class="role-btn block mx-auto px-10">Create
+            <button onclick="dialogMaker(createCategoryPopup)" class="role-btn block mx-auto px-24 py-4">Create
                 Category
             </button>
 
@@ -403,7 +403,7 @@
 
                                 const editBtn = document.createElement("button")
                                 editBtn.innerHTML = "Edit category"
-                                editBtn.setAttribute("class", "role-btn ml-5 mr-3 px-3 shadow bg-opacity-70")
+                                editBtn.setAttribute("class", "role-btn ml-5 mr-3 px-3 py-2 shadow bg-opacity-70")
                                 editBtn.addEventListener("click", () => editCategoryPopup(category))
                                 titleAndEdit.appendChild(editBtn)
 
@@ -460,7 +460,7 @@
 
                                             const editTaskBtn = document.createElement("button")
                                             editTaskBtn.innerHTML = "Edit Task"
-                                            editTaskBtn.setAttribute("class", "role-btn block shadow mx-auto mt-3 px-10")
+                                            editTaskBtn.setAttribute("class", "role-btn block shadow mx-auto mt-3 px-24 py-4")
                                             editTaskBtn.addEventListener("click", () => editTaskPopup(task))
                                             taskResult.appendChild(editTaskBtn)
                                         })
@@ -468,7 +468,7 @@
 
                                 const btn = document.createElement('button')
                                 btn.addEventListener("click", () => dialogMaker(displayTaskForm, category.name))
-                                btn.setAttribute("class", "role-btn  shadow")
+                                btn.setAttribute("class", "role-btn shadow py-2")
                                 btn.innerText = "Add Task"
                                 div.appendChild(btn)
                             })
@@ -491,9 +491,9 @@
                             kids.push(checkbox.name)
                         }
                     })
-                    
+
                     closeDialog()
-                        const res = await fetch("/createTask", {
+                    const res = await fetch("/createTask", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -526,7 +526,7 @@
                             icon: 'error',
                             confirmButtonColor: '#247A34'
                         });
-                    } 
+                    }
                     fetchCategories();
                 }
 
@@ -575,7 +575,7 @@
                         });
                     }
                     fetchCategories();
-                
+
                 }
 
                 // Edits the task in the backend with whatever was changed in the task edit form
