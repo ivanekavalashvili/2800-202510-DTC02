@@ -134,7 +134,7 @@ const rewardSchema = new mongoose.Schema({
         default: null
     },
     claimedBy: {
-        type: [String], 
+        type: [String],
         default: []
     },
     lastResetTime: {
@@ -185,6 +185,12 @@ const notificationSchema = new mongoose.Schema({
     },
     modifiedPoints: {
         type: Number
+    },
+    rewardTitle: {
+        type: String
+    },
+    rewardDescription: {
+        type: String
     }
 });
 
@@ -477,9 +483,9 @@ async function resetRepeatableRewards() {
     }
 }
 
-setInterval(resetRepeatableRewards, 60 * 60 * 1000); 
+setInterval(resetRepeatableRewards, 60 * 60 * 1000);
 
-resetRepeatableRewards(); 
+resetRepeatableRewards();
 
 
 async function downloadImage(imageUrl, filename) {
@@ -779,7 +785,7 @@ app.post('/rewards', requireAuth, async (req, res) => {
             description,
             pointsNeeded: parseInt(cost),
             parentEmail: user.email,
-            isRepeatable: isRepeatable === 'true' || isRepeatable === true, 
+            isRepeatable: isRepeatable === 'true' || isRepeatable === true,
             repeatInterval: isRepeatable ? repeatInterval : null
 
         });
@@ -911,6 +917,7 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
         if (!reward) {
             return res.status(404).json({ message: 'Reward not found' });
         }
+        console.log("Full reward object:", reward);
         const hasClaimed = reward.claimedBy.includes(user._id.toString());
 
         if (!reward.isRepeatable && hasClaimed) {
@@ -925,7 +932,6 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
             return res.status(400).json({ message: 'Not enough points to claim this reward' });
         }
 
-    
         reward.claimedBy.push(user._id.toString());
         await reward.save();
 
@@ -933,18 +939,39 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
         user.points -= reward.pointsNeeded;
         await user.save();
 
-
         // creates a notification to notify the parent that the kid has completed a task and audit it.
+        console.log("\n=== REWARD CLAIM NOTIFICATION CREATION ===");
+        console.log("Reward object:", {
+            id: reward._id,
+            title: reward.rewardTitle,
+            description: reward.description,
+            points: reward.pointsNeeded
+        });
+        console.log("User details:", {
+            id: user._id,
+            email: user.email,
+            parentEmail: user.parent_email
+        });
+
         const notify = await Notification.create({
             fromWho: user._id,
             forWho: user.parent_email,
             taskRewardId: reward._id,
             taskOrReward: "reward",
             points: reward.pointsNeeded,
-            status: 'pending'
-        })
-        console.log("This is the notification that is generated:")
-        console.log(notify)
+            status: 'pending',
+            rewardTitle: reward.rewardTitle,
+            rewardDescription: reward.description
+        });
+
+        console.log("Created notification:", {
+            id: notify._id,
+            rewardTitle: notify.rewardTitle,
+            rewardDescription: notify.rewardDescription,
+            points: notify.points,
+            status: notify.status
+        });
+        console.log("=== END REWARD CLAIM NOTIFICATION ===\n");
 
         res.status(200).json({
             message: 'Reward claimed successfully!',
@@ -960,8 +987,25 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
 app.get('/notifications', requireAuth, async (req, res) => {
     try {
         const user = await User.findById(req.session.user);
+        console.log("\n=== FETCHING NOTIFICATIONS ===");
+        console.log("For user:", {
+            id: user._id,
+            email: user.email
+        });
+
         const notifications = await Notification.find({ forWho: user.email })
             .sort({ createdAt: -1 });
+
+        console.log("Found notifications:", notifications.map(n => ({
+            id: n._id,
+            type: n.taskOrReward,
+            rewardTitle: n.rewardTitle,
+            rewardDescription: n.rewardDescription,
+            points: n.points,
+            status: n.status
+        })));
+        console.log("=== END FETCHING NOTIFICATIONS ===\n");
+
         res.json(notifications);
     } catch (err) {
         console.error('Error fetching notifications:', err);
@@ -1107,13 +1151,12 @@ app.get('/notifications/:id', requireAuth, async (req, res) => {
         if (notification.taskOrReward === 'reward') {
             const reward = await Reward.findById(notification.taskRewardId);
             if (reward) {
-                notificationWithKid.rewardDetails = {
-                    title: reward.rewardTitle,
-                    description: reward.description
-                };
+                notificationWithKid.rewardTitle = reward.rewardTitle;
+                notificationWithKid.rewardDescription = reward.description;
             }
         }
 
+        console.log("Notification with details:", notificationWithKid);
         res.json(notificationWithKid);
     } catch (err) {
         console.error('Error fetching notification:', err);
