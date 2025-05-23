@@ -123,6 +123,23 @@ const rewardSchema = new mongoose.Schema({
     parentEmail: {
         type: String,
         required: true
+    },
+    isRepeatable: {
+        type: Boolean,
+        default: false
+    },
+    repeatInterval: {
+        type: String,
+        enum: ['daily', 'weekly', 'unlimited'],
+        default: null
+    },
+    claimedBy: {
+        type: [String], 
+        default: []
+    },
+    lastResetTime: {
+        type: Date,
+        default: null
     }
 });
 
@@ -256,7 +273,7 @@ app.get('/profile', requireAuth, async (req, res) => {
     res.render('pages/profile', {
         title: 'Profile',
         role: user.role,
-        username: user.username || user.email, 
+        username: user.username || user.email,
         kids
     });
 });
@@ -422,6 +439,48 @@ setInterval(resetRepeatingTasks, 60 * 60 * 1000);
 
 // Also run it when server starts
 resetRepeatingTasks();
+
+//function to check and reset rewards
+async function resetRepeatableRewards() {
+    try {
+        const rewards = await Reward.find({ isRepeatable: true, repeatInterval: { $ne: 'unlimited' } });
+        const now = new Date();
+
+        for (const reward of rewards) {
+            if (!reward.lastResetTime) {
+                reward.lastResetTime = now;
+                reward.claimedBy = [];
+                await reward.save();
+                continue;
+            }
+
+            let shouldReset = false;
+            const timeDiff = now - reward.lastResetTime;
+
+            switch (reward.repeatInterval) {
+                case 'daily':
+                    shouldReset = timeDiff >= 24 * 60 * 60 * 1000;
+                    break;
+                case 'weekly':
+                    shouldReset = timeDiff >= 7 * 24 * 60 * 60 * 1000;
+                    break;
+            }
+
+            if (shouldReset) {
+                reward.claimedBy = [];
+                reward.lastResetTime = now;
+                await reward.save();
+            }
+        }
+    } catch (error) {
+        console.error('Error resetting rewards:', error);
+    }
+}
+
+setInterval(resetRepeatableRewards, 60 * 60 * 1000); 
+
+resetRepeatableRewards(); 
+
 
 async function downloadImage(imageUrl, filename) {
     const res = await axios.get(imageUrl, { responseType: 'stream' });
@@ -707,7 +766,7 @@ app.delete('/kids/:id', requireAuth, async (req, res) => {
 // Create reward
 app.post('/rewards', requireAuth, async (req, res) => {
     try {
-        const { title, description, cost } = req.body;
+        const { title, description, cost, isRepeatable, repeatInterval } = req.body;
 
         if (!title || !description || !cost) {
             return res.status(400).json({ message: 'All fields are required' });
@@ -719,7 +778,10 @@ app.post('/rewards', requireAuth, async (req, res) => {
             rewardTitle: title,
             description,
             pointsNeeded: parseInt(cost),
-            parentEmail: user.email
+            parentEmail: user.email,
+            isRepeatable: isRepeatable === 'true' || isRepeatable === true, 
+            repeatInterval: isRepeatable ? repeatInterval : null
+
         });
 
         await newReward.save();
@@ -849,14 +911,28 @@ app.post('/rewards/:id/claim', requireAuth, async (req, res) => {
         if (!reward) {
             return res.status(404).json({ message: 'Reward not found' });
         }
+        const hasClaimed = reward.claimedBy.includes(user._id.toString());
+
+        if (!reward.isRepeatable && hasClaimed) {
+            return res.status(400).json({ message: 'This reward can only be claimed once' });
+        }
+
+        if (reward.isRepeatable && reward.repeatInterval !== 'unlimited' && hasClaimed) {
+            return res.status(400).json({ message: `This reward can only be claimed once per ${reward.repeatInterval}` });
+        }
 
         if (user.points < reward.pointsNeeded) {
             return res.status(400).json({ message: 'Not enough points to claim this reward' });
         }
 
-        // Deduct points and save
+    
+        reward.claimedBy.push(user._id.toString());
+        await reward.save();
+
+        // Deduct points
         user.points -= reward.pointsNeeded;
         await user.save();
+
 
         // creates a notification to notify the parent that the kid has completed a task and audit it.
         const notify = await Notification.create({
@@ -940,10 +1016,20 @@ app.put('/notifications/:id/audit', requireAuth, async (req, res) => {
             const child = await User.findById(notification.fromWho);
             const pointsChange = modifiedPoints || notification.points;
 
-            if (status === 'approved') {
-                child.points += pointsChange;
+            if (notification.taskOrReward === 'task') {
+                if (status === 'approved') {
+                    // For tasks, only add points on approval
+                    child.points += pointsChange;
+                }
+                // For tasks, do nothing on rejection since points were already deducted
             } else {
-                child.points -= pointsChange;
+                // For rewards
+                if (status === 'approved') {
+                    // Points already deducted when claiming reward
+                } else {
+                    // Refund points on reward rejection
+                    child.points += pointsChange;
+                }
             }
             await child.save();
 
@@ -991,7 +1077,8 @@ app.put('/notifications/:id/read', requireAuth, async (req, res) => {
 app.get('/notifications-page', requireAuth, (req, res) => {
     res.render('pages/notifications', {
         title: 'Notifications',
-        role: res.locals.user.role
+        role: res.locals.user.role,
+        layout: 'partials/layout'
     });
 });
 
