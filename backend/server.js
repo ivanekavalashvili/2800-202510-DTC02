@@ -67,8 +67,7 @@ const taskSchema = new mongoose.Schema({
         type: String
     },
     taskdetails: {
-        type: String,
-        required: true
+        type: String
     },
     points: {
         type: Number,
@@ -545,7 +544,7 @@ app.post('/createTask', requireAuth, async (req, res) => {
 // Edits the task in the database
 app.post('/editTask', async (req, res) => {
     try {
-        const { _id, logoUrl, name, taskDetails, points, isRepeating, repeatInterval } = req.body;
+        const { _id, logoUrl, name, taskDetails, points, kids, isRepeating, repeatInterval } = req.body;
         if (!name && !points) {
             return res.status(400).json({ message: 'Missing both Task name and points' });
         }
@@ -573,6 +572,7 @@ app.post('/editTask', async (req, res) => {
                     filename: filename,
                     taskdetails: taskDetails,
                     points: points,
+                    children: kids,
                     isRepeating: isRepeating,
                     repeatInterval: repeatInterval,
                     // Only update lastResetTime if repeating status or interval changed
@@ -586,6 +586,7 @@ app.post('/editTask', async (req, res) => {
                     name: name,
                     taskdetails: taskDetails,
                     points: points,
+                    children: kids,
                     isRepeating: isRepeating,
                     repeatInterval: repeatInterval,
                     // Only update lastResetTime if repeating status or interval changed

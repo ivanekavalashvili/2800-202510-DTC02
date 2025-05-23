@@ -348,6 +348,29 @@
                             });
                         }
 
+                        // This creates the checkboxes for which kids the parent wants to assign to the task
+                        const kidCheck = document.getElementById("taskKids")
+                        fetch("/kids", { method: "GET" })
+                            .then((response) => response.json())
+                            .then((data) => {
+                                data.forEach((kid) => {
+
+                                    const checkBtn = document.createElement("input")
+                                    checkBtn.setAttribute("type", "checkbox")
+                                    checkBtn.setAttribute("class", "m-3")
+                                    checkBtn.setAttribute("name", kid._id)
+                                    checkBtn.checked = task.children.includes(kid._id)
+                                    kidCheck.appendChild(checkBtn)
+
+                                    const name = document.createElement("label")
+                                    name.innerText = kid.username
+                                    kidCheck.appendChild(name)
+
+                                    br = document.createElement("br")
+                                    kidCheck.appendChild(br)
+                                })
+                            })
+
                         const submitButton = document.getElementById("submitButton");
                         if (submitButton) submitButton.addEventListener("click", (e) => editTask(task, e))
 
@@ -565,6 +588,13 @@
                     const isRepeating = document.getElementById('isRepeating').checked
                     const repeatInterval = isRepeating ? document.getElementById('repeatInterval').value : null
                     const id = task._id
+                    kids = []
+                    const kidCheckboxes = document.querySelectorAll('#taskKids input[type="checkbox"]')
+                    kidCheckboxes.forEach((checkbox) => {
+                        if (checkbox.checked) {
+                            kids.push(checkbox.name)
+                        }
+                    })
 
                     closeDialog()
                     const res = await fetch("/editTask", {
@@ -576,6 +606,7 @@
                             name: name,
                             taskDetails: taskdetails,
                             points: points,
+                            kids: kids,
                             isRepeating: isRepeating,
                             repeatInterval: repeatInterval
                         })
