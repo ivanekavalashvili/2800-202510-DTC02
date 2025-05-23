@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css">
 </head>
 
 <body>
@@ -17,7 +17,7 @@
             <a href="#" id="openAddKidModal" class="nav-btn">Add Kid</a>
         <% if (kids && kids.length> 0) { %>
             <div class="kid-list-container">
-                <h3>Linked Kid Accounts</h3>
+                <h3>Linked Kid Account</h3>
             <ul class="kid-list">
                 <% kids.forEach(kid=> { %>
                     <li class="kid-row">
@@ -47,13 +47,14 @@
             <span class="close-btn" id="closeAddKidModal">&times;</span>
             <h2>Add a Kid Account</h2>
             <form id="addKidForm">
-                <input class="input" type="text" name="username" placeholder="Kid's Username" required />
-                <input class="input" type="password" name="password" placeholder="Password" required minlength="8" />
+                <input class="input" type="text" name="username" placeholder="Kid's Username" required>
+                <input class="input" type="password" name="password" placeholder="Password" required minlength="8">
                 <button type="submit" class="login-btn">Create Kid Account</button>
             </form>
         </div>
     </div>
-
+</div>
+</body>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const modal = document.getElementById("addKidModal");
@@ -154,7 +155,5 @@
             });
 
     </script>
-</script>
-</body>
 
 </html>
