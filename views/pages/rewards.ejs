@@ -8,8 +8,6 @@
 </head>
 
 <body>
-
-    <body>
         <div class="reward-btn">
             <% if (role==="parent" ) { %>
                 <a href="#" id="openAddRewardModal" class="nav-btn">Add Reward</a>
@@ -21,11 +19,11 @@
                 <h2>Add a Reward</h2>
                 <form id="addRewardForm">
                     <input class="input" type="text" name="rewardTitle" placeholder="Title" required
-                        oninput="validateTextInput(this)" />
+                        oninput="validateTextInput(this)">
                     <input class="input" type="text" name="description" placeholder="Description" required
-                        oninput="validateTextInput(this)" />
+                        oninput="validateTextInput(this)">
                     <input class="input" type="number" name="pointsNeeded" placeholder="Cost" min="1" step="1" required
-                        oninput="validatePointsInput(this)" title="Points must be a positive whole number" />
+                        oninput="validatePointsInput(this)" title="Points must be a positive whole number">
                     <button type="submit" class="login-btn">Create Reward</button>
                 </form>
             </div>
@@ -35,13 +33,13 @@
                 <span class="close-btn" id="closeEditRewardModal">&times;</span>
                 <h2>Edit Reward</h2>
                 <form id="editRewardForm">
-                    <input type="hidden" name="rewardId" />
+                    <input type="hidden" name="rewardId">
                     <input class="input" type="text" name="rewardTitle" placeholder="Title" required
-                        oninput="validateTextInput(this)" />
+                        oninput="validateTextInput(this)">
                     <input class="input" type="text" name="description" placeholder="Description" required
-                        oninput="validateTextInput(this)" />
+                        oninput="validateTextInput(this)">
                     <input class="input" type="number" name="pointsNeeded" placeholder="Cost" min="1" step="1" required
-                        oninput="validatePointsInput(this)" title="Points must be a positive whole number" />
+                        oninput="validatePointsInput(this)" title="Points must be a positive whole number">
                     <div style="display: flex; justify-content: space-between; gap: 10px;">
                         <button type="submit" class="nav-btn">Save Changes</button>
                         <button type="button" id="deleteRewardBtn" class="nav-btn">
