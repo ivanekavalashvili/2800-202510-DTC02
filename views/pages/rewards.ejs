@@ -22,9 +22,12 @@
                 <span class="close-btn" id="closeAddRewardModal">&times;</span>
                 <h2>Add a Reward</h2>
                 <form id="addRewardForm">
-                    <input class="input" type="text" name="rewardTitle" placeholder="Title" required />
-                    <input class="input" type="text" name="description" placeholder="description" required />
-                    <input class="input" type="text" name="pointsNeeded" placeholder="cost" required />
+                    <input class="input" type="text" name="rewardTitle" placeholder="Title" required
+                        oninput="validateTextInput(this)">
+                    <input class="input" type="text" name="description" placeholder="Description" required
+                        oninput="validateTextInput(this)">
+                    <input class="input" type="number" name="pointsNeeded" placeholder="Cost" min="1" step="1" required
+                        oninput="validatePointsInput(this)" title="Points must be a positive whole number">
                     <div class="mb-4">
                         <div class="flex items-center justify-center mb-2">
                             <input type="checkbox" id="isRepeatable" class="mr-2">
@@ -48,10 +51,13 @@
                 <span class="close-btn" id="closeEditRewardModal">&times;</span>
                 <h2>Edit Reward</h2>
                 <form id="editRewardForm">
-                    <input type="hidden" name="rewardId" />
-                    <input class="input" type="text" name="rewardTitle" placeholder="Title" required />
-                    <input class="input" type="text" name="description" placeholder="description" required />
-                    <input class="input" type="text" name="pointsNeeded" placeholder="cost" required />
+                    <input type="hidden" name="rewardId">
+                    <input class="input" type="text" name="rewardTitle" placeholder="Title" required
+                        oninput="validateTextInput(this)">
+                    <input class="input" type="text" name="description" placeholder="Description" required
+                        oninput="validateTextInput(this)">
+                    <input class="input" type="number" name="pointsNeeded" placeholder="Cost" min="1" step="1" required
+                        oninput="validatePointsInput(this)" title="Points must be a positive whole number">
                     <div style="display: flex; justify-content: space-between; gap: 10px;">
                         <button type="submit" class="nav-btn">Save Changes</button>
                         <button type="button" id="deleteRewardBtn" class="nav-btn">
@@ -217,9 +223,31 @@
             if (form) {
                 form.addEventListener("submit", async (e) => {
                     e.preventDefault();
-                    const title = form.rewardTitle.value.trim()
-                    const description = form.description.value.trim();
-                    const cost = form.pointsNeeded.value
+                    const titleInput = form.rewardTitle;
+                    const title = titleInput.value.trim()
+                    const descriptionInput = form.description;
+                    const description = descriptionInput.value.trim();
+                    const costInput = form.pointsNeeded;
+                    const cost = costInput.value;
+
+                    let isValid = true;
+
+                    if (!(/^[a-zA-Z0-9 .,!?()-]+$/).test(title)) {
+                        validateTextInput(titleInput);
+                        isValid = false;
+                    }
+
+                    if (!(/^[a-zA-Z0-9 .,!?()-]+$/).test(description)) {
+                        validateTextInput(descriptionInput);
+                        isValid = false;
+                    }
+
+                    if (cost <= 0 || !Number.isInteger(Number(cost))) {
+                        validatePointsInput(costInput);
+                        isValid = false;
+                    }
+
+                    if (!isValid) return; // stop if any validation fails
                     const isRepeatable = document.getElementById("isRepeatable").checked;
                     const repeatInterval = isRepeatable ? document.getElementById("repeatIntervalReward").value : null;
 
@@ -255,9 +283,31 @@
                     e.preventDefault();
 
                     const rewardId = editForm.rewardId.value;
-                    const title = editForm.rewardTitle.value.trim();
-                    const description = editForm.description.value.trim();
-                    const cost = editForm.pointsNeeded.value;
+                    const titleInput = editForm.rewardTitle;
+                    const title = titleInput.value.trim();
+                    const descriptionInput = editForm.description;
+                    const description = descriptionInput.value.trim();
+                    const costInput = editForm.pointsNeeded;
+                    const cost = costInput.value;
+
+                    let isValid = true;
+
+                    if (!(/^[a-zA-Z0-9 .,!?()-]+$/).test(title)) {
+                        validateTextInput(titleInput);
+                        isValid = false;
+                    }
+
+                    if (!(/^[a-zA-Z0-9 .,!?()-]+$/).test(description)) {
+                        validateTextInput(descriptionInput);
+                        isValid = false;
+                    }
+
+                    if (cost <= 0 || !Number.isInteger(Number(cost))) {
+                        validatePointsInput(costInput);
+                        isValid = false;
+                    }
+
+                    if (!isValid) return; // stop if any validation fails
 
                     const res = await fetch(`/rewards/${rewardId}`, {
                         method: "PUT",
@@ -354,6 +404,55 @@
             });
 
         });
+
+        function validatePointsInput(input) {
+            let value = Number(input.value);
+
+            if (value <= 0 || !Number.isInteger(value)) {
+                input.classList.add('border-red-500');
+                input.setCustomValidity('Points must be a positive whole number');
+
+                let tooltip = document.getElementById(`${input.name}-tooltip`);
+                if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.id = `${input.name}-tooltip`;
+                    tooltip.className = 'text-red-500 text-sm';
+                    input.parentNode.insertBefore(tooltip, input.nextSibling);
+                }
+                tooltip.textContent = 'Points must be a positive whole number';
+            } else {
+                input.classList.remove('border-red-500');
+                input.setCustomValidity('');
+
+                const tooltip = document.getElementById(`${input.name}-tooltip`);
+                if (tooltip) tooltip.remove();
+            }
+        }
+
+        function validateTextInput(input) {
+            const regex = /^[a-zA-Z0-9 .,!?()-]+$/;
+            const value = input.value;
+
+            if (!regex.test(value) && value.trim() !== '') {
+                input.classList.add('border-red-500');
+                input.setCustomValidity('Please only use alphanumeric characters, spaces, and basic punctuation');
+
+                let tooltip = document.getElementById(`${input.name}-text-tooltip`);
+                if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.id = `${input.name}-text-tooltip`;
+                    tooltip.className = 'text-red-500 text-sm';
+                    input.parentNode.insertBefore(tooltip, input.nextSibling);
+                }
+                tooltip.textContent = 'Please only use alphanumeric characters, spaces, and basic punctuation';
+            } else {
+                input.classList.remove('border-red-500');
+                input.setCustomValidity('');
+
+                const tooltip = document.getElementById(`${input.name}-text-tooltip`);
+                if (tooltip) tooltip.remove();
+            }
+        }
     </script>
 </body>
 

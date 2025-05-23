@@ -40,6 +40,24 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+app.use(async (req, res, next) => {
+    res.locals.user = null;
+    res.locals.role = null;
+
+    if (req.session.user) {
+        try {
+            const user = await User.findById(req.session.user);
+            if (user) {
+                res.locals.user = user;
+                res.locals.role = user.role;
+            }
+        } catch (err) {
+            console.error('Error in auth middleware:', err);
+        }
+    }
+    next();
+});
+
 const categorySchema = new mongoose.Schema({
     name: {
         type: String,
@@ -1214,4 +1232,27 @@ app.get('/leaderboard', requireAuth, async (req, res) => {
         console.error('Error fetching leaderboard:', err);
         res.status(500).json({ message: 'Error fetching leaderboard' });
     }
+});
+
+app.use((req, res, next) => {
+    res.status(404).render('pages/error', {
+        title: 'Page Not Found',
+        statusCode: 404,
+        message: 'The page you are looking for does not exist.',
+        user: req.session.user ? res.locals.user : undefined,
+        role: req.session.user ? res.locals.role : undefined
+    });
+});
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('pages/error', {
+        title: 'Server Error',
+        statusCode: 500,
+        message: process.env.NODE_ENV === 'production'
+            ? 'Something went wrong on our end. Please try again later.'
+            : err.message || 'Internal Server Error',
+        user: req.session.user ? res.locals.user : undefined,
+        role: req.session.user ? res.locals.role : undefined
+    });
 });
