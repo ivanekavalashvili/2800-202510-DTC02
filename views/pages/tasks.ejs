@@ -453,7 +453,7 @@
                 }
 
                 // Takes the information from the task popup and saves it to the backend
-                function newTask() {
+                async function newTask() {
                     const name = document.getElementById('taskName').value
                     const logoUrl = document.getElementById('taskImageUrl').value
                     const taskdetails = document.getElementById('taskDetails').value
@@ -468,8 +468,9 @@
                             kids.push(checkbox.name)
                         }
                     })
-
-                    fetch("/createTask", {
+                    
+                    closeDialog()
+                        const res = await fetch("/createTask", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -483,14 +484,27 @@
                             repeatInterval
                         })
                     })
-                        .then(res => res.json())
-                        .then(data => {
-                            fetchCategories();
-                            closeDialog()
-                        })
-                        .catch(err => {
-                            console.error("Error creating task:", err)
-                        })
+
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Task Created',
+                            icon: 'success',
+                            confirmButtonColor: '#247A34'
+                        }).then(() => {
+                            form.reset();
+                            modal.style.display = "none";
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message || 'An error occurred while creating the reward.',
+                            icon: 'error',
+                            confirmButtonColor: '#247A34'
+                        });
+                    } 
+                    fetchCategories();
                 }
 
                 // Add event listener for repeating task checkbox
@@ -506,29 +520,43 @@
                 }
 
                 // Takes the information from the category popup and saves it to the backend
-                function newCategory(e) {
+                async function newCategory(e) {
                     e.preventDefault();
                     const name = document.getElementById('categoryName').value
                     const color = document.getElementById('categoryColor').value
 
-                    fetch("/createCategory", {
+                    closeDialog()
+                    const res = await fetch("/createCategory", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ name, color })
                     })
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log(data.message);
-                            fetchCategories();
-                            closeDialog();
-                        })
-                        .catch(err => {
-                            console.error("Error creating category:", err)
-                        })
+
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Category Created',
+                            icon: 'success',
+                            confirmButtonColor: '#247A34'
+                        }).then(() => {
+                            form.reset();
+                            modal.style.display = "none";
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message || 'An error occurred while creating the reward.',
+                            icon: 'error',
+                            confirmButtonColor: '#247A34'
+                        });
+                    }
+                    fetchCategories();
+                
                 }
 
                 // Edits the task in the backend with whatever was changed in the task edit form
-                function editTask(task, e) {
+                async function editTask(task, e) {
                     e.preventDefault();
                     const name = document.getElementById('taskName').value
                     const logoUrl = document.getElementById('taskImageUrl').value
@@ -538,7 +566,8 @@
                     const repeatInterval = isRepeating ? document.getElementById('repeatInterval').value : null
                     const id = task._id
 
-                    fetch("/editTask", {
+                    closeDialog()
+                    const res = await fetch("/editTask", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -551,65 +580,156 @@
                             repeatInterval: repeatInterval
                         })
                     })
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log(data.message);
-                            fetchCategories();
-                            closeDialog();
-                        })
+
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Task Edited',
+                            icon: 'success',
+                            confirmButtonColor: '#247A34'
+                        }).then(() => {
+                            form.reset();
+                            modal.style.display = "none";
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message || 'An error occurred while creating the reward.',
+                            icon: 'error',
+                            confirmButtonColor: '#247A34'
+                        });
+                    }
+                    fetchCategories();
                 }
 
                 // Edits the category in the backend with whatever was changed in the category edit form
-                function editCategory(category, e) {
+                async function editCategory(category, e) {
                     e.preventDefault();
                     const newName = document.getElementById('categoryName').value
                     const newColor = document.getElementById('categoryColor').value
                     const oldName = category.name
                     const id = category._id
 
-                    fetch("/editCategory", {
+                    closeDialog()
+                    const res = await fetch("/editCategory", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ _id: id, name: newName, color: newColor, oldName: oldName })
                     })
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log(data.message);
-                            fetchCategories();
-                            closeDialog();
-                        })
+
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Category Edited',
+                            icon: 'success',
+                            confirmButtonColor: '#247A34'
+                        }).then(() => {
+                            form.reset();
+                            modal.style.display = "none";
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message || 'An error occurred while creating the reward.',
+                            icon: 'error',
+                            confirmButtonColor: '#247A34'
+                        });
+                    }
+                    fetchCategories();
                 }
 
                 // deletes task from the backend
                 function deleteTask(task, e) {
                     e.preventDefault();
-                    fetch("/deleteTask", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ _id: task._id })
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log(data.message);
+                    closeDialog();
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This task will be permanently deleted.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#247A34',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            const res = await fetch("/deleteTask", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ _id: task._id })
+                            })
+                            const data = await res.json();
+                            if (res.ok) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'This task has been deleted.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#247A34',
+                                }).then(() => {
+                                    editModal.style.display = "none";
+                                    location.reload();
+                                });
+
+                            } else {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Error deleting the task',
+                                    icon: 'error',
+                                    confirmButtonColor: '#247A34',
+                                });
+                            }
                             fetchCategories();
-                            closeDialog();
-                        })
+                        } else {
+                            dialog.showModal()
+                        }
+                    })
                 }
 
                 // deletes the category from the backend
                 function deleteCategory(category, e) {
                     e.preventDefault();
-                    fetch("/deleteCategory", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ _id: category._id })
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log(data.message);
+                    closeDialog();
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This category will be permanently deleted.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#247A34',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            const res = await fetch("/deleteCategory", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ _id: category._id })
+                            })
+                            const data = await res.json();
+                            if (res.ok) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'This category has been deleted.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#247A34',
+                                }).then(() => {
+                                    editModal.style.display = "none";
+                                    location.reload();
+                                });
+
+                            } else {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Error deleting the category',
+                                    icon: 'error',
+                                    confirmButtonColor: '#247A34',
+                                });
+                            }
                             fetchCategories();
-                            closeDialog();
-                        })
+                        } else {
+                            dialog.showModal()
+                        }
+                    })
                 }
 
                 // closes the dialog box
@@ -697,22 +817,38 @@
 
                         // Adds points to the kid's profile and marks them as having finished the task on the task itself
                         // I refresh the page to update the render because calling fetchcategories again wasn't working for some reason
-                        function finishTask(task) {
-                            fetch("/kidFinishTask", {
+                        async function finishTask(task) {
+                            closeDialog()
+                            const res = await fetch("/kidFinishTask", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ task: task })
                             })
-                                .then((response) => response.json())
-                                .then((data) => {
-                                    console.log(data.message);
-                                    // Update points display in header
-                                    const pointsDisplay = document.getElementById('pointsDisplay');
-                                    if (pointsDisplay && data.points !== undefined) {
-                                        pointsDisplay.textContent = `Points: ${data.points}`;
-                                    }
-                                    window.location.reload();
-                                })
+
+                            const data = await res.json();
+                            if (res.ok) {
+                                Swal.fire({
+                                    title: 'Task Completed!',
+                                    icon: 'success',
+                                    confirmButtonColor: '#247A34'
+                                }).then(() => {
+                                    form.reset();
+                                    modal.style.display = "none";
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: data.message || 'An error occurred while completing the task.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#247A34'
+                                });
+                            }
+                            const pointsDisplay = document.getElementById('pointsDisplay');
+                            if (pointsDisplay && data.points !== undefined) {
+                                pointsDisplay.textContent = `Points: ${data.points}`;
+                            }
+                            window.location.reload();
                         }
 
                         // fetches the kid's data to show how many points they have, then renders each category, then each task

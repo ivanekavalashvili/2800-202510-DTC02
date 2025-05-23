@@ -505,8 +505,14 @@ async function downloadImage(imageUrl, filename) {
 app.post('/createTask', requireAuth, async (req, res) => {
     try {
         const { catergoryName, name, logoUrl, taskdetails, points, kids, isRepeating, repeatInterval } = req.body;
-        if (!name || !taskdetails || !points) {
-            return res.status(400).json({ message: 'Missing required fields' });
+        if (!name && !points) {
+            return res.status(400).json({ message: 'Missing both Task name and points' });
+        }
+        if (!name) {
+            return res.status(400).json({ message: 'Missing Task name' });
+        }
+        if (!points) {
+            return res.status(400).json({ message: 'Missing Task points' });
         }
 
         let filename = null;
@@ -540,6 +546,16 @@ app.post('/createTask', requireAuth, async (req, res) => {
 app.post('/editTask', async (req, res) => {
     try {
         const { _id, logoUrl, name, taskDetails, points, isRepeating, repeatInterval } = req.body;
+        if (!name && !points) {
+            return res.status(400).json({ message: 'Missing both Task name and points' });
+        }
+        if (!name) {
+            return res.status(400).json({ message: 'Missing Task name' });
+        }
+        if (!points) {
+            return res.status(400).json({ message: 'Missing Task points' });
+        }
+
         console.log(_id + ' ' + name + ' ' + taskDetails + ' ' + points)
         if (!_id) {
             return res.status(400).json({ message: 'Task Id not found' });
@@ -590,8 +606,8 @@ app.post('/editTask', async (req, res) => {
 app.post('/createCategory', async (req, res) => {
     try {
         const { name, color } = req.body;
-        if (!name || !color) {
-            return res.status(400).json({ message: 'Missing required fields' });
+        if (!name) {
+            return res.status(400).json({ message: 'Missing Category name' });
         }
 
         const newCategory = await Category.create({ name, color, parent: req.session.user, children: [] });
@@ -626,6 +642,9 @@ app.post('/editCategory', async (req, res) => {
         console.log(_id + ' ' + name + ' ' + color + ' ' + oldName)
         if (!_id) {
             return res.status(400).json({ message: 'Category Id not found' });
+        }
+        if (!name) {
+            return res.status(400).json({ message: 'Missing Category name' });
         }
 
         await Category.updateOne({ _id }, { name, color });
