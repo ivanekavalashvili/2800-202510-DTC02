@@ -217,8 +217,8 @@
             if (form) {
                 form.addEventListener("submit", async (e) => {
                     e.preventDefault();
-                    const title = form.rewardTitle.value
-                    const description = form.description.value;
+                    const title = form.rewardTitle.value.trim()
+                    const description = form.description.value.trim();
                     const cost = form.pointsNeeded.value
                     const isRepeatable = document.getElementById("isRepeatable").checked;
                     const repeatInterval = isRepeatable ? document.getElementById("repeatIntervalReward").value : null;
@@ -255,8 +255,8 @@
                     e.preventDefault();
 
                     const rewardId = editForm.rewardId.value;
-                    const title = editForm.rewardTitle.value;
-                    const description = editForm.description.value;
+                    const title = editForm.rewardTitle.value.trim();
+                    const description = editForm.description.value.trim();
                     const cost = editForm.pointsNeeded.value;
 
                     const res = await fetch(`/rewards/${rewardId}`, {

@@ -67,8 +67,7 @@ const taskSchema = new mongoose.Schema({
         type: String
     },
     taskdetails: {
-        type: String,
-        required: true
+        type: String
     },
     points: {
         type: Number,
@@ -225,6 +224,7 @@ app.get('/', (req, res) => {
     });
 });
 
+// renders the login page
 app.get('/login', (req, res) => {
     if (req.session.user) {
         return res.redirect('/tasks');
@@ -236,12 +236,14 @@ app.get('/login', (req, res) => {
     });
 });
 
+// renders the about page
 app.get('/about', (req, res) => {
     res.render('pages/about', {
         title: 'About'
     });
 });
 
+// renders the tasks page
 app.get('/tasks', requireAuth, (req, res) => {
     res.render('pages/tasks', {
         title: 'Tasks',
@@ -249,6 +251,7 @@ app.get('/tasks', requireAuth, (req, res) => {
     });
 });
 
+// gets the rewards made by the parent
 app.get('/rewards', requireAuth, async (req, res) => {
     const user = res.locals.user;
 
@@ -267,7 +270,7 @@ app.get('/rewards', requireAuth, async (req, res) => {
     });
 });
 
-
+// gets the user's profile
 app.get('/profile', requireAuth, async (req, res) => {
     const user = res.locals.user;
 
@@ -284,6 +287,7 @@ app.get('/profile', requireAuth, async (req, res) => {
     });
 });
 
+// gets categories created by parents
 app.get('/categories', requireAuth, async (req, res) => {
     try {
         const categoriesFound = await Category.find({ parent: req.session.user })
@@ -295,6 +299,7 @@ app.get('/categories', requireAuth, async (req, res) => {
     }
 })
 
+// gets children assigned to a parent
 app.get('/kids', requireAuth, async (req, res) => {
     const user = await User.findById(req.session.user);
 
@@ -309,6 +314,7 @@ app.get('/kids', requireAuth, async (req, res) => {
     }
 })
 
+// gets categories assigned to children
 app.get('/kidCategories', requireAuth, async (req, res) => {
     const user = await User.findById(req.session.user);
     const parentId = (await User.findOne({ email: user.parent_email }))._id
@@ -363,6 +369,7 @@ app.get('/displayTasks', requireAuth, async (req, res) => {
     }
 })
 
+// Updates a task with the kid's 
 app.post('/kidFinishTask', requireAuth, async (req, res) => {
     try {
         const { task } = req.body
@@ -487,7 +494,7 @@ setInterval(resetRepeatableRewards, 60 * 60 * 1000);
 
 resetRepeatableRewards();
 
-
+// Stores an image in the backend images folder
 async function downloadImage(imageUrl, filename) {
     const res = await axios.get(imageUrl, { responseType: 'stream' });
     const filePath = path.join(__dirname, 'images', filename);
@@ -503,8 +510,14 @@ async function downloadImage(imageUrl, filename) {
 app.post('/createTask', requireAuth, async (req, res) => {
     try {
         const { catergoryName, name, logoUrl, taskdetails, points, kids, isRepeating, repeatInterval } = req.body;
-        if (!name || !taskdetails || !points) {
-            return res.status(400).json({ message: 'Missing required fields' });
+        if (!name && !points) {
+            return res.status(400).json({ message: 'Missing both Task name and points' });
+        }
+        if (!name) {
+            return res.status(400).json({ message: 'Missing Task name' });
+        }
+        if (!points) {
+            return res.status(400).json({ message: 'Missing Task points' });
         }
 
         let filename = null;
@@ -534,9 +547,20 @@ app.post('/createTask', requireAuth, async (req, res) => {
     }
 });
 
+// Edits the task in the database
 app.post('/editTask', async (req, res) => {
     try {
-        const { _id, logoUrl, name, taskDetails, points, isRepeating, repeatInterval } = req.body;
+        const { _id, logoUrl, name, taskDetails, points, kids, isRepeating, repeatInterval } = req.body;
+        if (!name && !points) {
+            return res.status(400).json({ message: 'Missing both Task name and points' });
+        }
+        if (!name) {
+            return res.status(400).json({ message: 'Missing Task name' });
+        }
+        if (!points) {
+            return res.status(400).json({ message: 'Missing Task points' });
+        }
+
         console.log(_id + ' ' + name + ' ' + taskDetails + ' ' + points)
         if (!_id) {
             return res.status(400).json({ message: 'Task Id not found' });
@@ -554,6 +578,7 @@ app.post('/editTask', async (req, res) => {
                     filename: filename,
                     taskdetails: taskDetails,
                     points: points,
+                    children: kids,
                     isRepeating: isRepeating,
                     repeatInterval: repeatInterval,
                     // Only update lastResetTime if repeating status or interval changed
@@ -567,6 +592,7 @@ app.post('/editTask', async (req, res) => {
                     name: name,
                     taskdetails: taskDetails,
                     points: points,
+                    children: kids,
                     isRepeating: isRepeating,
                     repeatInterval: repeatInterval,
                     // Only update lastResetTime if repeating status or interval changed
@@ -576,8 +602,6 @@ app.post('/editTask', async (req, res) => {
         }
 
         // Update the task once submit is pressed
-
-
         res.status(201).json({ message: 'Task updated successfully!' })
     }
     catch (error) {
@@ -585,11 +609,12 @@ app.post('/editTask', async (req, res) => {
     }
 });
 
+// Creates a category and puts it in the database
 app.post('/createCategory', async (req, res) => {
     try {
         const { name, color } = req.body;
-        if (!name || !color) {
-            return res.status(400).json({ message: 'Missing required fields' });
+        if (!name) {
+            return res.status(400).json({ message: 'Missing Category name' });
         }
 
         const newCategory = await Category.create({ name, color, parent: req.session.user, children: [] });
@@ -600,6 +625,7 @@ app.post('/createCategory', async (req, res) => {
     }
 })
 
+// deletes a task from the database
 app.post('/deleteTask', async (req, res) => {
     try {
         const { _id } = req.body;
@@ -616,12 +642,16 @@ app.post('/deleteTask', async (req, res) => {
     }
 })
 
+// Edits a category in the database
 app.post('/editCategory', async (req, res) => {
     try {
         const { _id, name, color, oldName } = req.body;
         console.log(_id + ' ' + name + ' ' + color + ' ' + oldName)
         if (!_id) {
             return res.status(400).json({ message: 'Category Id not found' });
+        }
+        if (!name) {
+            return res.status(400).json({ message: 'Missing Category name' });
         }
 
         await Category.updateOne({ _id }, { name, color });
@@ -634,6 +664,7 @@ app.post('/editCategory', async (req, res) => {
     }
 })
 
+// deletes a category form the database
 app.post('/deleteCategory', async (req, res) => {
     try {
         const { _id } = req.body;
@@ -705,8 +736,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
-
+// Creates a Kid account
 app.post('/add-kid', async (req, res) => {
     try {
         console.log("Received /add-kid request:", req.body);
@@ -749,6 +779,7 @@ app.post('/add-kid', async (req, res) => {
     }
 });
 
+// deletes a kid's account from the database
 app.delete('/kids/:id', requireAuth, async (req, res) => {
     try {
         const user = res.locals.user;
@@ -860,6 +891,7 @@ app.get('/user-points', requireAuth, async (req, res) => {
     }
 });
 
+// Logs out the user
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
