@@ -261,13 +261,13 @@
 
                     setTimeout(() => {
                         const categoryNameTask = document.getElementById("categoryNameTask")
-                        categoryNameTask.setAttribute("value", task.catergoryName)
+                        categoryNameTask.setAttribute("value", task.catergoryName.trim())
 
                         const taskName = document.getElementById("taskName")
-                        taskName.setAttribute("value", task.name)
+                        taskName.setAttribute("value", task.name.trim())
 
                         const taskDetails = document.getElementById("taskDetails")
-                        taskDetails.setAttribute("value", task.taskdetails)
+                        taskDetails.setAttribute("value", task.taskdetails.trim())
 
                         const taskPoints = document.getElementById("pointsAwarded")
                         taskPoints.setAttribute("value", task.points)
@@ -477,9 +477,9 @@
 
                 // Takes the information from the task popup and saves it to the backend
                 async function newTask() {
-                    const name = document.getElementById('taskName').value
+                    const name = document.getElementById('taskName').value.trim()
                     const logoUrl = document.getElementById('taskImageUrl').value
-                    const taskdetails = document.getElementById('taskDetails').value
+                    const taskdetails = document.getElementById('taskDetails').value.trim()
                     const points = document.getElementById('pointsAwarded').value
                     const catergoryName = document.getElementById('categoryNameTask').value
                     const isRepeating = document.getElementById('isRepeating').checked
@@ -545,7 +545,7 @@
                 // Takes the information from the category popup and saves it to the backend
                 async function newCategory(e) {
                     e.preventDefault();
-                    const name = document.getElementById('categoryName').value
+                    const name = document.getElementById('categoryName').value.trim()
                     const color = document.getElementById('categoryColor').value
 
                     closeDialog()
@@ -637,7 +637,7 @@
                 // Edits the category in the backend with whatever was changed in the category edit form
                 async function editCategory(category, e) {
                     e.preventDefault();
-                    const newName = document.getElementById('categoryName').value
+                    const newName = document.getElementById('categoryName').value.trim()
                     const newColor = document.getElementById('categoryColor').value
                     const oldName = category.name
                     const id = category._id
